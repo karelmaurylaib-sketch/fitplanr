@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { KwopFlow } from "@/components/landing/chrome";
 
-export const metadata: Metadata = { title: "Privacy", description: "What FitPlanr keeps, why, and who helps us run it." };
+export const metadata: Metadata = { title: { absolute: "Privacy Policy | FitPlanr" }, description: "What FitPlanr keeps, why, and who helps us run it.", alternates: { canonical: "/privacy" } };
 
 export default function Privacy() {
   return (

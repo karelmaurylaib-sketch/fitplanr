@@ -5,7 +5,11 @@ import { AuthCard } from "@/components/auth-card";
 import { getSession } from "@/lib/access";
 import { landingRedirect } from "@/lib/route";
 
-export const metadata: Metadata = { title: "Log in", description: "Log in to FitPlanr and pick up your plan where you left it." };
+export const metadata: Metadata = {
+  title: { absolute: "Log In | FitPlanr" },
+  description: "Log in to FitPlanr and pick up your workout plan where you left it.",
+  alternates: { canonical: "/login" },
+};
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const { user } = await getSession();

@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import fs from "node:fs";
 import path from "node:path";
@@ -11,6 +13,18 @@ import { TopBar, StickyCta, Faq, Footer, KwopFlow } from "@/components/landing/c
 import { getSession } from "@/lib/access";
 import { landingRedirect } from "@/lib/route";
 import { publicPlanCount } from "@/lib/stats";
+import { getPlansCached } from "@/lib/kwop";
+import { JsonLd } from "@/components/seo/json-ld";
+import { faqLd, organizationLd, softwareLd, websiteLd } from "@/lib/seo/site";
+import { PAGE_BY_PATH } from "@/lib/seo/pages";
+
+export const metadata: Metadata = {
+  title: { absolute: "FitPlanr: Workout Plan App Built on the Gear You Have" },
+  description: "Pick the gear you actually have and get a safe 4-week workout plan that adds weight for you. Made for beginners. Free to try, ready in 60 seconds.",
+  alternates: { canonical: "/" },
+};
+
+const READ_NEXT = ["/for/beginners", "/for/home-dumbbells", "/guides/3-day-full-body-workout-for-beginners", "/alternatives/fitbod"];
 
 export const dynamic = "force-dynamic";
 
@@ -35,11 +49,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
   }
   const cta = `/signup${keep.toString() ? `?${keep}` : ""}`;
   const hasVideo = fs.existsSync(path.join(process.cwd(), "public", "vsl.mp4"));
-  const built = await publicPlanCount();
+  const [built, plans] = await Promise.all([publicPlanCount(), getPlansCached()]);
 
   return (
     <main className="relative overflow-x-clip">
       <KwopFlow />
+      <JsonLd data={[organizationLd(), websiteLd(), softwareLd(plans), faqLd(FAQ)]} />
       <TopBar cta={cta} />
 
       {/* ---------- HERO ---------- */}
@@ -54,7 +69,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
               <span className="grad-2 block">A real plan.</span>
             </h1>
             <p className="mt-6 max-w-[520px] text-[18px] leading-relaxed text-fg/80">
-              Tell FitPlanr the gear you <b className="font-semibold text-fg">actually have</b>. Get a <b className="font-semibold text-fg">week-by-week</b> plan that adds the weight for you, so you stop guessing at the gym.
+              Tell FitPlanr the gear you <b className="font-semibold text-fg">actually have</b>. Get a <b className="font-semibold text-fg">week-by-week</b> workout plan that adds the weight for you, so you stop guessing at the gym.
             </p>
             <div className="mt-8 flex flex-col items-start gap-4">
               <MainButton href={cta} className="w-full sm:w-auto">
@@ -230,6 +245,19 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
           <h2 className="display mb-10 mt-4 text-[40px] sm:text-[64px]">Before you start</h2>
           <Faq items={FAQ} />
         </Reveal>
+        <nav aria-labelledby="read-next" className="mt-12">
+          <h3 id="read-next" className="label">[ Read next ]</h3>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {READ_NEXT.map((href) => (
+              <li key={href}>
+                <Link href={href} className="press block rounded-[18px] border border-line bg-card p-4 hover:border-white/20">
+                  <div className="text-[15px] font-semibold">{PAGE_BY_PATH[href].link}</div>
+                  <p className="mt-1 text-[13px] text-muted">{PAGE_BY_PATH[href].blurb}</p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </section>
 
       {/* ---------- FINAL ---------- */}

@@ -150,6 +150,8 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 - `app/page.tsx` landing · `app/signup|login|forgot|reset` auth · `app/start` flow · `app/start/building` the work ·
   `app/plan` RESULT + paywall · `app/(app)/*` dashboard, workout, history, settings, account, library, pricing ·
   `app/api/*` server routes · `lib/kwop.ts` the only Kwop client · `lib/access.ts` session/profile/getAccess.
+- SEO: `SEO.md` (rules, keyword map, 4-week plan). Keyword pages = `lib/seo/pages.ts` entry + `app/{for,vs,alternatives,guides}/<slug>/page.tsx`
+  with `SeoShell`; JSON-LD in `lib/seo/site.ts`; check with `node scripts/seo-check.mjs`; IndexNow `node scripts/indexnow.mjs`.
 - Screenshots: `node scripts/shot.mjs / home` (server on :3000). E2E: `npx playwright test` (needs a real Supabase).
 
 ## Live setup (Nov 8, 2026)

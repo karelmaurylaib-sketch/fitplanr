@@ -217,3 +217,17 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .rv, .rv-group > .rv-item { opacity: 1; transform: none; }
 }
+
+/* Long-form SEO pages: readable on a phone first. */
+.seo-prose { font-size: 17px; line-height: 1.7; color: rgb(244 245 240 / 0.86); }
+.seo-prose > h2 { font-family: var(--font-barlow), sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.01em; line-height: 1; font-size: 34px; color: var(--fg); margin: 56px 0 16px; }
+.seo-prose > h3 { font-weight: 600; font-size: 19px; color: var(--fg); margin: 32px 0 8px; }
+.seo-prose > p { margin: 0 0 16px; }
+.seo-prose > ul, .seo-prose > ol { margin: 0 0 18px; padding-left: 1.3em; }
+.seo-prose > ul { list-style: disc; }
+.seo-prose > ol { list-style: decimal; }
+.seo-prose > ul > li, .seo-prose > ol > li { margin: 6px 0; }
+.seo-prose > ul > li::marker, .seo-prose > ol > li::marker { color: var(--lime); }
+.seo-prose a:not(.btn-main) { color: var(--lime); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.seo-prose strong { color: var(--fg); font-weight: 600; }
+@media (min-width: 640px) { .seo-prose > h2 { font-size: 44px; } }

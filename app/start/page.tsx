@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getAccess, getActivePlan, getProfile, getSession } from "@/lib/access";
 import { StartFlow } from "./flow";
 
-export const metadata: Metadata = { title: "Build my plan" };
+export const metadata: Metadata = { title: "Build my plan", robots: { index: false, follow: true } };
 
 export default async function StartPage({ searchParams }: { searchParams: Promise<{ rebuild?: string }> }) {
   const { user } = await getSession();

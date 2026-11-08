@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { KwopFlow } from "@/components/landing/chrome";
 
-export const metadata: Metadata = { title: "Terms", description: "The short, honest terms for using FitPlanr." };
+export const metadata: Metadata = { title: { absolute: "Terms of Service | FitPlanr" }, description: "The short, honest terms for using FitPlanr, the workout plan app.", alternates: { canonical: "/terms" } };
 
 export default function Terms() {
   return (

@@ -45,6 +45,18 @@ export async function getApp(): Promise<KwopApp> {
   return appCache?.value ?? { name: "FitPlanr", checkout: null, plans: [] };
 }
 
+/** Plans for public, cacheable pages (structured data, comparison tables): re-read from Kwop at most once an hour. */
+export async function getPlansCached(): Promise<KwopPlan[]> {
+  if (!process.env.KWOP_API) return [];
+  try {
+    const { data } = await call<KwopApp>("", { next: { revalidate: 3600 } });
+    return Array.isArray(data.plans) ? data.plans : [];
+  } catch (e) {
+    console.error("[kwop] GET plans (cached) failed", e);
+    return [];
+  }
+}
+
 const planCache = new Map<string, { at: number; value: KwopAccess }>();
 export async function getPlan(email: string | null | undefined, opts: { fresh?: boolean } = {}): Promise<KwopAccess> {
   const none: KwopAccess = { paid: false, plan: null, status: null, until: null };
