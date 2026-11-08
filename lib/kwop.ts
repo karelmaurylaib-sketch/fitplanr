@@ -50,6 +50,11 @@ export async function getPlan(email: string | null | undefined, opts: { fresh?: 
   const none: KwopAccess = { paid: false, plan: null, status: null, until: null };
   if (!email) return none;
   const key = email.toLowerCase();
+  // Local development only: lets the owner preview the paid app without paying. Never active in production builds.
+  if (process.env.NODE_ENV === "development" && process.env.DEV_PAID_EMAIL_SUFFIX && key.endsWith(process.env.DEV_PAID_EMAIL_SUFFIX)) {
+    const tier = process.env.DEV_PAID_TIER || "Pro";
+    return { paid: true, plan: { id: 0, name: `FitPlanr ${tier}` }, status: "active", until: new Date(Date.now() + 20 * 86400000).toISOString() };
+  }
   const hit = planCache.get(key);
   if (!opts.fresh && hit && Date.now() - hit.at < 60_000) return hit.value;
   try {

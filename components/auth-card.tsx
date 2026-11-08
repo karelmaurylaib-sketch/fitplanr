@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
@@ -32,7 +31,6 @@ function friendly(msg: string, mode: "signup" | "login") {
 }
 
 export function AuthCard({ mode, next }: { mode: "signup" | "login"; next?: string }) {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
@@ -73,8 +71,8 @@ export function AuthCard({ mode, next }: { mode: "signup" | "login"; next?: stri
       }
     }
     await fetch("/api/profile/attach", { method: "POST", body: JSON.stringify({ mode }) }).catch(() => {});
-    router.replace(after);
-    router.refresh();
+    // full navigation so the new session cookie is used by the server right away
+    window.location.assign(after);
   }
 
   const isSignup = mode === "signup";

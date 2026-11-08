@@ -32,6 +32,11 @@ export async function POST(req: Request) {
     .insert({ user_id: user.id, inputs: answers, options, data: plan, is_active: true, share_id: randomBytes(6).toString("base64url") })
     .select("id")
     .single();
+  if (error?.code === "23505") {
+    // a parallel request already created the plan: return that one
+    const again = await getActivePlan();
+    if (again) return NextResponse.json({ id: again.id, existing: true });
+  }
   if (error || !data) return NextResponse.json({ error: "save", message: "We couldn't save your plan." }, { status: 500 });
   await sb.from("profiles").update({ onboarded: true }).eq("id", user.id);
   if (active) track("feature_used", user.email, "plan_rebuild");

@@ -22,7 +22,7 @@ export const viewport: Viewport = { themeColor: "#060606", width: "device-width"
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${barlow.variable} ${inter.variable} ${mono.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${barlow.variable} ${inter.variable} ${mono.variable}`}>
       <body className="min-h-dvh antialiased">{children}</body>
     </html>
   );

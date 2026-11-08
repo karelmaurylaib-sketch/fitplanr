@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 
 const MIN_MS = 6500;
 
+let inflight: Promise<Response> | null = null;
+
 export function Building({ steps, rebuild }: { steps: string[]; rebuild: boolean }) {
   const router = useRouter();
   const reduce = useReducedMotion();
@@ -28,8 +30,11 @@ export function Building({ steps, rebuild }: { steps: string[]; rebuild: boolean
 
     const call = async (tries: number): Promise<void> => {
       try {
-        const r = await fetch("/api/plan/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rebuild }) });
+        // one request even if the effect runs twice
+        inflight ??= fetch("/api/plan/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rebuild }) });
+        const r = (await inflight).clone();
         const j = await r.json();
+        inflight = null;
         if (r.status === 402 && j.error === "quota") {
           result.current = { error: "quota" };
           return;
@@ -41,6 +46,7 @@ export function Building({ steps, rebuild }: { steps: string[]; rebuild: boolean
         if (!r.ok || !j.id) throw new Error(j.error || "failed");
         result.current = { id: j.id };
       } catch {
+        inflight = null;
         if (tries > 0) return call(tries - 1);
         result.current = { error: "failed" };
       }

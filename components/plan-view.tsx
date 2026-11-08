@@ -62,7 +62,7 @@ export function PlanView({ plan, locked, onLocked, initialWeek = 1 }: { plan: Pl
           );
         })}
       </div>
-      <div className="mt-4 flex items-baseline gap-2">
+      <div className="mt-4 flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
         <span className="font-display text-[22px] font-bold uppercase">{w.focus}</span>
         <span className="text-[14px] text-muted">{w.detail}</span>
       </div>
