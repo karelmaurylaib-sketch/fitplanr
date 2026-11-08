@@ -151,3 +151,20 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
   `app/plan` RESULT + paywall · `app/(app)/*` dashboard, workout, history, settings, account, library, pricing ·
   `app/api/*` server routes · `lib/kwop.ts` the only Kwop client · `lib/access.ts` session/profile/getAccess.
 - Screenshots: `node scripts/shot.mjs / home` (server on :3000). E2E: `npx playwright test` (needs a real Supabase).
+
+## Live setup (Nov 8, 2026)
+- Production: https://fitplanr-3.vercel.app (Vercel project `fitplanr-3`, id prj_81MgYf5SabOl9zUdH7nk80MqxZz6).
+- Supabase project `fitplanr-3`, ref `ehokzomaenbonjnysvhy`, us-east-1, org "FitPlanr". Email confirmation OFF,
+  site_url = production, redirect allow-list = localhost:3000 + production. Migrations run through the Management API
+  (`POST /v1/projects/{ref}/database/query`). Keys in `.env.local` (never committed) and in Vercel env.
+- Kwop connected (`POST KWOP_API/connect`): https://kwop.io/fitplanr-3/app → the app.
+- Google sign-in: not configured yet. When the owner pastes the Google OAuth client id/secret, PATCH
+  `/v1/projects/ehokzomaenbonjnysvhy/config/auth` with external_google_enabled/client_id/secret, then set
+  `NEXT_PUBLIC_GOOGLE_ENABLED=1` in Vercel and redeploy. Redirect URI: https://ehokzomaenbonjnysvhy.supabase.co/auth/v1/callback
+- Deploy from this cloud box: `NODE_USE_ENV_PROXY=1 npx vercel deploy --prod --yes --token <any-placeholder>`
+  (the proxy injects the real token). Local server needs `NODE_USE_ENV_PROXY=1` to reach Supabase.
+- Paid-app preview in local dev only: `DEV_PAID_EMAIL_SUFFIX=.paidpreview@fitplanr-test.com DEV_PAID_TIER=Pro npx next dev`
+  (ignored in production builds). Scripts: `scripts/shot.mjs`, `scripts/funnel-shots.mjs`, `scripts/app-shots.mjs`.
+- Verified: e2e 3× phone + 3× computer on production (green), RLS cross-user test (blocked), no secrets in
+  `.next/static`, Lighthouse mobile 92–95 perf / 100 a11y / 100 best practices / 100 SEO.
+- Test accounts created by e2e use `@fitplanr-test.com` emails.
