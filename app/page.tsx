@@ -48,7 +48,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
         <div className="dot-grid pointer-events-none absolute inset-0 h-[820px]" />
         <div className="top-glow pointer-events-none absolute inset-0 h-[700px]" />
         <div className="relative mx-auto grid max-w-[1120px] items-center gap-12 px-5 lg:grid-cols-[1.1fr_0.9fr] lg:gap-6">
-          <Reveal>
+          <div>
             <div className="label">[ POV: 2 dumbbells · 3 months ]</div>
             <h1 className="title-xl mt-5">
               <span className="block">Two dumbbells.</span>
@@ -64,7 +64,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
               <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-muted">Free to try · No card · Ready in 60 seconds</p>
               {built !== null && <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-lime">{built.toLocaleString("en-US")}+ plans built so far</p>}
             </div>
-          </Reveal>
+          </div>
           <Reveal delay={0.1} className="flex justify-center lg:justify-end">
             <div className="relative max-sm:h-[540px] max-sm:overflow-hidden max-sm:[mask-image:linear-gradient(to_bottom,#000_78%,transparent)]">
               <div className="absolute -inset-10 rounded-full bg-lime/10 blur-3xl max-sm:hidden" />

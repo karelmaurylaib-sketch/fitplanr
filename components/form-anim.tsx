@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useInView, useReducedMotion } from "framer-motion";
 import type { Anim } from "@/lib/engine/exercises";
 
 // Short, silent form loops: a side-view figure moving between two key poses.
@@ -94,9 +94,11 @@ export function FormAnim({ anim, className, playing = true, period = 2600 }: { a
   const def = POSES[anim] ?? POSES.squat;
   const [t, setT] = useState(0);
   const raf = useRef(0);
+  const box = useRef<SVGSVGElement>(null);
+  const visible = useInView(box);
 
   useEffect(() => {
-    if (reduce || !playing) return;
+    if (reduce || !playing || !visible) return;
     const start = performance.now();
     const loop = (now: number) => {
       const x = ((now - start) % period) / period;
@@ -108,7 +110,7 @@ export function FormAnim({ anim, className, playing = true, period = 2600 }: { a
     };
     raf.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf.current);
-  }, [reduce, playing, period]);
+  }, [reduce, playing, period, visible]);
 
   const p = mix(def.a, def.b, reduce ? 0.6 : t);
   const line = (a?: P, b?: P, w = 4.2, color = "var(--fg)") =>
@@ -116,7 +118,7 @@ export function FormAnim({ anim, className, playing = true, period = 2600 }: { a
   const tool = def.tool ?? "db";
 
   return (
-    <svg viewBox="0 -6 100 100" className={className} role="img" aria-label="Form animation">
+    <svg ref={box} viewBox="0 -6 100 100" className={className} role="img" aria-label="Form animation">
       <line x1="6" y1="89.5" x2="94" y2="89.5" stroke="rgb(255 255 255 / 0.12)" strokeWidth="1" />
       {def.prop === "bench" && <rect x="14" y="66" width="52" height="5" rx="2" fill="rgb(255 255 255 / 0.16)" />}
       {def.prop === "bench" && <rect x="36" y="71" width="4" height="18" fill="rgb(255 255 255 / 0.1)" />}

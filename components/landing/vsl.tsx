@@ -122,10 +122,10 @@ export function VSL({ video }: { video?: boolean }) {
   useEffect(() => {
     if (video || reduce || !inView || !playing || done) return;
     const start = performance.now() - elapsed;
-    let raf = 0;
-    const loop = (now: number) => {
-      const e = now - start;
+    const id = setInterval(() => {
+      const e = performance.now() - start;
       if (e >= SCENES.length * SCENE_MS) {
+        clearInterval(id);
         setDone(true);
         setScene(SCENES.length - 1);
         setElapsed(SCENES.length * SCENE_MS);
@@ -133,10 +133,8 @@ export function VSL({ video }: { video?: boolean }) {
       }
       setElapsed(e);
       setScene(Math.floor(e / SCENE_MS));
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    }, 100);
+    return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, playing, done, reduce, video]);
 
@@ -163,7 +161,7 @@ export function VSL({ video }: { video?: boolean }) {
         <div className="flex gap-1 px-4 pt-4 sm:px-6 sm:pt-5">
           {SCENES.map((_, k) => (
             <div key={k} className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full bg-lime" style={{ width: `${k < scene ? 100 : k > scene ? 0 : Math.min(100, ((elapsed - k * SCENE_MS) / SCENE_MS) * 100)}%` }} />
+              <div className="h-full bg-lime" style={{ transition: "width 100ms linear", width: `${k < scene ? 100 : k > scene ? 0 : Math.min(100, ((elapsed - k * SCENE_MS) / SCENE_MS) * 100)}%` }} />
             </div>
           ))}
         </div>
@@ -177,10 +175,10 @@ export function VSL({ video }: { video?: boolean }) {
         </div>
         <div className="relative px-5 pb-6 sm:px-10 sm:pb-9">
           <AnimatePresence mode="wait">
-            <motion.h3 key={scene} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.45, ease: EASE }} className="display text-[30px] sm:text-[52px]">
+            <motion.p key={scene} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.45, ease: EASE }} className="display text-[30px] sm:text-[52px]">
               <span className="block">{s.caption[0]}</span>
               <span className="grad-2 block">{s.caption[1]}</span>
-            </motion.h3>
+            </motion.p>
           </AnimatePresence>
           {scene === SCENES.length - 1 && (
             <Link href="/signup" className="press mt-4 inline-flex h-11 items-center rounded-full bg-lime px-5 text-sm font-semibold text-lime-ink">
