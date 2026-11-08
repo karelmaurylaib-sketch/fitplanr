@@ -7,7 +7,7 @@ import { Reveal, Stagger, StaggerItem, CountUp } from "@/components/ui/motion";
 import { IPhone } from "@/components/iphone";
 import { NotificationStack } from "@/components/landing/notifications";
 import { VSL } from "@/components/landing/vsl";
-import { GearLoop, ProgressionLoop, LogLoop, FormLoop, PlanMini } from "@/components/landing/loops";
+import { GearLoop, ProgressionLoop, LogLoop, FormLoop, PlanMini, PhoneScreen } from "@/components/landing/loops";
 import { TopBar, StickyCta, Faq, Footer, KwopFlow } from "@/components/landing/chrome";
 import { getSession } from "@/lib/access";
 import { landingRedirect } from "@/lib/route";
@@ -66,8 +66,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
             </div>
           </Reveal>
           <Reveal delay={0.1} className="flex justify-center lg:justify-end">
-            <div className="relative">
-              <div className="absolute -inset-10 rounded-full bg-lime/10 blur-3xl" />
+            <div className="relative max-sm:h-[540px] max-sm:overflow-hidden max-sm:[mask-image:linear-gradient(to_bottom,#000_78%,transparent)]">
+              <div className="absolute -inset-10 rounded-full bg-lime/10 blur-3xl max-sm:hidden" />
               <IPhone lockscreen className="relative w-[290px] sm:w-[310px]">
                 <div className="mt-6">
                   <div className="hidden sm:block">
@@ -128,14 +128,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
         </Reveal>
         <div className="mt-14 grid gap-10 md:grid-cols-3 md:gap-6">
           {[
-            { n: "01", t: "Select your gear", d: "Tap what you have at home or at your gym. Nothing more.", el: <GearLoop compact /> },
-            { n: "02", t: "Get your routine", d: "A weekly split built on your goal, your days and your gear.", el: <PlanMini /> },
-            { n: "03", t: "Track your progress", d: "Log each set in one tap and watch your numbers climb.", el: <LogLoop /> },
+            { n: "01", t: "Select your gear", d: "Tap what you have at home or at your gym. Nothing more.", el: <PhoneScreen label="Step 6 of 6" title="Your gear"><GearLoop compact /></PhoneScreen> },
+            { n: "02", t: "Get your routine", d: "A weekly split built on your goal, your days and your gear.", el: <PhoneScreen label="3-day muscle builder" title="Your plan"><PlanMini /></PhoneScreen> },
+            { n: "03", t: "Track your progress", d: "Log each set in one tap and watch your numbers climb.", el: <PhoneScreen label="Week 1 · Day 1" title="Full Body A"><LogLoop stacked /></PhoneScreen> },
           ].map((s, k) => (
             <Reveal key={s.n} delay={k * 0.06} className="flex flex-col items-center text-center">
-              <IPhone className="w-[250px]">
-                <div className="px-4 pt-10">{s.el}</div>
-              </IPhone>
+              <div className="max-sm:h-[480px] max-sm:overflow-hidden max-sm:[mask-image:linear-gradient(to_bottom,#000_78%,transparent)]"><IPhone className="w-[260px]">{s.el}</IPhone></div>
               <div className="mt-6 font-mono text-sm text-lime">{s.n}</div>
               <div className="display mt-1 text-[28px]">{s.t}</div>
               <p className="mt-2 max-w-[280px] text-[15px] text-muted">{s.d}</p>
@@ -215,8 +213,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
               { v: 3, s: " taps", l: "to log a set" },
             ].map((x) => (
               <StaggerItem key={x.l}>
-                <div className="display text-[40px] sm:text-[64px]">
-                  <CountUp to={x.v} suffix={x.s} />
+                <div className="display whitespace-nowrap text-[30px] sm:text-[64px]">
+                  <CountUp to={x.v} />
+                  <span className="ml-1 text-[18px] text-[#6b6f66] sm:text-[32px]">{x.s.trim()}</span>
                 </div>
                 <div className="mt-1 text-[13px] text-[#5f635a] sm:text-[15px]">{x.l}</div>
               </StaggerItem>

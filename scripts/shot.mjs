@@ -8,7 +8,7 @@ const name = process.argv[3] || (path.replace(/[^\w]+/g, "_") || "home");
 const wait = Number((process.argv.find((a) => a.startsWith("--wait=")) || "--wait=1500").split("=")[1]);
 const base = process.env.BASE_URL || "http://localhost:3000";
 fs.mkdirSync("shots", { recursive: true });
-const browser = await chromium.launch();
+const browser = await chromium.launch(fs.existsSync("/opt/pw-browsers/chromium") ? { executablePath: "/opt/pw-browsers/chromium" } : {});
 for (const [label, vp] of [["390", { width: 390, height: 844 }], ["1440", { width: 1440, height: 900 }]]) {
   const page = await browser.newPage({ viewport: vp, deviceScaleFactor: 1 });
   const errors = [];
@@ -17,9 +17,9 @@ for (const [label, vp] of [["390", { width: 390, height: 844 }], ["1440", { widt
   await page.goto(base + path, { waitUntil: "networkidle" });
   // scroll through so reveal animations play
   await page.evaluate(async () => {
-    for (let y = 0; y < document.body.scrollHeight; y += 500) {
+    for (let y = 0; y < document.body.scrollHeight; y += 300) {
       window.scrollTo(0, y);
-      await new Promise((r) => setTimeout(r, 120));
+      await new Promise((r) => setTimeout(r, 220));
     }
     window.scrollTo(0, 0);
   });

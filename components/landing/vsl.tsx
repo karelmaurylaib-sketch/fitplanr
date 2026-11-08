@@ -28,8 +28,8 @@ function SceneArt({ i }: { i: number }) {
         {CHAOS.map((t, k) => (
           <motion.span
             key={t}
-            className="absolute whitespace-nowrap rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[12px] text-white/60 sm:text-sm"
-            style={{ left: `${(k * 37) % 78}%`, top: `${8 + ((k * 23) % 80)}%` }}
+            className={`absolute whitespace-nowrap rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[12px] text-white/60 sm:text-sm ${k >= 7 ? "hidden sm:block" : ""}`}
+            style={{ left: `${[4, 50, 22, 56, 6, 44, 14, 66, 36][k]}%`, top: `${[4, 14, 28, 40, 52, 64, 78, 20, 88][k]}%` }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: [0, 1, 0.7], y: [10, 0, -6] }}
             transition={{ duration: 3, delay: k * 0.25, ease: EASE }}
@@ -188,13 +188,13 @@ export function VSL({ video }: { video?: boolean }) {
             </Link>
           )}
         </div>
-        <div className="absolute bottom-4 right-4 flex gap-2 sm:bottom-6 sm:right-6">
+        <div className="absolute right-3 top-8 flex gap-2 sm:bottom-6 sm:right-6 sm:top-auto">
           {!done && !reduce && (
             <button onClick={() => setPlaying((p) => !p)} aria-label={playing ? "Pause the film" : "Play the film"} className="press flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20">
               {playing ? <Pause size={16} /> : <Play size={16} />}
             </button>
           )}
-          <button onClick={replay} aria-label="Replay the film" className="press flex h-10 items-center gap-2 rounded-full bg-white/10 px-4 text-sm font-medium text-white hover:bg-white/20">
+          <button onClick={replay} aria-label="Replay the film" className="press flex h-10 items-center gap-2 rounded-full bg-white/10 px-3.5 text-sm font-medium text-white hover:bg-white/20 max-sm:h-9">
             <RotateCcw size={15} /> Replay
           </button>
         </div>

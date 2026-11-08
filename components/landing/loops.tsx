@@ -26,15 +26,15 @@ export function GearLoop({ compact }: { compact?: boolean }) {
   const { ref, i } = useLoop(5, 1100);
   const on = [[0], [0, 1], [0, 1, 3], [0, 1, 3, 2], [0, 1, 3, 2]][i];
   return (
-    <div ref={ref} className={cn("grid grid-cols-2 gap-2", compact && "gap-1.5")}>
-      {GEAR.slice(0, compact ? 6 : 8).map((g, k) => {
+    <div ref={ref} className={cn("grid gap-2", compact ? "grid-cols-1" : "grid-cols-2")}>
+      {GEAR.slice(0, compact ? 7 : 8).map((g, k) => {
         const active = on.includes(k);
         return (
           <div
             key={g}
             className={cn(
               "flex items-center gap-2 rounded-xl border px-3 transition-all duration-300",
-              compact ? "h-9 text-[12px]" : "h-11 text-[13px]",
+              compact ? "h-10 text-[13px]" : "h-11 text-[13px]",
               active ? "border-lime/60 bg-lime/10 font-semibold text-fg" : "border-line bg-white/[0.02] text-muted",
             )}
           >
@@ -73,18 +73,26 @@ export function ProgressionLoop() {
   );
 }
 
-export function LogLoop() {
+export function LogLoop({ stacked }: { stacked?: boolean }) {
   const { ref, i } = useLoop(5, 1000);
   return (
-    <div ref={ref} className="flex items-center gap-4">
-      <Ring value={Math.min(i, 4) / 4} size={86} stroke={7}>
-        <span className="font-display text-2xl font-bold tabular-nums">{Math.min(i, 4)}/4</span>
-      </Ring>
+    <div ref={ref} className={cn("flex items-center gap-4", stacked && "flex-col items-stretch")}>
+      <div className={cn(stacked && "flex items-center gap-3")}>
+        <Ring value={Math.min(i, 4) / 4} size={stacked ? 64 : 86} stroke={7}>
+          <span className={cn("font-display font-bold tabular-nums", stacked ? "text-lg" : "text-2xl")}>{Math.min(i, 4)}/4</span>
+        </Ring>
+        {stacked && (
+          <div>
+            <div className="text-[13px] font-semibold">Goblet Squat</div>
+            <div className="text-[11px] text-muted">Rest 90 s between sets</div>
+          </div>
+        )}
+      </div>
       <div className="flex-1 space-y-1.5">
         {[1, 2, 3, 4].map((s) => (
           <div key={s} className={cn("flex h-9 items-center justify-between rounded-lg border px-3 text-[13px] transition-all duration-300", s <= i ? "border-lime/50 bg-lime/10" : "border-line bg-white/[0.02]")}>
-            <span className="text-muted">Set {s}</span>
-            <span className="font-semibold tabular-nums">25 lb × 10</span>
+            <span className="whitespace-nowrap text-muted">Set {s}</span>
+            <span className="whitespace-nowrap font-semibold tabular-nums">25 lb × 10</span>
             <span className={cn("flex h-5 w-5 items-center justify-center rounded-md transition-colors", s <= i ? "bg-lime text-lime-ink" : "border border-white/20")}>{s <= i && <Check size={12} strokeWidth={3.5} />}</span>
           </div>
         ))}
@@ -119,7 +127,7 @@ export function PlanMini() {
     <div className="space-y-2">
       <div className="flex gap-1.5">
         {[1, 2, 3, 4].map((w) => (
-          <span key={w} className={cn("rounded-full px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em]", w === 1 ? "bg-lime text-lime-ink" : "bg-white/[0.06] text-muted")}>
+          <span key={w} className={cn("whitespace-nowrap rounded-full px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em]", w === 1 ? "bg-lime text-lime-ink" : "bg-white/[0.06] text-muted")}>
             Wk {w}
           </span>
         ))}
@@ -132,7 +140,17 @@ export function PlanMini() {
           </motion.div>
         ))}
       </div>
-      <div className="relative overflow-hidden rounded-xl border border-line p-3">
+      {["Day 2 · Full Body B", "Day 3 · Full Body C"].map((d) => (
+        <div key={d} className="relative overflow-hidden rounded-xl border border-line p-3">
+          <div className="text-[11px] font-semibold text-fg/70">{d}</div>
+          <div className="mt-1.5 space-y-1.5 blur-[3px]">
+            <div className="h-2 w-5/6 rounded bg-white/15" />
+            <div className="h-2 w-2/3 rounded bg-white/10" />
+          </div>
+          <Lock size={12} className="absolute right-3 top-3 text-muted" />
+        </div>
+      ))}
+      <div className="relative hidden overflow-hidden rounded-xl border border-line p-3">
         <div className="space-y-1.5 blur-[3px]">
           <div className="h-2.5 w-2/3 rounded bg-white/20" />
           <div className="h-2 w-5/6 rounded bg-white/10" />
@@ -142,6 +160,16 @@ export function PlanMini() {
           <Lock size={12} /> Days 2–12
         </span>
       </div>
+    </div>
+  );
+}
+
+export function PhoneScreen({ label, title, children }: { label: string; title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex h-full flex-col px-4 pt-11 text-left">
+      <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-lime">{label}</div>
+      <div className="mb-4 font-display text-[24px] font-bold uppercase leading-none">{title}</div>
+      {children}
     </div>
   );
 }
