@@ -18,6 +18,8 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
 
   await expect(page).toHaveURL(/\/start/, { timeout: 20_000 });
   for (const answer of ["Build muscle", "Never really", "3 days", "45 minutes"]) {
+    // answers appear once the question has typed itself (and the page is interactive)
+    await page.waitForFunction(() => Number(getComputedStyle(document.querySelector("main ul")!).opacity) > 0.9);
     await page.getByRole("button", { name: answer }).click();
     await page.waitForTimeout(1500);
   }
