@@ -138,7 +138,7 @@ export function Building({ steps, rebuild }: { steps: string[]; rebuild: boolean
             </p>
             <div className="mt-6 flex gap-3">
               {state === "quota" ? (
-                <Link href="/account?upgrade=1" className="press inline-flex h-12 items-center rounded-full bg-lime px-6 font-semibold text-lime-ink">See what's next</Link>
+                <Link href="/account?upgrade=1" className="press inline-flex h-12 items-center rounded-full bg-lime px-6 font-semibold text-lime-ink">See what&apos;s next</Link>
               ) : (
                 <Button onClick={() => setAttempt((x) => x + 1)}>Try again</Button>
               )}

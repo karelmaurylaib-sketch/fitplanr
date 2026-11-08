@@ -121,8 +121,8 @@ export function Footer({ minimal }: { minimal?: boolean }) {
           <div>
             <div className="label mb-3">Product</div>
             <ul className="space-y-2 text-sm text-fg/80">
-              <li><a href="/#how" className="hover:text-fg">How it works</a></li>
-              <li><a href="/#features" className="hover:text-fg">Features</a></li>
+              <li><Link href="/#how" className="hover:text-fg">How it works</Link></li>
+              <li><Link href="/#features" className="hover:text-fg">Features</Link></li>
               <li><Link href="/signup" className="hover:text-fg">Build my plan</Link></li>
               <li><Link href="/login" className="hover:text-fg">Log in</Link></li>
             </ul>
