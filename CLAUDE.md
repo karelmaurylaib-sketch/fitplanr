@@ -96,8 +96,14 @@ time. Starting load from level + available dumbbell max (conservative, RPE 7). W
 "Smart Progression" = this algorithm reading the user's logged sets: hit the top of the rep range on all sets → next
 session +1 step; missed twice → hold; missed 3× → -10%. Shown honestly as "automatic progression", not "AI".
 
-### Plans (Kwop) — quotas, in the niche's units (counted per billing period on the server)
-_(filled after the owner picks prices — see "Prices" below)_
+### Plans (Kwop) — owner picked option C (Nov 8, 2026). Saved in Kwop; the app always reads them from GET KWOP_API.
+| Plan (Kwop id) | Month | Year (−20%) | Tag | Quotas per billing period |
+|---|---|---|---|---|
+| Starter (1567) | $9.99 · $0.33/day | $96 · $0.26/day | For 2–3 workouts a week | 12 logged workouts, 2 plan rebuilds, 30 days history, plan targets only (no Smart Progression), form guides for plan exercises only |
+| Pro (1568) ★ Most popular | $15.99 · $0.53/day | $154 · $0.42/day | For lifters who never miss a week | 30 logged workouts, 6 rebuilds, Smart Progression, strength charts, full form library, all history |
+| Elite (1569) | $24.99 · $0.83/day | $240 · $0.66/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload week, CSV export |
+Quotas live in `lib/tiers.ts` (tier matched by plan name). The first plan of an account is free (not a rebuild).
+Free (unpaid): the plan is built and saved; Week 1 Day 1 is sent in clear, everything else is masked server-side (`lib/teaser.ts`).
 
 ### Magic moment on the landing page
 The notification iPhone in the hero + the device frames of how-it-works.
@@ -128,3 +134,20 @@ Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + l
 ## Verification loop (after every feature)
 Run `npm run dev`, `node scripts/shot.mjs <path>` (390×844 and 1440×900), look at every screenshot, zero console
 errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (never pays).
+
+## Decisions taken without the owner (best practice of the niche)
+- No AI provider: the RESULT is computed by a deterministic engine (`lib/engine`), so no Gemini key is needed and it is
+  honest ("automatic progression", never "AI"). Form Library = SVG pose loops drawn in code (`components/form-anim.tsx`).
+- Dark-only UI (energy direction); light #FAFAFA sections on the landing page for rhythm.
+- Units: pounds only (US market). Language: English only.
+- Personal-flow funnel ⇒ no anonymous tries, so no per-IP try limiter is needed; every API route requires a session.
+- Paywall auto-opens once (2.6 s after the plan first shows), then lives behind the sticky unlock bar.
+- Upgrade = checkout of the next plan inside the page, then POST /cancel {email, except_ref} so the old plan stops.
+- Share: `/s/<share_id>` public page shows title, summary and Day 1 only, with a next/og image.
+- Google button hidden until `NEXT_PUBLIC_GOOGLE_ENABLED=1` (set once Google OAuth is configured in Supabase).
+
+## Map
+- `app/page.tsx` landing · `app/signup|login|forgot|reset` auth · `app/start` flow · `app/start/building` the work ·
+  `app/plan` RESULT + paywall · `app/(app)/*` dashboard, workout, history, settings, account, library, pricing ·
+  `app/api/*` server routes · `lib/kwop.ts` the only Kwop client · `lib/access.ts` session/profile/getAccess.
+- Screenshots: `node scripts/shot.mjs / home` (server on :3000). E2E: `npx playwright test` (needs a real Supabase).
