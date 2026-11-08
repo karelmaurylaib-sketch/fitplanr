@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { LogoMark } from "@/components/logo";
 
@@ -17,11 +16,15 @@ const NOTES = [
 type Item = { id: number; n: (typeof NOTES)[number] };
 
 export function NotificationStack({ visible = 3 }: { visible?: number }) {
-  const reduce = useReducedMotion();
-  const [items, setItems] = useState<Item[]>(() => (reduce ? NOTES.slice(0, 3).map((n, i) => ({ id: i, n })) : []));
+  const [reduce, setReduce] = useState(false);
+  const [items, setItems] = useState<Item[]>([]);
 
   useEffect(() => {
-    if (reduce) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setReduce(true);
+      setItems(NOTES.slice(0, 3).map((n, i) => ({ id: i, n })));
+      return;
+    }
     let i = 0;
     const timers: ReturnType<typeof setTimeout>[] = [];
     const push = () => {
@@ -39,17 +42,12 @@ export function NotificationStack({ visible = 3 }: { visible?: number }) {
 
   return (
     <div className="flex flex-col gap-2 px-3" aria-label="Example FitPlanr notifications">
-      <AnimatePresence initial={false}>
-        {items.slice(0, visible).map((it, idx) => {
+      {items.slice(0, visible).map((it, idx) => {
           return (
-            <motion.div
+            <div
               key={it.id}
-              layout={!reduce}
-              initial={reduce ? false : { opacity: 0, y: -24, scale: 0.96 }}
-              animate={{ opacity: idx === 0 ? 1 : idx === 1 ? 0.82 : 0.6, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.25 } }}
-              transition={{ type: "spring", damping: 26, stiffness: 300 }}
-              className="flex items-start gap-3 rounded-[20px] border border-white/10 bg-[rgb(38_40_34/0.72)] p-3 backdrop-blur-xl"
+              style={{ opacity: idx === 0 ? 1 : idx === 1 ? 0.82 : 0.6, transition: "opacity .4s" }}
+              className={`flex items-start gap-3 rounded-[20px] border border-white/10 bg-[rgb(38_40_34/0.72)] p-3 backdrop-blur-xl ${reduce ? "" : "note-in"}`}
             >
               <LogoMark size={34} className="mt-0.5 shrink-0 rounded-[9px]" />
               <div className="min-w-0 flex-1">
@@ -60,10 +58,9 @@ export function NotificationStack({ visible = 3 }: { visible?: number }) {
                 <div className="truncate text-[14px] font-semibold text-white">{it.n.title}</div>
                 <div className="text-[13px] leading-snug text-white/75">{it.n.body}</div>
               </div>
-            </motion.div>
+            </div>
           );
         })}
-      </AnimatePresence>
     </div>
   );
 }

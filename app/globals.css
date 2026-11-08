@@ -191,3 +191,29 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- landing reveals (CSS only) ---------- */
+.rv, .rv-group > .rv-item {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s var(--ease-out-soft), transform 0.5s var(--ease-out-soft);
+}
+.rv.rv-in, .rv-group.rv-in > .rv-item { opacity: 1; transform: none; }
+.rv-group > .rv-item:nth-child(2) { transition-delay: 60ms; }
+.rv-group > .rv-item:nth-child(3) { transition-delay: 120ms; }
+.rv-group > .rv-item:nth-child(4) { transition-delay: 180ms; }
+.rv-group > .rv-item:nth-child(5) { transition-delay: 240ms; }
+
+@keyframes note-in {
+  from { opacity: 0; transform: translateY(-24px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+.note-in { animation: note-in 0.5s cubic-bezier(0.22, 1.2, 0.36, 1) both; }
+
+.faq-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease-out-soft), opacity 0.3s; opacity: 0; }
+.faq-body[data-open="true"] { grid-template-rows: 1fr; opacity: 1; }
+.faq-body > div { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rv, .rv-group > .rv-item { opacity: 1; transform: none; }
+}

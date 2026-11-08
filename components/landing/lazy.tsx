@@ -21,10 +21,19 @@ export function LazyMount({ children, minHeight, className }: { children: ReactN
   );
 }
 
-const load = { ssr: false } as const;
-export const LazyVSL = dynamic(() => import("./vsl").then((m) => m.VSL), load);
-export const LazyGear = dynamic(() => import("./loops").then((m) => m.GearLoop), load);
-export const LazyProgression = dynamic(() => import("./loops").then((m) => m.ProgressionLoop), load);
-export const LazyLog = dynamic(() => import("./loops").then((m) => m.LogLoop), load);
-export const LazyForm = dynamic(() => import("./loops").then((m) => m.FormLoop), load);
-export const LazyPlanMini = dynamic(() => import("./loops").then((m) => m.PlanMini), load);
+export const LazyVSL = dynamic(() => import("./vsl").then((m) => m.VSL), { ssr: false });
+export const LazyGear = dynamic(() => import("./loops").then((m) => m.GearLoop), { ssr: false });
+export const LazyProgression = dynamic(() => import("./loops").then((m) => m.ProgressionLoop), { ssr: false });
+export const LazyLog = dynamic(() => import("./loops").then((m) => m.LogLoop), { ssr: false });
+export const LazyForm = dynamic(() => import("./loops").then((m) => m.FormLoop), { ssr: false });
+export const LazyPlanMini = dynamic(() => import("./loops").then((m) => m.PlanMini), { ssr: false });
+
+export function PhoneScreen({ label, title, children }: { label: string; title: string; children: ReactNode }) {
+  return (
+    <div className="flex h-full flex-col px-4 pt-11 text-left">
+      <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-lime">{label}</div>
+      <div className="mb-4 font-display text-[24px] font-bold uppercase leading-none">{title}</div>
+      {children}
+    </div>
+  );
+}

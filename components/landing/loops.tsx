@@ -164,12 +164,3 @@ export function PlanMini() {
   );
 }
 
-export function PhoneScreen({ label, title, children }: { label: string; title: string; children: React.ReactNode }) {
-  return (
-    <div className="flex h-full flex-col px-4 pt-11 text-left">
-      <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-lime">{label}</div>
-      <div className="mb-4 font-display text-[24px] font-bold uppercase leading-none">{title}</div>
-      {children}
-    </div>
-  );
-}

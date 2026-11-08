@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Script from "next/script";
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
@@ -64,21 +63,14 @@ export function StickyCta({ href = "/signup" }: { href?: string }) {
     return () => window.removeEventListener("scroll", on);
   }, []);
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          initial={{ y: 100 }}
-          animate={{ y: 0 }}
-          exit={{ y: 100 }}
-          transition={{ type: "spring", damping: 28, stiffness: 300 }}
-          className="safe-bottom fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pt-6 sm:hidden"
-        >
-          <MainButton href={href} className="w-full">
-            Build my plan
-          </MainButton>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <div
+      aria-hidden={!show}
+      className={cn("safe-bottom fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pt-6 transition-transform duration-300 ease-out sm:hidden", show ? "translate-y-0" : "pointer-events-none translate-y-full")}
+    >
+      <MainButton href={href} className="w-full">
+        Build my plan
+      </MainButton>
+    </div>
   );
 }
 
@@ -96,13 +88,11 @@ export function Faq({ items }: { items: { q: string; a: string }[] }) {
             {it.q}
             <ChevronDown size={18} className={cn("shrink-0 text-muted transition-transform duration-300", open === i && "rotate-180 text-lime")} />
           </button>
-          <AnimatePresence initial={false}>
-            {open === i && (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: [0.22, 0.8, 0.24, 1] }} className="overflow-hidden">
-                <p className="px-5 pb-5 text-[15px] leading-relaxed text-muted sm:px-6">{it.a}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div className="faq-body" data-open={open === i}>
+            <div>
+              <p className="px-5 pb-5 text-[15px] leading-relaxed text-muted sm:px-6">{it.a}</p>
+            </div>
+          </div>
         </div>
       ))}
     </div>
