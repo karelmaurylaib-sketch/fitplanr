@@ -10,7 +10,7 @@ import { MainButton } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function KwopFlow() {
-  return <Script src="https://kwop.io/flow.js" data-site="s_dc316cd00c" strategy="afterInteractive" />;
+  return <Script src="https://kwop.io/flow.js" data-site="s_dc316cd00c" strategy="lazyOnload" />;
 }
 
 export function TopBar({ cta = "/signup" }: { cta?: string }) {
