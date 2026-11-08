@@ -1,0 +1,12 @@
+node_modules
+.next
+.env*
+!.env.example
+KWOP-BUILD.md
+.vercel
+test-results
+playwright-report
+shots
+*.tsbuildinfo
+next-env.d.ts
+.supabase-secrets
