@@ -47,7 +47,7 @@ export function NotificationStack({ visible = 3 }: { visible?: number }) {
             <div
               key={it.id}
               style={{ opacity: idx === 0 ? 1 : idx === 1 ? 0.82 : 0.6, transition: "opacity .4s" }}
-              className={`flex items-start gap-3 rounded-[20px] border border-white/10 bg-[rgb(38_40_34/0.72)] p-3 backdrop-blur-xl ${reduce ? "" : "note-in"}`}
+              className={`flex items-start gap-3 rounded-[20px] border border-white/10 bg-[rgb(36_38_32/0.92)] p-3 ${reduce ? "" : "note-in"}`}
             >
               <LogoMark size={34} className="mt-0.5 shrink-0 rounded-[9px]" />
               <div className="min-w-0 flex-1">

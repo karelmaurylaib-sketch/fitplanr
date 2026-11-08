@@ -66,7 +66,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
           </div>
           <Reveal delay={0.1} className="flex justify-center lg:justify-end">
             <div className="relative max-sm:h-[540px] max-sm:overflow-hidden max-sm:[mask-image:linear-gradient(to_bottom,#000_78%,transparent)]">
-              <div className="absolute -inset-10 rounded-full bg-lime/10 blur-3xl max-sm:hidden" />
+              <div className="absolute -inset-16 max-sm:hidden" style={{ background: "radial-gradient(closest-side, rgb(200 255 61 / 0.12), transparent)" }} />
               <IPhone lockscreen className="relative w-[290px] sm:w-[310px]">
                 <div className="mt-6">
                   <div className="hidden sm:block">

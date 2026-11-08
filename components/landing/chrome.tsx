@@ -64,7 +64,7 @@ export function StickyCta({ href = "/signup" }: { href?: string }) {
   }, []);
   return (
     <div
-      aria-hidden={!show}
+      inert={!show}
       className={cn("safe-bottom fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pt-6 transition-transform duration-300 ease-out sm:hidden", show ? "translate-y-0" : "pointer-events-none translate-y-full")}
     >
       <MainButton href={href} className="w-full">
