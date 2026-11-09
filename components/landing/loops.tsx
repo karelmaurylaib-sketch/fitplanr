@@ -4,6 +4,9 @@ import { motion, useInView, useReducedMotion } from "framer-motion";
 import { Check, Lock } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { FormAnim } from "@/components/form-anim";
+import { BodyDiagram } from "@/components/muscle-map";
+import { EXERCISE_BY_ID } from "@/lib/engine/exercises";
+import { estimateBurn, musclesFor, REGION_LABEL } from "@/lib/engine/muscles";
 import { Ring } from "@/components/ui/motion";
 import { cn } from "@/lib/utils";
 
@@ -164,3 +167,35 @@ export function PlanMini() {
   );
 }
 
+
+const MM_DEMO = ["goblet-squat", "db-bench", "lat-pulldown"] as const;
+
+/** Muscle Map loop: the body moves, the muscles it works light up, the burn counts for an example person. */
+export function MuscleLoop() {
+  const { ref, i } = useLoop(6, 2600);
+  const exId = MM_DEMO[i % 3];
+  const sex = i < 3 ? "male" : "female";
+  const ex = EXERCISE_BY_ID[exId];
+  const { primary, secondary } = musclesFor(exId);
+  const kcal = Math.round(estimateBurn(exId, sex === "male" ? { sex, weightLb: 180, age: 30 } : { sex, weightLb: 145, age: 30 })?.total ?? 0);
+  return (
+    <div ref={ref} className="grid grid-cols-2 items-center gap-2 sm:grid-cols-[220px_1fr_1fr] sm:gap-6">
+      <div className="col-span-2 flex items-center gap-4 sm:col-span-1 sm:block">
+        <div className="aspect-square w-28 shrink-0 rounded-2xl border border-line bg-white/[0.02] p-2 sm:w-full">
+          <FormAnim anim={ex.anim} sex={sex} className="h-full w-full" />
+        </div>
+        <div className="sm:mt-3">
+          <div className="font-display text-[22px] font-bold uppercase leading-none">{ex.name}</div>
+          <div className="mt-1 text-[13px] text-muted">{primary.map((r) => REGION_LABEL[r]).join(" · ")}</div>
+          <div className="mt-2 flex items-baseline gap-1.5">
+            <span className="font-display text-[34px] font-bold leading-none tabular-nums">{kcal}</span>
+            <span className="font-display text-[15px] font-bold uppercase text-heat">kcal</span>
+            <span className="ml-1 text-[11px] text-dim">{sex === "male" ? "man, 180 lb, 30" : "woman, 145 lb, 30"}</span>
+          </div>
+        </div>
+      </div>
+      <BodyDiagram side="front" sex={sex} primary={primary} secondary={secondary} className="h-[210px] w-full sm:h-[300px]" />
+      <BodyDiagram side="back" sex={sex} primary={primary} secondary={secondary} className="h-[210px] w-full sm:h-[300px]" />
+    </div>
+  );
+}

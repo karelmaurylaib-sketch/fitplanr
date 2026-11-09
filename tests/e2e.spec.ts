@@ -53,6 +53,20 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   await dialog.getByRole("button", { name: "Close" }).click();
   await expect(page.getByRole("button", { name: /Unlock my full plan ·/ })).toBeVisible();
 
+  // Day 1 exercise detail: muscle map (man/woman) + calorie burn estimate
+  await page.getByRole("button", { name: /Goblet Squat/ }).first().click();
+  const ex = page.getByRole("dialog", { name: "Goblet Squat" });
+  await expect(ex.getByText("Muscles worked")).toBeVisible();
+  await expect(ex.locator('path[data-region="quads"][fill="var(--muscle)"]').first()).toBeAttached();
+  await ex.getByRole("radio", { name: "Woman" }).first().click();
+  await expect(ex.getByRole("img", { name: "Woman, front view" })).toBeVisible();
+  await expect(ex.getByText("Add your weight and age to see your burn.")).toBeVisible();
+  await ex.getByLabel("Body weight").fill("160");
+  await ex.getByLabel("Age").fill("35");
+  await expect(ex.getByTestId("kcal")).not.toHaveText("0");
+  await page.keyboard.press("Escape");
+  await expect(ex).toBeHidden();
+
   // returning visitor lands on their locked plan
   await page.goto("/");
   await expect(page).toHaveURL(/\/plan/);

@@ -2,21 +2,27 @@
 
 import { Sheet } from "@/components/ui/sheet";
 import { FormAnim } from "@/components/form-anim";
+import { CalorieCard, MuscleMap, useBodyStats } from "@/components/body-insights";
 import { EXERCISE_BY_ID } from "@/lib/engine/exercises";
 import type { PlannedExercise } from "@/lib/engine/generate";
 
 export function ExerciseSheet({ exercise, onClose }: { exercise: PlannedExercise | { exId: string; name: string } | null; onClose: () => void }) {
   const ex = exercise ? EXERCISE_BY_ID[exercise.exId] : null;
   const pe = exercise && "sets" in exercise ? exercise : null;
+  const body = useBodyStats();
   return (
-    <Sheet open={!!ex} onClose={onClose} variant="bottom" label={ex?.name ?? "Exercise"} closeSide="right" z={70}>
+    <Sheet open={!!ex} onClose={onClose} variant="bottom" width={600} label={ex?.name ?? "Exercise"} closeSide="right" z={70}>
       {ex && (
         <div className="overflow-y-auto px-5 pb-8 pt-2 sm:px-7 sm:pt-6">
           <div className="label">[ Form guide ]</div>
           <h2 className="display mt-2 pr-12 text-[32px]">{ex.name}</h2>
           <div className="mt-1 text-[14px] text-muted">{ex.muscles.join(" · ")}</div>
           <div className="mx-auto mt-5 aspect-square w-full max-w-[300px] rounded-[24px] border border-line bg-black/40 p-4">
-            <FormAnim anim={ex.anim} className="h-full w-full" />
+            <FormAnim anim={ex.anim} sex={body.stats.sex} className="h-full w-full" />
+          </div>
+          <div className="mt-4 space-y-3">
+            <MuscleMap exId={ex.id} sex={body.stats.sex} onSex={(sex) => body.update({ sex })} />
+            <CalorieCard exId={ex.id} volume={pe ? { sets: pe.sets, target: pe.target, unit: pe.unit === "sec" ? "sec" : "reps", rest: pe.rest } : undefined} />
           </div>
           {pe && (
             <div className="mt-5 grid grid-cols-3 gap-2 text-center">

@@ -56,8 +56,8 @@ Day 1 clear, rest blurred → "Unlock my full plan" → paywall sheet → Whop c
 
 ### Screens, in order, with copy
 1. `/` landing — sections: hero → VSL → [ THE PROBLEM ] "Too many exercises. No idea what's next." → [ HOW IT WORKS ]
-   Select gear / Get routine / Track progress (animated phone frames) → [ IN ACTION ] 4 feature loops (Equipment Sync,
-   Smart Progression, Visual Logs, Form Library) → [ THE USUAL WAY vs FITPLANR ] comparison → [ QUESTIONS ] 6 FAQs →
+   Select gear / Get routine / Track progress (animated phone frames) → [ IN ACTION ] 5 feature loops (Equipment Sync,
+   Smart Progression, Visual Logs, Form Library, Muscle Map — wide card) → [ THE USUAL WAY vs FITPLANR ] comparison → [ QUESTIONS ] 6 FAQs →
    final block "Tonight: your first workout, already planned." + button → footer with giant faded wordmark.
 2. `/signup` — centered card: "Sign up so FitPlanr can build your plan." Google (white, G) / or / email / password
    (show/hide) / "Build my plan" / "Already have an account? Log in" / Terms · Privacy.
@@ -99,9 +99,9 @@ session +1 step; missed twice → hold; missed 3× → -10%. Shown honestly as "
 ### Plans (Kwop) — owner picked option C (Nov 8, 2026). Saved in Kwop; the app always reads them from GET KWOP_API.
 | Plan (Kwop id) | Month | Year (−20%) | Tag | Quotas per billing period |
 |---|---|---|---|---|
-| Starter (1567) | $9.99 · $0.33/day | $96 · $0.26/day | For 2–3 workouts a week | 12 logged workouts, 2 plan rebuilds, 30 days history, plan targets only (no Smart Progression), form guides for plan exercises only |
-| Pro (1568) ★ Most popular | $15.99 · $0.53/day | $154 · $0.42/day | For lifters who never miss a week | 30 logged workouts, 6 rebuilds, Smart Progression, strength charts, full form library, all history |
-| Elite (1569) | $24.99 · $0.83/day | $240 · $0.66/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload week, CSV export |
+| Starter (1567) | $4.99 · $0.17/day | $48 · $0.13/day | For 2–3 workouts a week | 12 logged workouts, 2 plan rebuilds, 30 days history, plan targets only (no Smart Progression), form guides for plan exercises only |
+| Pro (1568) ★ Most popular | $8.99 · $0.30/day | $86 · $0.24/day | For lifters who never miss a week | 30 logged workouts, 6 rebuilds, Smart Progression, strength charts, full form library, all history |
+| Elite (1569) | $12.99 · $0.43/day | $125 · $0.34/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload week, CSV export |
 Quotas live in `lib/tiers.ts` (tier matched by plan name). The first plan of an account is free (not a rebuild).
 Free (unpaid): the plan is built and saved; Week 1 Day 1 is sent in clear, everything else is masked server-side (`lib/teaser.ts`).
 
@@ -119,6 +119,35 @@ The notification iPhone in the hero + the device frames of how-it-works.
   reveals 14 px / .5 s cubic-bezier(.22,.8,.24,1) stagger 60 ms, count-ups 1.3 s, reduced motion respected.
 
 ---
+
+## Muscle Map & Calorie Burn Estimator (Nov 9, 2026)
+Lives in the exercise detail sheet (`components/exercise-sheet.tsx`, opened from Form library, Workout and the plan's
+Day 1), directly under the title and the form loop ("video player"): player → [ MUSCLE MAP ] card → [ CALORIE BURN ] card
+→ sets → cues. Landing: 5th wide card "Muscle Map" in [ IN ACTION ] (`MuscleLoop` in `components/landing/loops.tsx`,
+cycles squat / bench / pulldown, man then woman, example values, no prices).
+- Muscles: `lib/engine/muscles.ts`. Primary = regions of the exercise's first listed muscle; secondary = the other listed
+  muscles + per-pattern helpers (e.g. hinge → lower back, forearms), with a few per-exercise overrides. 18 regions.
+- Body: `components/muscle-map.tsx` — front + back SVG drawn in code (left half mirrored). Man / woman = different build
+  (shoulders, waist, hips, limbs, hair), switched instantly in React state. Primary = solid `--muscle` #00FF66 with glow and a
+  2.6 s contraction pulse (same period as the form loop); secondary = #00FF66 at 38%. Tap a muscle or its chip to focus it.
+- The moving body: `FormAnim` with `sex` draws a solid man/woman figure (ponytail for the woman) whose working segment glows
+  green and swells as it contracts. Without `sex` it stays the classic line figure (library cards, landing Form loop).
+- One "Man / Woman" state for the page (`useBodyStats` store in `components/body-insights.tsx`): the map toggle and the
+  calorie card's Sex field are the same value.
+- Calories: corrected-MET method. kcal/min = MET × resting kcal/day ÷ 1440; resting burn from the Schofield equations
+  (weight, age band, sex — no height needed). MET by pattern (Compendium: 3.0 calves … 6.0 barbell squat/hinge), rest
+  between sets 1.8 MET. Work time = reps × 3 s (or the hold time). Volume = the planned sets × reps and rest when opened from
+  the plan/workout, else 3 × 10 with 90 s rest. Shown as an estimate (±20%), never as exact.
+- Data: table `body_stats` (user_id PK → auth.users cascade, sex, weight_lb, age; RLS own rows) —
+  migration `20261109000000_body_stats.sql`. `GET/PUT /api/body` (session required, zod-validated, saved 0.7 s after a
+  valid change). States: skeleton while loading, empty ("Add your weight and age…"), load error banner, "Not saved" note,
+  out-of-range field error.
+- Free for everyone who can open an exercise (it is a form-guide aid, not a quota item); the library itself stays paid and
+  Starter still sees plan exercises only. No AI. Events: `feature_used` "muscle_map" (once per page load, from the browser)
+  and "calorie_estimator" (server, when weight/age change). No share image: it is a guide, not a personal result.
+- Prices updated Nov 9 to $4.99 / $8.99 / $12.99 (table above, checked against GET KWOP_API); the app never hard-codes
+  prices, it reads them from Kwop. Verify: `node scripts/muscle-shots.mjs` (dev server :3001 with
+  DEV_PAID_EMAIL_SUFFIX). E2E covers the map + calories on the plan's Day 1.
 
 ## Tech
 Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + lucide-react. Supabase Postgres + Auth

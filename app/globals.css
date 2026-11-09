@@ -12,6 +12,7 @@
   --lime: #c8ff3d;
   --lime-ink: #0a0d02;
   --heat: #ff7a1a;
+  --muscle: #00ff66;
   --paper: #fafafa;
   --ink: #0b0c0a;
   --danger: #ff5a52;
@@ -30,6 +31,7 @@
   --color-lime: var(--lime);
   --color-lime-ink: var(--lime-ink);
   --color-heat: var(--heat);
+  --color-muscle: var(--muscle);
   --color-paper: var(--paper);
   --color-ink: var(--ink);
   --color-danger: var(--danger);
@@ -216,4 +218,16 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .rv, .rv-group > .rv-item { opacity: 1; transform: none; }
+}
+
+/* ---------- Muscle map: working muscles contract in time with the form loop (2.6 s) ---------- */
+@keyframes mm-pulse {
+  0%, 100% { opacity: 0.78; }
+  50% { opacity: 1; }
+}
+.mm-pulse {
+  animation: mm-pulse 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-pulse { animation: none; }
 }
