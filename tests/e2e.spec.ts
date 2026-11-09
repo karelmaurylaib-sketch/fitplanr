@@ -42,7 +42,9 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   await expect(dialog).toBeVisible({ timeout: 10_000 });
   await expect(dialog.getByText("Your 4-week plan is ready.")).toBeVisible();
   await expect(dialog.getByText("Most popular").first()).toBeVisible();
-  await dialog.getByRole("button", { name: /^Continue with/ }).first().click();
+  await expect(dialog.getByText("7 days free").first()).toBeVisible();
+  await expect(dialog.getByText(/\$0 today · No card/)).toBeVisible();
+  await dialog.getByRole("button", { name: "Or subscribe now" }).click();
 
   // checkout sheet opens inside the page (never pay)
   const checkout = page.getByRole("dialog", { name: "Secure checkout" });
@@ -59,5 +61,14 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
 
   await page.goto("/account");
   await expect(page.getByText(email)).toBeVisible();
+
+  // free week: any plan, no card → the full plan unlocks, the app shows the days left
+  await page.goto("/plan");
+  if (!(await dialog.isVisible())) await page.getByRole("button", { name: /Unlock my full plan/ }).last().click();
+  await dialog.getByRole("button", { name: /free for 7 days/ }).first().click();
+  await expect(page.getByRole("button", { name: "Start Day 1" })).toBeVisible({ timeout: 20_000 });
+  await page.goto("/account");
+  await expect(page.getByText("[ Free week ]")).toBeVisible();
+  await expect(page.getByText("Free week ends on")).toBeVisible();
   expect(errors).toEqual([]);
 });

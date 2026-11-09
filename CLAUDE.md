@@ -96,14 +96,26 @@ time. Starting load from level + available dumbbell max (conservative, RPE 7). W
 "Smart Progression" = this algorithm reading the user's logged sets: hit the top of the rep range on all sets → next
 session +1 step; missed twice → hold; missed 3× → -10%. Shown honestly as "automatic progression", not "AI".
 
-### Plans (Kwop) — owner picked option C (Nov 8, 2026). Saved in Kwop; the app always reads them from GET KWOP_API.
+### Plans (Kwop) — updated Nov 9, 2026: free trial week on all 3 plans. Saved in Kwop; the app always reads prices from GET KWOP_API.
 | Plan (Kwop id) | Month | Year (−20%) | Tag | Quotas per billing period |
 |---|---|---|---|---|
-| Starter (1567) | $9.99 · $0.33/day | $96 · $0.26/day | For 2–3 workouts a week | 12 logged workouts, 2 plan rebuilds, 30 days history, plan targets only (no Smart Progression), form guides for plan exercises only |
-| Pro (1568) ★ Most popular | $15.99 · $0.53/day | $154 · $0.42/day | For lifters who never miss a week | 30 logged workouts, 6 rebuilds, Smart Progression, strength charts, full form library, all history |
-| Elite (1569) | $24.99 · $0.83/day | $240 · $0.66/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload week, CSV export |
+| Starter (1567) | $4.99 · $0.17/day | $48 · $0.13/day | For occasional gym goers | 1 active 4-week plan, 12 logged workouts, 2 plan rebuilds, 30 days history, weights you raise yourself (no Smart Progression), form guides for plan exercises only |
+| Pro (1568) ★ Most popular, pre-selected | $8.99 · $0.30/day | $86 · $0.24/day | Best for consistent athletes | 30 logged workouts, 6 rebuilds, Smart Progression (automatic weekly weight increases), progress charts, full form library, all history |
+| Elite (1569) | $12.99 · $0.43/day | $125 · $0.34/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload weeks, CSV export, everything in Pro |
 Quotas live in `lib/tiers.ts` (tier matched by plan name). The first plan of an account is free (not a rebuild).
 Free (unpaid): the plan is built and saved; Week 1 Day 1 is sent in clear, everything else is masked server-side (`lib/teaser.ts`).
+
+### Free trial week (all 3 plans)
+Kwop has no billing trial (it ignores `trial_days`; checkout charges on day 1), so the trial lives in the app:
+- Paywall main button "Try <plan> free for 7 days" (`$0 today · No card · Then $X / month only if you keep it`), every plan
+  row tagged "7 days free", "Or subscribe now" opens the Whop checkout directly. `TRIAL_DAYS` in `lib/tiers.ts`.
+- `POST /api/trial {plan}` → table `trials` (migration `20261109000000_trials.sql`): one per email, ever (no FK, so
+  deleting the account does not give a second week), written by the service role only, RLS read-own.
+- `getAccess()` (`lib/access.ts`): a paid Kwop plan always wins; otherwise an active trial = that plan
+  (`kwop.status = "trialing"`, `until` = trial end, quotas counted from the trial start).
+- In the app: "[ Free week ] N days left of Pro · Keep Pro" bar on every page → upgrade sheet "Keep Pro" → checkout
+  (never sent as an upgrade). Account shows "Free week ends on", no cancel button (nothing to cancel).
+- When it ends: back to locked `/plan`, paywall title "Your free week is over.", the trial plan pre-selected, checkout only.
 
 ### Magic moment on the landing page
 The notification iPhone in the hero + the device frames of how-it-works.
@@ -168,3 +180,6 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 - Verified: e2e 3× phone + 3× computer on production (green), RLS cross-user test (blocked), no secrets in
   `.next/static`, Lighthouse mobile 92–95 perf / 100 a11y / 100 best practices / 100 SEO.
 - Test accounts created by e2e use `@fitplanr-test.com` emails.
+- PENDING (Nov 9, 2026): the free-week code is on branch `claude/fitplanr-free-trial-pricing-bbls8w`, NOT deployed.
+  In order: run `supabase/migrations/20261109000000_trials.sql` (Management API), then deploy, then e2e on production.
+  Deploying before the migration makes "Try … free for 7 days" fail. Kwop plans are already saved (same prices, ids 1567–1569).

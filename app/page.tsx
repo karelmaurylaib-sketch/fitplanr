@@ -20,7 +20,7 @@ const FAQ = [
   { q: "How does the weight go up?", a: "Your plan adds reps each week, then adds weight once you hit the top of the range on every set. On Pro and Elite, it reads what you actually logged and adjusts your next session." },
   { q: "Is it safe if my knees or back bother me?", a: "Tell FitPlanr what to protect and it swaps out moves that load those joints. It never asks you to test a max. If you have pain or an injury, check with a doctor first." },
   { q: "How long are the workouts?", a: "You choose 30, 45 or 60 minutes. The plan fits the number of exercises, sets and rest to that time." },
-  { q: "How much does it cost?", a: "You try it free first. The plans show up once your first 4-week plan is ready." },
+  { q: "How much does it cost?", a: "Every plan starts with a free week, no card. The plans show up once your first 4-week plan is ready." },
 ];
 
 export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {

@@ -8,7 +8,8 @@ import { MainButton } from "@/components/ui/button";
 import { CheckoutSheet } from "./checkout-sheet";
 import { UnlockFilm } from "@/components/unlock-film";
 import { fmt, type PublicPlan } from "@/lib/pricing";
-import { ADDS, TIER_ORDER, type Tier } from "@/lib/tiers";
+import { ADDS, TIER_ORDER, UNLOCKS, type Tier } from "@/lib/tiers";
+import { fmtDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 type Ctx = { open: (reason?: string, target?: Tier) => void };
@@ -16,7 +17,9 @@ const UpgradeCtx = createContext<Ctx>({ open: () => {} });
 export const useUpgrade = () => useContext(UpgradeCtx);
 
 /** The upgrade sheet: the next plan only, what it adds in 3 lines, its price a day, one button → checkout in the page. */
-export function UpgradeProvider({ plans, tier, children }: { plans: PublicPlan[]; tier: Tier | null; children: ReactNode }) {
+export type TrialState = { tier: Tier; planName: string; endsAt: string; daysLeft: number } | null;
+
+export function UpgradeProvider({ plans, tier, trial = null, children }: { plans: PublicPlan[]; tier: Tier | null; trial?: TrialState; children: ReactNode }) {
   const router = useRouter();
   const [state, setState] = useState<{ open: boolean; reason?: string; target?: Tier }>({ open: false });
   const [checkout, setCheckout] = useState(false);
@@ -25,6 +28,10 @@ export function UpgradeProvider({ plans, tier, children }: { plans: PublicPlan[]
   const nextOf = (t: Tier | null): Tier | null => (t ? TIER_ORDER[TIER_ORDER.indexOf(t) + 1] ?? null : "pro");
   const targetTier = state.target ?? nextOf(tier);
   const plan = plans.find((p) => p.tier === targetTier) ?? null;
+  // during the free week, nothing is paid yet: checkout is a first purchase, never an upgrade
+  const upgrading = !!tier && !trial;
+  const keep = !!trial && targetTier === trial.tier;
+  const bullets = plan ? (keep || ADDS[plan.tier].length === 0 ? UNLOCKS[plan.tier].slice(0, 3) : ADDS[plan.tier]) : [];
 
   const open = useCallback((reason?: string, target?: Tier) => {
     setState({ open: true, reason, target });
@@ -35,14 +42,14 @@ export function UpgradeProvider({ plans, tier, children }: { plans: PublicPlan[]
     setCheckout(false);
     setState({ open: false });
     try {
-      const r = await fetch("/api/checkout/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref, upgrade: !!tier }) });
+      const r = await fetch("/api/checkout/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref, upgrade: upgrading }) });
       const j = await r.json();
       if (j.paid) {
         setFilm(j.plan?.name ?? plan?.name ?? "your new plan");
         return;
       }
     } catch {}
-    router.push(`/dashboard?paid=1&ref=${encodeURIComponent(ref)}${tier ? "&upgrade=1" : ""}`);
+    router.push(`/dashboard?paid=1&ref=${encodeURIComponent(ref)}${upgrading ? "&upgrade=1" : ""}`);
   }
 
   return (
@@ -53,9 +60,9 @@ export function UpgradeProvider({ plans, tier, children }: { plans: PublicPlan[]
           {plan ? (
             <>
               <div className="label">[ {state.reason ?? "Go further"} ]</div>
-              <h2 className="display mt-2 pr-12 text-[34px]">Unlock with {plan.name}</h2>
+              <h2 className="display mt-2 pr-12 text-[34px]">{keep ? `Keep ${plan.name}` : `Unlock with ${plan.name}`}</h2>
               <ul className="mt-5 space-y-3">
-                {ADDS[plan.tier].map((a) => (
+                {bullets.map((a) => (
                   <li key={a} className="flex gap-3 text-[16px]">
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-lime/15 text-lime"><Check size={13} strokeWidth={3} /></span>
                     {a}
@@ -75,7 +82,13 @@ export function UpgradeProvider({ plans, tier, children }: { plans: PublicPlan[]
               <MainButton className="mt-5 w-full" onClick={() => setCheckout(true)}>
                 Continue with {plan.name}
               </MainButton>
-              <p className="mt-3 text-center text-[13px] text-muted">{tier ? "Your current plan stops at the end of its period. Never billed twice." : "Cancel anytime"}</p>
+              <p className="mt-3 text-center text-[13px] text-muted">
+                {trial
+                  ? `Your free week ends ${fmtDate(trial.endsAt)}. Pay only if you keep it · Cancel anytime`
+                  : tier
+                    ? "Your current plan stops at the end of its period. Never billed twice."
+                    : "Cancel anytime"}
+              </p>
             </>
           ) : (
             <>
@@ -85,7 +98,7 @@ export function UpgradeProvider({ plans, tier, children }: { plans: PublicPlan[]
           )}
         </div>
       </Sheet>
-      <CheckoutSheet open={checkout} plan={plan} period="month" upgrade={!!tier} onClose={() => setCheckout(false)} onPaid={paid} />
+      <CheckoutSheet open={checkout} plan={plan} period="month" upgrade={upgrading} onClose={() => setCheckout(false)} onPaid={paid} />
       <UnlockFilm
         open={!!film}
         planName={film ?? ""}
@@ -109,6 +122,24 @@ export function LockedPart({ children, label, target, className }: { children: R
       <button onClick={() => open(label, target)} className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-b from-transparent via-bg/40 to-bg/70 text-center">
         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10"><Lock size={17} /></span>
         <span className="text-[15px] font-semibold">{label}</span>
+      </button>
+    </div>
+  );
+}
+
+/** The free-week bar on top of every app page: days left and one tap to keep the plan. */
+export function TrialBar({ trial }: { trial: NonNullable<TrialState> }) {
+  const { open } = useUpgrade();
+  const left = trial.daysLeft <= 1 ? "Last day" : `${trial.daysLeft} days left`;
+  return (
+    <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-lime/25 bg-lime/[0.06] px-4 py-3">
+      <div className="min-w-0 text-[14px]">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-lime">[ Free week ]</span>
+        <span className="ml-2 font-semibold">{left}</span>
+        <span className="text-muted"> of {trial.planName}</span>
+      </div>
+      <button onClick={() => open("Your free week", trial.tier)} className="press shrink-0 rounded-full bg-lime px-4 py-2 text-[13px] font-semibold text-lime-ink">
+        Keep {trial.planName}
       </button>
     </div>
   );

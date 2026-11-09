@@ -21,6 +21,8 @@ export function PlanResult({
   preselect,
   shareId,
   personal,
+  trialDays,
+  trialOver,
 }: {
   plan: Plan;
   locked: boolean;
@@ -28,6 +30,8 @@ export function PlanResult({
   preselect: string | null;
   shareId: string | null;
   personal: string;
+  trialDays: number | null;
+  trialOver: boolean;
 }) {
   const router = useRouter();
   const [paywall, setPaywall] = useState(false);
@@ -63,6 +67,15 @@ export function PlanResult({
       } catch {}
       // payment not visible yet: the dashboard keeps checking
       router.push(`/dashboard?paid=1&ref=${encodeURIComponent(ref)}`);
+    },
+    [router],
+  );
+
+  const trialStarted = useCallback(
+    (planName: string) => {
+      setPaywall(false);
+      setFilm(planName);
+      router.refresh();
     },
     [router],
   );
@@ -115,7 +128,7 @@ export function PlanResult({
           <motion.div initial={{ y: 120 }} animate={{ y: 0 }} exit={{ y: 120 }} transition={{ type: "spring", damping: 28 }} className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-line bg-[rgb(8_9_6/0.92)] px-4 pt-3 backdrop-blur-xl">
             <button onClick={() => setPaywall(true)} className="btn-main press mx-auto flex h-[60px] w-full max-w-[600px] items-center justify-between rounded-full bg-lime pl-6 pr-2 font-semibold text-lime-ink">
               <span className="flex items-center gap-2 text-[16px]">
-                <Lock size={17} /> Unlock my full plan{cheapest ? ` · ${cheapest.perDayMonth} / day` : ""}
+                <Lock size={17} /> Unlock my full plan{trialDays ? ` · ${trialDays} days free` : cheapest ? ` · ${cheapest.perDayMonth} / day` : ""}
               </span>
               <span className="flex h-11 w-11 items-center justify-center rounded-full bg-lime-ink text-lime">
                 <ArrowRight size={18} className="btn-arrow" />
@@ -126,7 +139,17 @@ export function PlanResult({
       </AnimatePresence>
 
       {locked && (
-        <Paywall open={paywall} onClose={() => setPaywall(false)} plans={plans} title="Your 4-week plan is ready." line={personal} preselect={preselect} onPaid={unlock} />
+        <Paywall
+          open={paywall}
+          onClose={() => setPaywall(false)}
+          plans={plans}
+          title={trialOver ? "Your free week is over." : "Your 4-week plan is ready."}
+          line={trialOver ? "Keep your plan, your logs and your progress. Pick up right where you left off." : personal}
+          preselect={preselect}
+          onPaid={unlock}
+          trialDays={trialDays}
+          onTrial={trialStarted}
+        />
       )}
       <UnlockFilm open={!!film} planName={film ?? ""} onDone={endFilm} />
     </main>

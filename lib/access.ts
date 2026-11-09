@@ -3,6 +3,7 @@ import { cache } from "react";
 import { supabaseServer } from "./supabase/server";
 import { getPlan, type KwopAccess } from "./kwop";
 import { QUOTAS, periodStart, tierOf, type Quota, type Tier } from "./tiers";
+import { getTrial, type Trial } from "./trial";
 import type { Answers, Plan } from "./engine/generate";
 
 export type Profile = {
@@ -43,14 +44,21 @@ export type Access = {
   tier: Tier | null;
   quota: Quota | null;
   usage: { rebuilds: number; workouts: number; since: string };
+  /** The free week: active → the app treats it as that plan (kwop.status = "trialing"). */
+  trial: Trial | null;
+  /** True when this person can still start a free week (never paid, never trialed). */
+  trialAvailable: boolean;
 };
 
 export const getAccess = cache(async (opts: { fresh?: boolean } = {}): Promise<Access> => {
   const { sb, user } = await getSession();
-  const kwop = await getPlan(user?.email, opts);
+  const [paidPlan, trial] = await Promise.all([getPlan(user?.email, opts), getTrial(user?.email)]);
+  // A paid Kwop plan always wins. Otherwise an active free week gives that plan's access until it ends.
+  const trialing = !paidPlan.paid && !!trial?.active;
+  const kwop: KwopAccess = trialing ? { paid: true, plan: { id: trial!.planId, name: trial!.planName }, status: "trialing", until: trial!.endsAt } : paidPlan;
   const tier = kwop.paid ? tierOf(kwop.plan?.name) : null;
   const quota = tier ? QUOTAS[tier] : null;
-  const since = periodStart(kwop.until).toISOString();
+  const since = (trialing ? new Date(trial!.startedAt) : periodStart(kwop.until)).toISOString();
   let rebuilds = 0;
   let workouts = 0;
   if (user) {
@@ -63,7 +71,7 @@ export const getAccess = cache(async (opts: { fresh?: boolean } = {}): Promise<A
     rebuilds = Math.max(0, (p.count ?? 0) - ((total ?? 0) === (p.count ?? 0) ? 1 : 0));
     workouts = w.count ?? 0;
   }
-  return { kwop, tier, quota, usage: { rebuilds, workouts, since } };
+  return { kwop, tier, quota, usage: { rebuilds, workouts, since }, trial, trialAvailable: !!user && !paidPlan.paid && !trial };
 });
 
 export async function getActivePlan(): Promise<PlanRow | null> {

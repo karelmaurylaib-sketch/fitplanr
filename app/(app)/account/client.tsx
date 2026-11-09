@@ -52,6 +52,7 @@ export function AccountClient({ email, paid, planName, status, until, tier, open
   }
 
   const canceled = status && /cancel/i.test(status);
+  const trialing = status === "trialing";
   return (
     <div className="space-y-4">
       <section className="rounded-[20px] border border-line bg-card p-5 sm:p-6">
@@ -69,13 +70,23 @@ export function AccountClient({ email, paid, planName, status, until, tier, open
         {paid ? (
           <>
             <dl className="mt-3 divide-y divide-line text-[15px]">
-              <div className="flex justify-between gap-4 py-3"><dt className="text-muted">Current plan</dt><dd className="font-semibold">{planName}</dd></div>
-              {until && <div className="flex justify-between gap-4 py-3"><dt className="text-muted">{canceled ? "Access until" : "Renews on"}</dt><dd>{until}</dd></div>}
+              <div className="flex justify-between gap-4 py-3"><dt className="text-muted">Current plan</dt><dd className="font-semibold">{planName}{trialing ? " · free week" : ""}</dd></div>
+              {until && <div className="flex justify-between gap-4 py-3"><dt className="text-muted">{trialing ? "Free week ends on" : canceled ? "Access until" : "Renews on"}</dt><dd>{until}</dd></div>}
             </dl>
-            <div className="mt-4 flex flex-wrap gap-3">
-              {tier !== "elite" && <Button size="sm" onClick={() => upgrade("Change plan")}>Change plan</Button>}
-              {!canceled && <Button size="sm" variant="outline" onClick={() => setCancelOpen(true)}>Cancel my subscription</Button>}
-            </div>
+            {trialing ? (
+              <>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Button size="sm" onClick={() => upgrade("Your free week", tier ?? undefined)}>Keep {planName}</Button>
+                  {tier !== "elite" && <Button size="sm" variant="outline" onClick={() => upgrade("Change plan")}>Change plan</Button>}
+                </div>
+                <p className="mt-3 text-[13px] text-dim">No card on file: the free week ends on its own, nothing to cancel.</p>
+              </>
+            ) : (
+              <div className="mt-4 flex flex-wrap gap-3">
+                {tier !== "elite" && <Button size="sm" onClick={() => upgrade("Change plan")}>Change plan</Button>}
+                {!canceled && <Button size="sm" variant="outline" onClick={() => setCancelOpen(true)}>Cancel my subscription</Button>}
+              </div>
+            )}
             <p className="mt-3 text-[13px] text-dim">Payments are processed by Whop through Kwop.</p>
           </>
         ) : (
@@ -89,7 +100,7 @@ export function AccountClient({ email, paid, planName, status, until, tier, open
 
       <section className="rounded-[20px] border border-danger/20 bg-card p-5 sm:p-6">
         <div className="text-[18px] font-semibold">Delete my account</div>
-        <p className="mt-1 text-[14px] text-muted">Deletes your account, your answers, your plans and every logged workout. {paid ? "Cancel your subscription first so you're not billed again." : ""}</p>
+        <p className="mt-1 text-[14px] text-muted">Deletes your account, your answers, your plans and every logged workout. {paid && !trialing ? "Cancel your subscription first so you're not billed again." : ""}</p>
         <Button size="sm" variant="danger" className="mt-4" onClick={() => setDelOpen(true)}><Trash2 size={15} /> Delete my account</Button>
       </section>
 
