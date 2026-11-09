@@ -63,7 +63,7 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
 });
 
 // The Google Play / App Store app opens /app (capacitor.config.ts). Same funnel rules: no prices, one button.
-test("native app start screen, offline page and service worker", async ({ page, request }) => {
+test("native app start screen, offline page and service worker", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(String(e)));
   await page.goto("/app");
@@ -75,10 +75,13 @@ test("native app start screen, offline page and service worker", async ({ page, 
   await page.goto("/offline");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("one bar away");
 
-  const sw = await request.get("/sw.js");
-  expect(sw.ok()).toBeTruthy();
-  expect(await sw.text()).toContain("fp-pages-");
-  expect((await request.post("/api/push", { data: { token: "x".repeat(40), platform: "ios" } })).status()).toBe(401);
-  expect((await request.get("/api/cron/reminders")).status()).toBe(401);
+  // from inside the page, like the app itself (same network path as the browser)
+  const r = await page.evaluate(async () => {
+    const sw = await fetch("/sw.js");
+    const push = await fetch("/api/push", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: "x".repeat(40), platform: "ios" }) });
+    const cron = await fetch("/api/cron/reminders");
+    return { sw: sw.ok && (await sw.text()).includes("fp-pages-"), push: push.status, cron: cron.status };
+  });
+  expect(r).toEqual({ sw: true, push: 401, cron: 401 });
   expect(errors).toEqual([]);
 });
