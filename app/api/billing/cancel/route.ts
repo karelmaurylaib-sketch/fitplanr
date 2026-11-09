@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/access";
 import { cancelPlan, getPlan } from "@/lib/kwop";
+import { cancelTrial } from "@/lib/trial";
 
 export async function POST() {
   const { user } = await getSession();
@@ -9,6 +10,7 @@ export async function POST() {
     const { status, data } = await cancelPlan(user.email);
     await getPlan(user.email, { fresh: true });
     if (status >= 400) return NextResponse.json({ error: "cancel", message: data.message }, { status: 502 });
+    await cancelTrial(user.id);
     return NextResponse.json({ message: data.message, manage_url: data.manage_url });
   } catch (e) {
     console.error("[cancel] failed", e);

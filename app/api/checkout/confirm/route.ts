@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getSession } from "@/lib/access";
 import { cancelPlan, confirmCheckout, getPlan, track } from "@/lib/kwop";
 import { shortPlanName } from "@/lib/utils";
+import { startTrial } from "@/lib/trial";
 
 const Body = z.object({ ref: z.string().min(4).max(128).regex(/^[\w\-:.]+$/), upgrade: z.boolean().optional() });
 
@@ -20,6 +21,7 @@ export async function POST(req: Request) {
       // never two plans billed: the old one stops at the end of its period
       cancelPlan(user.email, parsed.data.ref).catch((e) => console.error("[upgrade] cancel old failed", e));
     }
+    if (await startTrial(user.id, parsed.data.ref)) track("feature_used", user.email, "free_trial");
     const { data: p } = await sb.from("profiles").select("unlocked_seen").eq("id", user.id).maybeSingle();
     if (!p?.unlocked_seen) {
       await sb.from("profiles").update({ unlocked_seen: true }).eq("id", user.id);

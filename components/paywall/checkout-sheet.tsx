@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2, Lock } from "lucide-react";
 import { Sheet } from "@/components/ui/sheet";
 import { fmt, type PublicPlan } from "@/lib/pricing";
+import { TrialCallout, TrialNote } from "./trial-callout";
 
 type WhopCheckout = { create: (el: string) => { mount: (sel: string) => void }; destroy?: () => void };
 declare global {
@@ -47,6 +48,8 @@ export function CheckoutSheet({
   upgrade?: boolean;
 }) {
   const [phase, setPhase] = useState<"loading" | "ready" | "off" | "error">("loading");
+  // the server has the last word on the free week (one per account, Starter/Pro only)
+  const [serverTrial, setServerTrial] = useState<number | null>(null);
   const ck = useRef<WhopCheckout | null>(null);
   const onPaidRef = useRef(onPaid);
   onPaidRef.current = onPaid;
@@ -56,6 +59,7 @@ export function CheckoutSheet({
     let dead = false;
     const timers: ReturnType<typeof setTimeout>[] = [];
     setPhase("loading");
+    setServerTrial(null);
 
     (async () => {
       try {
@@ -64,7 +68,8 @@ export function CheckoutSheet({
         if (dead) return;
         if (r.status === 409 || j.error === "payments_off") return setPhase("off");
         if (!r.ok) return setPhase("error");
-        const { embed, ref, fallback_url } = j as { embed: string | null; ref: string; fallback_url: string };
+        const { embed, ref, fallback_url, trial_days } = j as { embed: string | null; ref: string; fallback_url: string; trial_days?: number };
+        setServerTrial(trial_days ?? 0);
         try {
           sessionStorage.setItem("fp_ref", ref);
           if (upgrade) sessionStorage.setItem("fp_upgrade", ref);
@@ -122,6 +127,8 @@ export function CheckoutSheet({
   }, [open, plan, period, upgrade]);
 
   const price = plan ? (period === "year" && plan.yearCents ? `${fmt(plan.yearCents)} / year` : `${fmt(plan.monthCents)} / month`) : "";
+  const trialDays = serverTrial ?? plan?.trialDays ?? 0;
+  const trialPlan = plan && trialDays > 0 ? { ...plan, trialDays } : null;
 
   return (
     <Sheet open={open} onClose={onClose} variant="bottom" label="Secure checkout" closeSide="right" z={80} width={520}>
@@ -129,9 +136,10 @@ export function CheckoutSheet({
         <div className="pr-12">
           <div className="label">[ Secure checkout ]</div>
           <h2 className="display mt-2 text-[30px]">
-            {plan?.name} · <span className="text-lime">{price}</span>
+            {plan?.name} · <span className="text-lime">{trialPlan ? `${trialDays} days free` : price}</span>
           </h2>
         </div>
+        {trialPlan && <TrialCallout plan={trialPlan} period={period} compact className="mt-5" />}
         <div className="relative mt-5 min-h-[420px] flex-1">
           {phase === "loading" && (
             <div className="absolute inset-x-0 top-0 flex items-center gap-2.5 py-6 text-[15px] text-muted">
@@ -152,6 +160,7 @@ export function CheckoutSheet({
           )}
           <div id="whop-checkout" className={phase === "ready" ? "opacity-100 transition-opacity duration-300" : "opacity-0"} />
         </div>
+        {trialPlan && <TrialNote plan={trialPlan} className="mt-4" />}
         <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-[13px] text-muted">
           <Lock size={13} /> Secure payment by Whop · Cancel in 1 click
         </p>

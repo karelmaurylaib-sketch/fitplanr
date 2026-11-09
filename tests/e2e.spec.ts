@@ -42,7 +42,12 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   await expect(dialog).toBeVisible({ timeout: 10_000 });
   await expect(dialog.getByText("Your 4-week plan is ready.")).toBeVisible();
   await expect(dialog.getByText("Most popular").first()).toBeVisible();
-  await dialog.getByRole("button", { name: /^Continue with/ }).first().click();
+  // free trial: Elite never shows it; Starter/Pro show it only where billing really defers the charge
+  await dialog.getByRole("radio", { name: /Elite/ }).first().click();
+  await expect(dialog.getByTestId("trial-callout")).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: /^Continue with Elite/ }).first()).toBeVisible();
+  await dialog.getByRole("radio", { name: /Pro/ }).first().click();
+  await dialog.getByRole("button", { name: /^(Continue with|Start my 7 free days)/ }).first().click();
 
   // checkout sheet opens inside the page (never pay)
   const checkout = page.getByRole("dialog", { name: "Secure checkout" });

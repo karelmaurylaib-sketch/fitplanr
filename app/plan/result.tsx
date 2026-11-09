@@ -41,10 +41,14 @@ export function PlanResult({
     let seen = false;
     try {
       seen = sessionStorage.getItem("fp_pw_auto") === "1";
-      sessionStorage.setItem("fp_pw_auto", "1");
     } catch {}
     if (!seen) {
-      const t = setTimeout(() => setPaywall(true), 2600);
+      const t = setTimeout(() => {
+        try {
+          sessionStorage.setItem("fp_pw_auto", "1");
+        } catch {}
+        setPaywall(true);
+      }, 2600);
       return () => clearTimeout(t);
     }
   }, [locked]);

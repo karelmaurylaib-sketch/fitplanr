@@ -21,6 +21,10 @@ export const QUOTAS: Record<Tier, Quota> = {
   elite: { rebuilds: 20, workouts: 90, historyDays: null, smart: true, charts: true, fullLibrary: true, swaps: true, deload: true, exportCsv: true },
 };
 
+/** Free trial: 7 days, Starter and Pro only. Elite is always charged at checkout. */
+export const TRIAL_DAYS = 7;
+export const TRIAL_TIERS: Tier[] = ["starter", "pro"];
+
 export const TIER_ORDER: Tier[] = ["starter", "pro", "elite"];
 
 export const TIER_TAGS: Record<Tier, string> = {

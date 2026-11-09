@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Sheet } from "@/components/ui/sheet";
 import { MainButton } from "@/components/ui/button";
 import { CheckoutSheet } from "./checkout-sheet";
+import { TrialBadge, TrialCallout, TrialNote } from "./trial-callout";
 import { fmt, type PublicPlan } from "@/lib/pricing";
 import { TIER_TAGS, UNLOCKS } from "@/lib/tiers";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,7 @@ import { cn } from "@/lib/utils";
 const QA = [
   { q: "Will it work with my gear?", a: "Yes. Your plan only uses the equipment you picked. If your gear changes, rebuild your plan in one tap and every exercise adapts." },
   { q: "Can I cancel?", a: "Anytime, in 2 taps from Account → Billing. You keep access until the end of the period you paid for." },
+  { q: "How does the free week work?", a: "Starter and Pro start with 7 days free. You enter your card, your full plan unlocks right away, and nothing is charged until day 7. Cancel before then in Account → Billing and you pay nothing. Elite is charged when you join." },
   { q: "What happens right after I pay?", a: "Your full plan unlocks right here, no email to check. Day 1 is ready to start, with your rest timer and set logging." },
 ];
 
@@ -38,7 +40,10 @@ function PlanRows({ plans, period, selected, onSelect, compact }: { plans: Publi
             {popular && <span className="absolute -top-3 left-4 rounded-full bg-lime px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-lime-ink">Most popular</span>}
             <span className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2", on ? "border-lime" : "border-white/25")}>{on && <span className="h-2.5 w-2.5 rounded-full bg-lime" />}</span>
             <span className="min-w-0 flex-1">
-              <span className="block text-[17px] font-semibold">{p.name}</span>
+              <span className="block text-[17px] font-semibold">
+                {p.name}
+                {p.trialDays > 0 && <TrialBadge days={p.trialDays} />}
+              </span>
               <span className="block text-[13px] text-muted">
                 {yearly ? (
                   <>
@@ -107,11 +112,14 @@ export function Paywall({
   }, [open, plans.length]);
 
   const due = plan ? (period === "year" && plan.yearCents ? `${fmt(plan.yearCents)} due today, then every year` : `${fmt(plan.monthCents)} due today, then every month`) : "";
+  const trial = !!plan && plan.trialDays > 0;
+  // the QA about the free week only makes sense when it is offered
+  const qas = plans.some((p) => p.trialDays > 0) ? QA : QA.filter((x) => !x.q.startsWith("How does the free week"));
   const unlocks = plan ? UNLOCKS[plan.tier] : [];
 
   const cta = (
     <MainButton className="w-full" onClick={() => plan && setCheckout(true)} disabled={!plan}>
-      Continue with {plan?.name ?? "your plan"}
+      {trial ? `Start my ${plan!.trialDays} free days` : `Continue with ${plan?.name ?? "your plan"}`}
     </MainButton>
   );
 
@@ -146,8 +154,13 @@ export function Paywall({
               </div>
 
               <div ref={btnRef} className="mt-6">
-                {cta}
-                <p className="mt-3 text-center text-[13px] text-muted">{due} · Cancel anytime</p>
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {trial && plan && <TrialCallout key={`${plan.id}-${period}`} plan={plan} period={period} className="mb-4" />}
+                </AnimatePresence>
+                <motion.div layout="position" transition={{ duration: 0.4, ease: [0.22, 0.8, 0.24, 1] }}>
+                  {cta}
+                  {trial && plan ? <TrialNote plan={plan} className="mt-3" /> : <p className="mt-3 text-center text-[13px] text-muted">{due} · Cancel anytime</p>}
+                </motion.div>
               </div>
 
               <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-[12px] text-muted">
@@ -169,7 +182,7 @@ export function Paywall({
               </div>
 
               <div className="mt-6 divide-y divide-line rounded-[20px] border border-line">
-                {QA.map((x, i) => (
+                {qas.map((x, i) => (
                   <div key={x.q}>
                     <button onClick={() => setQa(qa === i ? null : i)} aria-expanded={qa === i} className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left text-[15px] font-semibold">
                       {x.q}
@@ -194,7 +207,10 @@ export function Paywall({
                 <div className="mt-5">{cta}</div>
               </div>
 
-              <p className="mt-8 text-center text-[12px] leading-relaxed text-dim">Renews automatically until canceled. Prices in USD. Not medical advice.</p>
+              <p className="mt-8 text-center text-[12px] leading-relaxed text-dim">
+                {plans.some((p) => p.trialDays > 0) && "Free trial: Starter and Pro, once per account; the plan price is charged automatically on day 7 unless canceled. "}
+                Renews automatically until canceled. Prices in USD. Not medical advice.
+              </p>
             </>
           )}
         </div>

@@ -6,6 +6,7 @@ import { createContext, useCallback, useContext, useState, type ReactNode } from
 import { Sheet } from "@/components/ui/sheet";
 import { MainButton } from "@/components/ui/button";
 import { CheckoutSheet } from "./checkout-sheet";
+import { TrialBadge, TrialNote } from "./trial-callout";
 import { UnlockFilm } from "@/components/unlock-film";
 import { fmt, type PublicPlan } from "@/lib/pricing";
 import { ADDS, TIER_ORDER, type Tier } from "@/lib/tiers";
@@ -64,7 +65,10 @@ export function UpgradeProvider({ plans, tier, children }: { plans: PublicPlan[]
               </ul>
               <div className="mt-6 flex items-end justify-between rounded-2xl border border-line bg-card p-4">
                 <div>
-                  <div className="text-[16px] font-semibold">{plan.name}</div>
+                  <div className="text-[16px] font-semibold">
+                    {plan.name}
+                    {!tier && plan.trialDays > 0 && <TrialBadge days={plan.trialDays} />}
+                  </div>
                   <div className="text-[13px] text-muted">{fmt(plan.monthCents)} / month</div>
                 </div>
                 <div className="text-right">
@@ -73,9 +77,13 @@ export function UpgradeProvider({ plans, tier, children }: { plans: PublicPlan[]
                 </div>
               </div>
               <MainButton className="mt-5 w-full" onClick={() => setCheckout(true)}>
-                Continue with {plan.name}
+                {!tier && plan.trialDays > 0 ? `Start my ${plan.trialDays} free days` : `Continue with ${plan.name}`}
               </MainButton>
-              <p className="mt-3 text-center text-[13px] text-muted">{tier ? "Your current plan stops at the end of its period. Never billed twice." : "Cancel anytime"}</p>
+              {!tier && plan.trialDays > 0 ? (
+                <TrialNote plan={plan} className="mt-3" />
+              ) : (
+                <p className="mt-3 text-center text-[13px] text-muted">{tier ? "Your current plan stops at the end of its period. Never billed twice." : "Cancel anytime"}</p>
+              )}
             </>
           ) : (
             <>

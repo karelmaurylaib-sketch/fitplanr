@@ -9,8 +9,43 @@ import { Sheet } from "@/components/ui/sheet";
 import { useUpgrade } from "@/components/paywall/upgrade";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import type { Tier } from "@/lib/tiers";
+import { fmt } from "@/lib/pricing";
 
-export function AccountClient({ email, paid, planName, status, until, tier, openUpgrade }: { email: string; paid: boolean; planName: string | null; status: string | null; until: string | null; tier: Tier | null; openUpgrade: boolean }) {
+export type TrialInfo = { status: "active" | "canceled"; days: number; endsAt: string; endLabel: string; priceCents: number; period: "month" | "year" };
+
+/** Free-week status: the signature ring, one segment per day, lit up to today. */
+function TrialStatus({ trial }: { trial: TrialInfo }) {
+  const [now] = useState(() => Date.now());
+  const msLeft = new Date(trial.endsAt).getTime() - now;
+  const left = Math.max(0, Math.ceil(msLeft / 86400000));
+  const done = Math.min(trial.days, trial.days - left + 1);
+  const r = 19;
+  const c = 2 * Math.PI * r;
+  const gap = 3;
+  const seg = c / trial.days - gap;
+  const canceled = trial.status === "canceled";
+  return (
+    <div data-testid="trial-status" className="mt-4 flex items-center gap-4 rounded-2xl border border-lime/35 bg-lime/[0.06] p-4">
+      <span className="relative flex h-[56px] w-[56px] shrink-0 items-center justify-center" aria-hidden>
+        <svg viewBox="0 0 48 48" className="absolute inset-0 -rotate-90">
+          {Array.from({ length: trial.days }).map((_, i) => (
+            <circle key={i} cx="24" cy="24" r={r} fill="none" strokeWidth="4" strokeLinecap="round" className={i < done ? "stroke-lime" : "stroke-white/15"} strokeDasharray={`${seg} ${c - seg}`} strokeDashoffset={-(i * (seg + gap))} />
+          ))}
+        </svg>
+        <span className="font-display text-[22px] font-bold leading-none tabular-nums">{left}</span>
+      </span>
+      <div className="min-w-0">
+        <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-lime">[ Free trial · {done}/{trial.days} ]</div>
+        <div className="mt-1 text-[16px] font-semibold">{left === 1 ? "1 free day left" : `${left} free days left`}</div>
+        <div className="text-[13px] text-muted">
+          {canceled ? `Canceled: you won't be charged. Access until ${trial.endLabel}.` : `First charge: ${fmt(trial.priceCents)} on ${trial.endLabel}, then every ${trial.period}.`}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function AccountClient({ email, paid, planName, status, until, tier, openUpgrade, trial }: { email: string; paid: boolean; planName: string | null; status: string | null; until: string | null; tier: Tier | null; openUpgrade: boolean; trial?: TrialInfo | null }) {
   const router = useRouter();
   const { open: upgrade } = useUpgrade();
   const [cancelOpen, setCancelOpen] = useState(false);
@@ -51,7 +86,8 @@ export function AccountClient({ email, paid, planName, status, until, tier, open
     location.href = "/";
   }
 
-  const canceled = status && /cancel/i.test(status);
+  const canceled = (status && /cancel/i.test(status)) || trial?.status === "canceled";
+  const inTrial = trial?.status === "active";
   return (
     <div className="space-y-4">
       <section className="rounded-[20px] border border-line bg-card p-5 sm:p-6">
@@ -70,11 +106,16 @@ export function AccountClient({ email, paid, planName, status, until, tier, open
           <>
             <dl className="mt-3 divide-y divide-line text-[15px]">
               <div className="flex justify-between gap-4 py-3"><dt className="text-muted">Current plan</dt><dd className="font-semibold">{planName}</dd></div>
-              {until && <div className="flex justify-between gap-4 py-3"><dt className="text-muted">{canceled ? "Access until" : "Renews on"}</dt><dd>{until}</dd></div>}
+              {inTrial ? (
+                <div className="flex justify-between gap-4 py-3"><dt className="text-muted">Trial ends</dt><dd>{trial!.endLabel}</dd></div>
+              ) : (
+                until && <div className="flex justify-between gap-4 py-3"><dt className="text-muted">{canceled ? "Access until" : "Renews on"}</dt><dd>{until}</dd></div>
+              )}
             </dl>
+            {trial && <TrialStatus trial={trial} />}
             <div className="mt-4 flex flex-wrap gap-3">
               {tier !== "elite" && <Button size="sm" onClick={() => upgrade("Change plan")}>Change plan</Button>}
-              {!canceled && <Button size="sm" variant="outline" onClick={() => setCancelOpen(true)}>Cancel my subscription</Button>}
+              {!canceled && <Button size="sm" variant="outline" onClick={() => setCancelOpen(true)}>{inTrial ? "Cancel my free trial" : "Cancel my subscription"}</Button>}
             </div>
             <p className="mt-3 text-[13px] text-dim">Payments are processed by Whop through Kwop.</p>
           </>
@@ -103,10 +144,14 @@ export function AccountClient({ email, paid, planName, status, until, tier, open
             </>
           ) : (
             <>
-              <h2 className="display pr-12 text-[30px]">Cancel {planName}?</h2>
-              <p className="mt-3 text-[15px] text-muted">You keep everything until {until ?? "the end of this period"}. Your plan and history stay saved if you come back.</p>
+              <h2 className="display pr-12 text-[30px]">{inTrial ? "Cancel your free trial?" : `Cancel ${planName}?`}</h2>
+              <p className="mt-3 text-[15px] text-muted">
+                {inTrial
+                  ? `You won't be charged. ${planName} stays unlocked until ${trial!.endLabel}, and your plan and history stay saved.`
+                  : `You keep everything until ${until ?? "the end of this period"}. Your plan and history stay saved if you come back.`}
+              </p>
               <div className="mt-6 flex flex-col gap-3">
-                <Button variant="danger" onClick={cancel} disabled={busy === "cancel"}>{busy === "cancel" && <Loader2 size={16} className="animate-spin" />} Yes, cancel my subscription</Button>
+                <Button variant="danger" onClick={cancel} disabled={busy === "cancel"}>{busy === "cancel" && <Loader2 size={16} className="animate-spin" />} {inTrial ? "Yes, cancel my trial" : "Yes, cancel my subscription"}</Button>
                 <Button variant="ghost" onClick={() => setCancelOpen(false)}>Keep my plan</Button>
               </div>
               {err && <p className="mt-3 text-[14px] text-danger">{err}</p>}

@@ -96,12 +96,12 @@ time. Starting load from level + available dumbbell max (conservative, RPE 7). W
 "Smart Progression" = this algorithm reading the user's logged sets: hit the top of the rep range on all sets → next
 session +1 step; missed twice → hold; missed 3× → -10%. Shown honestly as "automatic progression", not "AI".
 
-### Plans (Kwop) — owner picked option C (Nov 8, 2026). Saved in Kwop; the app always reads them from GET KWOP_API.
+### Plans (Kwop) — owner picked option C (Nov 8, 2026), prices lowered in Kwop (Nov 9, 2026). Saved in Kwop; the app always reads them from GET KWOP_API.
 | Plan (Kwop id) | Month | Year (−20%) | Tag | Quotas per billing period |
 |---|---|---|---|---|
-| Starter (1567) | $9.99 · $0.33/day | $96 · $0.26/day | For 2–3 workouts a week | 12 logged workouts, 2 plan rebuilds, 30 days history, plan targets only (no Smart Progression), form guides for plan exercises only |
-| Pro (1568) ★ Most popular | $15.99 · $0.53/day | $154 · $0.42/day | For lifters who never miss a week | 30 logged workouts, 6 rebuilds, Smart Progression, strength charts, full form library, all history |
-| Elite (1569) | $24.99 · $0.83/day | $240 · $0.66/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload week, CSV export |
+| Starter (1567) | $4.99 · $0.17/day | $48 · $0.13/day | For 2–3 workouts a week | 12 logged workouts, 2 plan rebuilds, 30 days history, plan targets only (no Smart Progression), form guides for plan exercises only |
+| Pro (1568) ★ Most popular | $8.99 · $0.30/day | $86 · $0.24/day | For lifters who never miss a week | 30 logged workouts, 6 rebuilds, Smart Progression, strength charts, full form library, all history |
+| Elite (1569) | $12.99 · $0.43/day | $125 · $0.34/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload week, CSV export |
 Quotas live in `lib/tiers.ts` (tier matched by plan name). The first plan of an account is free (not a rebuild).
 Free (unpaid): the plan is built and saved; Week 1 Day 1 is sent in clear, everything else is masked server-side (`lib/teaser.ts`).
 
@@ -142,6 +142,26 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 - Units: pounds only (US market). Language: English only.
 - Personal-flow funnel ⇒ no anonymous tries, so no per-IP try limiter is needed; every API route requires a session.
 - Paywall auto-opens once (2.6 s after the plan first shows), then lives behind the sticky unlock bar.
+- **Free trial (Nov 9, 2026)** — 7 days free on Starter and Pro, never Elite (charged at checkout). Card entered upfront in
+  the Whop sheet; the plan price is charged automatically on day 7 unless canceled in Account → Billing.
+  - Where: plan rows get a lime "7 days free" badge; a lime callout ("7 days free, then $X/month", 7-segment day ring,
+    Today $0.00 → <date> $X timeline) sits right above the paywall button and above the Whop form in the checkout sheet
+    (compact); micro-copy under the button: "Cancel anytime in Account → Billing before <date> and you won't be charged."
+    CTA becomes "Start my 7 free days". Elite keeps "Continue with Elite" + "$X due today". Works for monthly and yearly.
+  - Rules (server, `lib/trial.ts`): one trial per account, only for people not already paying, never on upgrades.
+    `/api/checkout` decides and sends `trial_days: 7` to Kwop; the browser only displays what the server returned.
+  - Data: `trials` table (migration `20261109000000_trials.sql`), one row per user: `pending` when the checkout opens,
+    `active` on /confirm with `started_at = now()`, `ends_at = started_at + 7 days` set by a DB trigger, `canceled` via
+    /api/billing/cancel during the week, `converted` once ends_at passes. RLS: read own row; writes service-role only
+    (so a trial can't be reset from the browser). Kwop event `feature_used {detail: "free_trial"}` when a trial starts.
+  - Account → Billing: day ring "N free days left", first charge date and price, "Cancel my free trial".
+  - **Honesty switch**: the trial is only shown when billing really defers the charge: Kwop reports `trial_days` on the
+    plan, or env `FITPLANR_TRIAL=1`. As of Nov 9, 2026 Kwop's POST /checkout ignores `trial_days` and Whop still shows
+    "Total due today $8.99", so production keeps it OFF. To go live: Kwop → Build my software → Change my plans → add a
+    7-day free trial to Starter and Pro (not Elite); check the Whop sheet says "$0.00 due today"; then set
+    `FITPLANR_TRIAL=1` in Vercel and redeploy (or nothing, if Kwop starts returning `trial_days`).
+  - No landing demo (it is a pricing term, not a product feature; and no prices on the landing page). No share image.
+  - Scripts: `scripts/trial-shots.mjs` (paywall + checkout, needs FITPLANR_TRIAL=1), `scripts/trial-account-shots.mjs`.
 - Upgrade = checkout of the next plan inside the page, then POST /cancel {email, except_ref} so the old plan stops.
 - Share: `/s/<share_id>` public page shows title, summary and Day 1 only, with a next/og image.
 - Google button hidden until `NEXT_PUBLIC_GOOGLE_ENABLED=1` (set once Google OAuth is configured in Supabase).

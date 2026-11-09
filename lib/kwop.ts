@@ -10,6 +10,9 @@ export type KwopPlan = {
   interval: string;
   per_day: string;
   yearly: { price_cents: number; per_day: string } | null;
+  /** Free-trial days configured on the plan in Kwop/Whop, when Kwop reports it. */
+  trial_days?: number | null;
+  trial_period_days?: number | null;
 };
 export type KwopApp = { name: string; checkout: "embedded" | "redirect" | null; plans: KwopPlan[] };
 export type KwopAccess = { paid: boolean; plan: { id: number; name: string } | null; status: string | null; until: string | null };
@@ -69,9 +72,10 @@ export async function getPlan(email: string | null | undefined, opts: { fresh?: 
   }
 }
 
-export async function createCheckout(body: { plan: number; period: "month" | "year"; email: string; k?: string | null }) {
+export async function createCheckout(body: { plan: number; period: "month" | "year"; email: string; k?: string | null; trial_days?: number }) {
   const payload: Record<string, unknown> = { plan: body.plan, period: body.period, email: body.email };
   if (body.k) payload.k = body.k;
+  if (body.trial_days) payload.trial_days = body.trial_days;
   return call<{ embed?: string | null; ref?: string; fallback_url?: string; error?: string }>("/checkout", {
     method: "POST",
     body: JSON.stringify(payload),
