@@ -1,3 +1,13 @@
+-- Production already had a `trials` table from an earlier paid-trial draft (branch free-trial-starter-pro, never live:
+-- FITPLANR_TRIAL was off, only e2e test rows). Keep it aside instead of dropping it, so nothing is lost.
+do $$ begin
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'trials' and column_name = 'price_cents') then
+    alter table public.trials rename to trials_paid_draft;
+    alter index if exists public.trials_pkey rename to trials_paid_draft_pkey;
+    alter index if exists public.trials_user_idx rename to trials_paid_draft_user_idx;
+  end if;
+end $$;
+
 -- Free trial week: one per email, on any plan, no card.
 -- Written by the server only (service role). The person can read their own row, never write it.
 -- No foreign key on purpose: deleting the account and signing up again does not give a second free week.
