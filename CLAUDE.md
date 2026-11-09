@@ -180,6 +180,8 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 - Verified: e2e 3× phone + 3× computer on production (green), RLS cross-user test (blocked), no secrets in
   `.next/static`, Lighthouse mobile 92–95 perf / 100 a11y / 100 best practices / 100 SEO.
 - Test accounts created by e2e use `@fitplanr-test.com` emails.
-- PENDING (Nov 9, 2026): the free-week code is on branch `claude/fitplanr-free-trial-pricing-bbls8w`, NOT deployed.
-  In order: run `supabase/migrations/20261109000000_trials.sql` (Management API), then deploy, then e2e on production.
-  Deploying before the migration makes "Try … free for 7 days" fail. Kwop plans are already saved (same prices, ids 1567–1569).
+- DONE (Nov 9, 2026): free week live. Migration `20261109000000_trials.sql` run (it first renames the old paid-draft
+  `trials` table from branch free-trial-starter-pro to `trials_paid_draft`, 14 e2e rows kept), branch deployed to
+  production, e2e 3× phone + 3× computer green on production, paywall checked at 390 px and 1440 px.
+  Note: every branch is deployed from the CLI and none is merged, so a deploy replaces whatever was live (this one
+  does not include the muscle map / native-app branches; they were already not live before it).

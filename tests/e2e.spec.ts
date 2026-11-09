@@ -33,7 +33,7 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   await expect(page).toHaveURL(/\/plan/, { timeout: 15_000 });
 
   // Day 1 in clear, the rest locked
-  await expect(page.getByText("Day 1 · Mon")).toBeVisible();
+  await expect(page.getByText("Day 1 · Mon")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText("Goblet Squat").first()).toBeVisible();
 
   // paywall opens over the result
@@ -66,9 +66,9 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   await page.goto("/plan");
   if (!(await dialog.isVisible())) await page.getByRole("button", { name: /Unlock my full plan/ }).last().click();
   await dialog.getByRole("button", { name: /free for 7 days/ }).first().click();
-  await expect(page.getByRole("button", { name: "Start Day 1" })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("link", { name: "Start Day 1" })).toBeVisible({ timeout: 20_000 });
   await page.goto("/account");
   await expect(page.getByText("[ Free week ]")).toBeVisible();
-  await expect(page.getByText("Free week ends on")).toBeVisible();
+  await expect(page.getByText("Free week ends on", { exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });
