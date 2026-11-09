@@ -96,22 +96,20 @@ time. Starting load from level + available dumbbell max (conservative, RPE 7). W
 "Smart Progression" = this algorithm reading the user's logged sets: hit the top of the rep range on all sets → next
 session +1 step; missed twice → hold; missed 3× → -10%. Shown honestly as "automatic progression", not "AI".
 
-### Plans (Kwop) — owner picked option C (Nov 8, 2026). Saved in Kwop; the app always reads them from GET KWOP_API.
-| Plan (Kwop id) | Month | Year (−20%) | Tag | Quotas per billing period |
+### Plans (Kwop) — saved in Kwop Nov 9, 2026 (POST /plans, same ids). The app always reads them from GET KWOP_API.
+| Plan (Kwop id) | Month | Year (Kwop sets −20%) | Tag | Quotas per billing period |
 |---|---|---|---|---|
-| Starter (1567) | $9.99 · $0.33/day | $96 · $0.26/day | For 2–3 workouts a week | 12 logged workouts, 2 plan rebuilds, 30 days history, plan targets only (no Smart Progression), form guides for plan exercises only |
-| Pro (1568) ★ Most popular | $15.99 · $0.53/day | $154 · $0.42/day | For lifters who never miss a week | 30 logged workouts, 6 rebuilds, Smart Progression, strength charts, full form library, all history |
-| Elite (1569) | $24.99 · $0.83/day | $240 · $0.66/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload week, CSV export |
+| Starter (1567) | $4.99 · $0.17/day | $48 · $0.13/day | For occasional gym goers | 1 active plan, 12 logged workouts, 2 plan rebuilds, 30 days history, weights you raise yourself (plan targets, no Smart Progression), form guides for plan exercises only |
+| Pro (1568) ★ featured | $8.99 · $0.30/day | $86 · $0.24/day | Best for consistent athletes | 30 logged workouts, 6 rebuilds, automatic weekly weight increases (Smart Progression), progress charts, full form library, all history |
+| Elite (1569) | $12.99 · $0.43/day | $125 · $0.34/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload weeks, CSV export, everything in Pro |
+Previous prices (until Nov 9, 2026): $9.99/$96 · $15.99/$154 · $24.99/$240 (`PREVIOUS_PRICES`, used only for the strikethrough).
+The owner asked for yearly $39/$79/$95, but POST /plans only takes the monthly price and Kwop derives yearly at −20%,
+so the live yearly prices are $48/$86/$125. Changing them needs a Kwop-side setting, not code.
 Quotas live in `lib/tiers.ts` (tier matched by plan name). The first plan of an account is free (not a rebuild).
 Free (unpaid): the plan is built and saved; Week 1 Day 1 is sent in clear, everything else is masked server-side (`lib/teaser.ts`).
 
 ### Competitive pricing (owner request, Nov 9, 2026): "cheaper, just below my competitors"
-Target prices to save in Kwop (the owner sets them there; the app never charges a hardcoded price):
-| Plan | Month | Year | vs competitor |
-|---|---|---|---|
-| Starter (1567) | **$4.99** ($0.17/day) | **$39** ($0.11/day, −35%) | at/below the loggers' Pro ($4.99/mo) |
-| Pro (1568) ★ | **$8.99** ($0.30/day) | **$79** ($0.22/day, −27%) | below the plan-generator leader ($15.99 / $95.99) |
-| Elite (1569) | **$12.99** ($0.43/day) | **$95** ($0.26/day, −39%) | still below the leader's $15.99 / $95.99 |
+Pro $8.99/$86 sits under the plan-generator leader ($15.99/$95.99); Starter $4.99 matches the loggers' Pro monthly.
 - `/pricing` is now a real page (`components/paywall/pricing-table.tsx`): 3 cards, stacked on phone with Pro first,
   side by side on desktop; Monthly/Yearly switch (defaults to Yearly on this page, the /plan paywall sheet stays Monthly);
   the price rolls to its new value; was-price struck through in grey; "Save $X a year · −Y%"; coach value line.
@@ -123,9 +121,10 @@ Target prices to save in Kwop (the owner sets them there; the app never charges 
 - Checkout sends the cents the person saw; `/api/checkout` refuses with 409 `price_changed` if Kwop's price differs
   (the sheet says "Prices were just updated", nothing charged). Prices never appear on the landing page.
 - Kwop event `feature_used {detail: "competitive_pricing"}` when /pricing is viewed. No data stored, no migration.
-- Preview the new prices locally before they are in Kwop (dev only, ignored in production builds):
-  `DEV_KWOP_PRICES=1567:499:3900,1568:899:7900,1569:1299:9500 npx next dev`. Screens: `node scripts/pricing-shots.mjs [--paid]`.
-- Kwop's app API lists `POST /plans` but its schema is undocumented; it was not called. Set prices in Kwop HQ.
+- Preview other prices locally before they are in Kwop (dev only, ignored in production builds):
+  `DEV_KWOP_PRICES=<id>:<month cents>:<year cents>,... npx next dev`. Screens: `node scripts/pricing-shots.mjs [--paid]`.
+- Changing plans: Kwop → Build my software → Change my plans gives a one-time `code`; then
+  `POST KWOP_API/plans {code, plans:[{name, price_month, features[], featured}]}` (yearly = −20%, ids kept by name).
 
 ### Magic moment on the landing page
 The notification iPhone in the hero + the device frames of how-it-works.

@@ -24,25 +24,26 @@ export const QUOTAS: Record<Tier, Quota> = {
 export const TIER_ORDER: Tier[] = ["starter", "pro", "elite"];
 
 export const TIER_TAGS: Record<Tier, string> = {
-  starter: "For 2–3 workouts a week",
-  pro: "For lifters who never miss a week",
+  starter: "For occasional gym goers",
+  pro: "Best for consistent athletes",
   elite: "For serious muscle building",
 };
 
 export const UNLOCKS: Record<Tier, string[]> = {
   starter: [
-    "Your full 4-week plan, every day and every set",
+    "1 active 4-week plan, every day and every set",
     "12 logged workouts a month",
     "2 plan rebuilds a month when your gear or goal changes",
+    "Weights you raise yourself, with your plan's targets",
     "Form guides for every exercise in your plan",
     "30 days of workout history",
   ],
   pro: [
     "Your full 4-week plan, every day and every set",
-    "Weights go up on their own, from what you really lifted",
+    "Automatic weekly weight increases, from what you really lifted",
     "30 logged workouts a month",
     "6 plan rebuilds a month",
-    "Strength charts for every lift",
+    "Progress charts for every lift",
     "The full form library and all your history",
   ],
   elite: [
