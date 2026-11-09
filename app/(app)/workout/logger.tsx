@@ -14,6 +14,7 @@ import { MainButton } from "@/components/ui/button";
 import { Ring } from "@/components/ui/motion";
 import { useUpgrade } from "@/components/paywall/upgrade";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/native";
 
 type SetState = { reps: number; load: number | null; done: boolean };
 
@@ -140,8 +141,21 @@ export function Logger({
   function toggle(e: PlannedExercise, i: number) {
     const was = state[e.slot][i].done;
     update(e.slot, i, { done: !was });
-    if (!was) setRest({ id: Date.now(), s: e.rest });
+    if (!was) {
+      setRest({ id: Date.now(), s: e.rest });
+      haptic("light");
+    }
   }
+
+  // Offline in the gym: the sets stay on the phone, and the workout saves itself when the connection is back.
+  const [waitingOnline, setWaitingOnline] = useState(false);
+  const finishRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    if (!waitingOnline) return;
+    const on = () => finishRef.current();
+    window.addEventListener("online", on);
+    return () => window.removeEventListener("online", on);
+  }, [waitingOnline]);
 
   async function finish() {
     if (doneSets === 0) return setError("Log at least one set first: tap the square next to a set.");
@@ -149,6 +163,12 @@ export function Logger({
       openUpgrade(`You've logged ${quota.max} workouts this month`);
       return;
     }
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      setWaitingOnline(true);
+      setError("You're offline. Your sets are kept on this phone: the workout saves itself as soon as you're back online.");
+      return;
+    }
+    setWaitingOnline(false);
     setSaving(true);
     setError("");
     const entries = day.exercises.map((e) => ({ slot: e.slot, exId: e.exId, name: e.name, sets: state[e.slot] }));
@@ -165,11 +185,14 @@ export function Logger({
         localStorage.removeItem(key);
       } catch {}
       setDone({ sets: doneSets, volume: j.volume ?? 0, bests: j.bests ?? [] });
+      haptic("success");
     } catch {
+      if (typeof navigator !== "undefined" && navigator.onLine === false) setWaitingOnline(true);
       setError("We couldn't save this workout. Check your connection and try again: your sets are kept.");
     }
     setSaving(false);
   }
+  finishRef.current = finish;
 
   if (done)
     return (
@@ -277,7 +300,15 @@ export function Logger({
       </div>
 
       <div className="mt-8">
-        {error && <p className="mb-3 text-center text-[14px] text-danger">{error}</p>}
+        {error &&
+          (waitingOnline ? (
+            <p className="mb-3 flex items-start justify-center gap-2 rounded-2xl border border-line bg-card px-4 py-3 text-left text-[14px] text-muted">
+              <span className="relative mt-1.5 flex h-2 w-2 shrink-0"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime/60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-lime" /></span>
+              {error}
+            </p>
+          ) : (
+            <p className="mb-3 text-center text-[14px] text-danger">{error}</p>
+          ))}
         <button onClick={finish} disabled={saving} className="press flex h-14 w-full items-center justify-center gap-2 rounded-full bg-white text-[16px] font-semibold text-ink hover:bg-[#ececec] disabled:opacity-60">
           {saving ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />} Finish workout
         </button>

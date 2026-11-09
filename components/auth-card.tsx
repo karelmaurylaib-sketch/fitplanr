@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { LogoMark } from "@/components/logo";
 import { MainButton } from "@/components/ui/button";
+import { isNativeApp } from "@/lib/native";
 
 const GOOGLE = process.env.NEXT_PUBLIC_GOOGLE_ENABLED === "1";
 
@@ -36,6 +37,10 @@ export function AuthCard({ mode, next }: { mode: "signup" | "login"; next?: stri
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<{ field: string; text: string } | null>(null);
+  // Google blocks its sign-in inside app web views (and the App Store then asks for Sign in with Apple): email only in the app.
+  const [inApp, setInApp] = useState(false);
+  useEffect(() => setInApp(isNativeApp()), []);
+  const showGoogle = GOOGLE && !inApp;
   const sb = supabaseBrowser();
   const after = next || (mode === "signup" ? "/start" : "/");
 
@@ -84,7 +89,7 @@ export function AuthCard({ mode, next }: { mode: "signup" | "login"; next?: stri
       <h1 className="display mt-6 text-[34px] sm:text-[40px]">{isSignup ? "Sign up so FitPlanr can build your plan." : "Welcome back."}</h1>
       <p className="mt-2 text-[15px] text-muted">{isSignup ? "Free to try. No card. Your plan is saved to your account." : "Your plan is right where you left it."}</p>
 
-      {GOOGLE && (
+      {showGoogle && (
         <>
           <button onClick={google} disabled={busy} className="press mt-7 flex h-14 w-full items-center justify-center gap-3 rounded-full bg-white text-[16px] font-semibold text-ink hover:bg-[#ececec] disabled:opacity-60">
             <GoogleG /> Continue with Google
@@ -95,7 +100,7 @@ export function AuthCard({ mode, next }: { mode: "signup" | "login"; next?: stri
         </>
       )}
 
-      <form onSubmit={submit} className={GOOGLE ? "space-y-4" : "mt-7 space-y-4"} noValidate>
+      <form onSubmit={submit} className={showGoogle ? "space-y-4" : "mt-7 space-y-4"} noValidate>
         <div>
           <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-fg/80">Email</label>
           <input

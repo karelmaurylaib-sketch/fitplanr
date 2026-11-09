@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Lock } from "lucide-react";
+import { ExternalLink, Loader2, Lock } from "lucide-react";
 import { Sheet } from "@/components/ui/sheet";
 import { fmt, type PublicPlan } from "@/lib/pricing";
+import { isNativeApp, openInAppBrowser } from "@/lib/native";
+import { Button } from "@/components/ui/button";
 
 type WhopCheckout = { create: (el: string) => { mount: (sel: string) => void }; destroy?: () => void };
 declare global {
@@ -46,7 +48,8 @@ export function CheckoutSheet({
   onPaid: (ref: string) => void;
   upgrade?: boolean;
 }) {
-  const [phase, setPhase] = useState<"loading" | "ready" | "off" | "error">("loading");
+  const [phase, setPhase] = useState<"loading" | "ready" | "off" | "error" | "browser" | "checking" | "returned">("loading");
+  const native = useRef<{ ref: string; url: string } | null>(null);
   const ck = useRef<WhopCheckout | null>(null);
   const onPaidRef = useRef(onPaid);
   onPaidRef.current = onPaid;
@@ -69,6 +72,12 @@ export function CheckoutSheet({
           sessionStorage.setItem("fp_ref", ref);
           if (upgrade) sessionStorage.setItem("fp_upgrade", ref);
         } catch {}
+        if (isNativeApp()) {
+          // Google Play / App Store app: Whop's secure page slides up in the in-app browser, then we confirm here.
+          native.current = { ref, url: fallback_url };
+          await payRef.current();
+          return;
+        }
         if (!embed) {
           location.href = fallback_url;
           return;
@@ -121,6 +130,33 @@ export function CheckoutSheet({
     };
   }, [open, plan, period, upgrade]);
 
+  async function payInBrowser() {
+    const n = native.current;
+    if (!n) return;
+    setPhase("browser");
+    await openInAppBrowser(n.url);
+    setPhase("checking");
+    for (let i = 0; i < 3; i++) {
+      const r = await fetch("/api/checkout/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref: n.ref, upgrade: !!upgrade }) }).catch(() => null);
+      const j = r ? await r.json().catch(() => ({})) : {};
+      if (j.paid) return onPaidRef.current(n.ref);
+      await new Promise((ok) => setTimeout(ok, 1500));
+    }
+    setPhase("returned");
+  }
+
+  async function payInBrowserCheck() {
+    const n = native.current;
+    if (!n) return;
+    const r = await fetch("/api/checkout/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref: n.ref, upgrade: !!upgrade }) }).catch(() => null);
+    const j = r ? await r.json().catch(() => ({})) : {};
+    if (j.paid) onPaidRef.current(n.ref);
+    else setPhase("returned");
+  }
+
+  const payRef = useRef(payInBrowser);
+  payRef.current = payInBrowser;
+
   const price = plan ? (period === "year" && plan.yearCents ? `${fmt(plan.yearCents)} / year` : `${fmt(plan.monthCents)} / month`) : "";
 
   return (
@@ -148,6 +184,21 @@ export function CheckoutSheet({
             <div className="rounded-2xl border border-line bg-card p-5 text-[15px]">
               <div className="font-semibold">The checkout didn&apos;t load.</div>
               <p className="mt-1 text-muted">Check your connection, then close this and tap Continue again.</p>
+            </div>
+          )}
+          {(phase === "browser" || phase === "checking") && (
+            <div className="absolute inset-x-0 top-0 flex items-center gap-2.5 py-6 text-[15px] text-muted">
+              <Loader2 size={18} className="animate-spin text-lime" /> {phase === "browser" ? "Finish in the secure window…" : "Confirming your payment…"}
+            </div>
+          )}
+          {phase === "returned" && (
+            <div className="rounded-2xl border border-line bg-card p-5 text-[15px]">
+              <div className="font-semibold">Not finished yet?</div>
+              <p className="mt-1 text-muted">Your plan is saved. Open the secure checkout again, or check once more if you just paid.</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button size="sm" onClick={payInBrowser}><ExternalLink size={15} /> Open secure checkout</Button>
+                <Button size="sm" variant="outline" onClick={() => { setPhase("checking"); payInBrowserCheck(); }}>I paid, check again</Button>
+              </div>
             </div>
           )}
           <div id="whop-checkout" className={phase === "ready" ? "opacity-100 transition-opacity duration-300" : "opacity-0"} />

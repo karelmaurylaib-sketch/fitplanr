@@ -13,6 +13,7 @@ import { dayOf, nextSession, type LogRow } from "@/lib/workout";
 import { e1rm } from "@/lib/engine/progression";
 import { fmtDate } from "@/lib/utils";
 import { ConfirmPaid } from "./confirm-paid";
+import { RemindersPrompt } from "@/components/reminders";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -82,6 +83,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <PageTitle label="Dashboard" title={onPlan.length ? "Keep it going" : "Day 1 is ready"}>
         {plan.share_id && <ShareButton path={`/s/${plan.share_id}`} title={plan.data.title} />}
       </PageTitle>
+      <RemindersPrompt />
 
       <section className="relative overflow-hidden rounded-[24px] border border-line-2 bg-card p-5 sm:p-7">
         <div className="top-glow pointer-events-none absolute inset-0 opacity-60" />

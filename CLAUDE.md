@@ -146,9 +146,37 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 - Share: `/s/<share_id>` public page shows title, summary and Day 1 only, with a next/og image.
 - Google button hidden until `NEXT_PUBLIC_GOOGLE_ENABLED=1` (set once Google OAuth is configured in Supabase).
 
+## Native apps: Google Play + App Store (Nov 9, 2026)
+Owner's words: "Make my software downloadable on google Play and apple play". Full store guide: `mobile/README.md`.
+- **Capacitor 8 shell around the live site** (`capacitor.config.ts`, `server.url` = production, start `/app`). Chosen over React
+  Native: one codebase, the funnel/paywall/engine stay server-side, a web deploy updates the apps, no secrets in the binary.
+  `mobile/www/offline.html` is the only bundled page (shown when there is no connection on first launch).
+- `/app` = the app's first screen: signed in → `landingRedirect()`; new → hero + "Build my plan" (no prices, same funnel).
+- In-app detection: user agent `FitPlanrApp/1.0 (ios|android[; push])` + Capacitor bridge → `lib/native.ts` (no-op on the web).
+  `components/native-bridge.tsx` (root layout): service worker, splash hide, dark system bars, Android back (closes sheets first),
+  notification taps → route, outside links → in-app browser. `html.native` CSS clears the notch (iOS env(); Android pads natively).
+- **Checkout in the app** opens Whop's `fallback_url` in the in-app browser sheet (SFSafariViewController / Custom Tab), then confirms
+  the ref on close and plays the unlock film. Reason: store rules (US storefront allows linking to web purchases; no IAP). Ship US only.
+- **Google sign-in hidden in the app** (Google blocks embedded web views, and Apple would require Sign in with Apple).
+- **Push = workout reminders**: table `push_devices` (user_id, RLS, migration 20261109000000), `/api/push` (register/patch/delete,
+  token moved to the signed-in account), `/api/push/test`, daily cron `/api/cron/reminders` (paid users whose next workout is due,
+  max one a day). `lib/push.ts` talks to FCM v1 and APNs directly; no keys = sends nothing. Permission asked only after a tap
+  (dashboard card once, or Settings switch), never on launch. Kwop event `feature_used {detail: "Push reminders"}`.
+- **Offline**: `public/sw.js` (website + apps): app code cache-first, app pages network-first with the last copy kept, `/offline`
+  fallback, never caches /api or other sites; pages wiped on log out (`forgetDevice`). Workout logger keeps sets on the phone and
+  saves itself when back online. iOS needs WKAppBoundDomains (in Info.plist) for the service worker.
+- **Camera = Form mirror** (`components/form-mirror.tsx`): "Check my form with the camera" in every form guide; live front-camera
+  mirror + the pose loop picture-in-picture + rotating cues. getUserMedia only, nothing recorded. Works on the website too.
+  Kwop event `feature_used {detail: "Form mirror"}`. Haptics on set done / workout saved (app only).
+- Icons/splash: `scripts/mobile-assets.mjs` renders `mobile/assets/*` (charcoal #060606, lime mark), `npm run mobile:icons` cuts all sizes.
+- Signing: Android upload key lives outside git (`android/keystore.properties`, `*.jks` ignored). Play App Signing on.
+  iOS: automatic signing with the owner's Apple team (CI: App Store Connect API key). `.github/workflows/mobile.yml` builds both.
+- Verified here: signed APK + AAB (apksigner/jarsigner), web layer in simulated iOS/Android shells (`scripts/native-shots.mjs`).
+  Not runnable here: an Android emulator (no KVM) and Xcode (needs macOS) → the CI macOS job builds the simulator app.
+
 ## Map
 - `app/page.tsx` landing · `app/signup|login|forgot|reset` auth · `app/start` flow · `app/start/building` the work ·
-  `app/plan` RESULT + paywall · `app/(app)/*` dashboard, workout, history, settings, account, library, pricing ·
+  `app/plan` RESULT + paywall · `app/app` native start · `app/offline` · `app/(app)/*` dashboard, workout, history, settings, account, library, pricing ·
   `app/api/*` server routes · `lib/kwop.ts` the only Kwop client · `lib/access.ts` session/profile/getAccess.
 - Screenshots: `node scripts/shot.mjs / home` (server on :3000). E2E: `npx playwright test` (needs a real Supabase).
 

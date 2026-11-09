@@ -10,3 +10,10 @@ shots
 *.tsbuildinfo
 next-env.d.ts
 .supabase-secrets
+
+# native apps: signing keys and local SDK paths, never committed
+android/keystore.properties
+*.jks
+*.keystore
+android/local.properties
+mobile/release/

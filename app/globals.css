@@ -181,7 +181,18 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
 
-.safe-bottom { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+.safe-bottom { padding-bottom: max(16px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); }
+
+/* ---------- inside the Google Play / App Store app (components/native-bridge.tsx adds .native) ----------
+   The web view runs edge to edge: keep content clear of the status bar / notch.
+   Android's shell sets --safe-area-inset-*; iOS gives env(safe-area-inset-*). */
+html.native { --sat: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)); -webkit-tap-highlight-color: transparent; }
+html.native body { padding-top: var(--sat); overscroll-behavior-y: none; }
+html.native [role="dialog"] > .absolute.inset-0:not(.bg-black\/70) { padding-top: var(--sat); }
+html.native [role="dialog"] > .absolute.inset-0:not(.bg-black\/70) > button[aria-label="Close"] { top: calc(var(--sat) + 12px); }
+html.native .native-hide { display: none !important; }
+.native-only { display: none; }
+html.native .native-only { display: revert; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

@@ -61,3 +61,24 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   await expect(page.getByText(email)).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+// The Google Play / App Store app opens /app (capacitor.config.ts). Same funnel rules: no prices, one button.
+test("native app start screen, offline page and service worker", async ({ page, request }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(String(e)));
+  await page.goto("/app");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Two dumbbells");
+  await expect(page.getByText(/\$\d/)).toHaveCount(0);
+  await page.getByRole("link", { name: "Build my plan" }).click();
+  await expect(page).toHaveURL(/\/signup/);
+
+  await page.goto("/offline");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("one bar away");
+
+  const sw = await request.get("/sw.js");
+  expect(sw.ok()).toBeTruthy();
+  expect(await sw.text()).toContain("fp-pages-");
+  expect((await request.post("/api/push", { data: { token: "x".repeat(40), platform: "ios" } })).status()).toBe(401);
+  expect((await request.get("/api/cron/reminders")).status()).toBe(401);
+  expect(errors).toEqual([]);
+});

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import { useUpgrade } from "@/components/paywall/upgrade";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { forgetDevice } from "@/lib/native";
 import type { Tier } from "@/lib/tiers";
 
 export function AccountClient({ email, paid, planName, status, until, tier, openUpgrade }: { email: string; paid: boolean; planName: string | null; status: string | null; until: string | null; tier: Tier | null; openUpgrade: boolean }) {
@@ -36,6 +37,7 @@ export function AccountClient({ email, paid, planName, status, until, tier, open
   }
   async function logout() {
     setBusy("logout");
+    await forgetDevice();
     await supabaseBrowser().auth.signOut();
     router.replace("/");
     router.refresh();
@@ -47,6 +49,7 @@ export function AccountClient({ email, paid, planName, status, until, tier, open
       setBusy("");
       return setErr("We couldn't delete your account. Try again.");
     }
+    await forgetDevice();
     await supabaseBrowser().auth.signOut().catch(() => {});
     location.href = "/";
   }

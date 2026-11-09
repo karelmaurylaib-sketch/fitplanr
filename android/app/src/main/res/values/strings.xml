@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FitPlanr</string>
+    <string name="title_activity_main">FitPlanr</string>
+    <string name="package_name">com.fitplanr.app</string>
+    <string name="custom_url_scheme">com.fitplanr.app</string>
+</resources>

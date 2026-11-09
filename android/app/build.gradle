@@ -1,0 +1,74 @@
+apply plugin: 'com.android.application'
+
+// Release signing (Google Play upload key). Never committed: read from android/keystore.properties
+// (local) or from env vars (CI): FITPLANR_KEYSTORE, FITPLANR_KEYSTORE_PASSWORD, FITPLANR_KEY_ALIAS, FITPLANR_KEY_PASSWORD.
+def signing = new Properties()
+def signingFile = rootProject.file('keystore.properties')
+if (signingFile.exists()) signingFile.withInputStream { signing.load(it) }
+def sign = { String key, String env -> signing.getProperty(key) ?: System.getenv(env) }
+
+android {
+    namespace = "com.fitplanr.app"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.fitplanr.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        // Play needs a higher versionCode for every upload: CI passes its run number.
+        versionCode((System.getenv('FITPLANR_VERSION_CODE') ?: '1') as int)
+        versionName System.getenv('FITPLANR_VERSION_NAME') ?: "1.0.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        release {
+            def store = sign('storeFile', 'FITPLANR_KEYSTORE')
+            if (store) {
+                storeFile file(store)
+                storePassword sign('storePassword', 'FITPLANR_KEYSTORE_PASSWORD')
+                keyAlias sign('keyAlias', 'FITPLANR_KEY_ALIAS')
+                keyPassword sign('keyPassword', 'FITPLANR_KEY_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (sign('storeFile', 'FITPLANR_KEYSTORE')) signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

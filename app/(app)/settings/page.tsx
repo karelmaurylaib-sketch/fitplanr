@@ -4,6 +4,7 @@ import { requirePaid } from "@/lib/guard";
 import { swapOptions, generatePlan } from "@/lib/engine/generate";
 import { GEAR_LABELS } from "@/lib/engine/exercises";
 import { SettingsClient } from "./client";
+import { RemindersCard } from "@/components/reminders";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -38,6 +39,9 @@ export default async function SettingsPage() {
         days={days}
         initial={{ swaps: opts.swaps ?? {}, dayOrder: opts.dayOrder ?? days.map((d) => d.index), deload: !!opts.deload }}
       />
+      <div className="mt-4">
+        <RemindersCard />
+      </div>
     </div>
   );
 }
