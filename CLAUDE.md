@@ -105,6 +105,28 @@ session +1 step; missed twice → hold; missed 3× → -10%. Shown honestly as "
 Quotas live in `lib/tiers.ts` (tier matched by plan name). The first plan of an account is free (not a rebuild).
 Free (unpaid): the plan is built and saved; Week 1 Day 1 is sent in clear, everything else is masked server-side (`lib/teaser.ts`).
 
+### Competitive pricing (owner request, Nov 9, 2026): "cheaper, just below my competitors"
+Target prices to save in Kwop (the owner sets them there; the app never charges a hardcoded price):
+| Plan | Month | Year | vs competitor |
+|---|---|---|---|
+| Starter (1567) | **$4.99** ($0.17/day) | **$39** ($0.11/day, −35%) | at/below the loggers' Pro ($4.99/mo) |
+| Pro (1568) ★ | **$8.99** ($0.30/day) | **$79** ($0.22/day, −27%) | below the plan-generator leader ($15.99 / $95.99) |
+| Elite (1569) | **$12.99** ($0.43/day) | **$95** ($0.26/day, −39%) | still below the leader's $15.99 / $95.99 |
+- `/pricing` is now a real page (`components/paywall/pricing-table.tsx`): 3 cards, stacked on phone with Pro first,
+  side by side on desktop; Monthly/Yearly switch (defaults to Yearly on this page, the /plan paywall sheet stays Monthly);
+  the price rolls to its new value; was-price struck through in grey; "Save $X a year · −Y%"; coach value line.
+- Strikethrough = FitPlanr's previous price (`PREVIOUS_PRICES` in `lib/pricing.ts`), shown ONLY while Kwop's live
+  price is lower. On yearly, falls back to 12 × monthly. Never a made-up "was" price.
+- Badge above Pro: "Competitor Beat-Down" only when Pro really is under the competitor (`COMPETITOR` = $15.99/$95.99,
+  never named on the page); otherwise "Most popular".
+- Coach value: one 1-hour session a week ≈ $60 → $240/mo, $2,880/yr (`COACH_*` in `lib/pricing.ts`).
+- Checkout sends the cents the person saw; `/api/checkout` refuses with 409 `price_changed` if Kwop's price differs
+  (the sheet says "Prices were just updated", nothing charged). Prices never appear on the landing page.
+- Kwop event `feature_used {detail: "competitive_pricing"}` when /pricing is viewed. No data stored, no migration.
+- Preview the new prices locally before they are in Kwop (dev only, ignored in production builds):
+  `DEV_KWOP_PRICES=1567:499:3900,1568:899:7900,1569:1299:9500 npx next dev`. Screens: `node scripts/pricing-shots.mjs [--paid]`.
+- Kwop's app API lists `POST /plans` but its schema is undocumented; it was not called. Set prices in Kwop HQ.
+
 ### Magic moment on the landing page
 The notification iPhone in the hero + the device frames of how-it-works.
 

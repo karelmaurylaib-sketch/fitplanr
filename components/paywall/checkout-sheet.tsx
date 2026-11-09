@@ -46,7 +46,7 @@ export function CheckoutSheet({
   onPaid: (ref: string) => void;
   upgrade?: boolean;
 }) {
-  const [phase, setPhase] = useState<"loading" | "ready" | "off" | "error">("loading");
+  const [phase, setPhase] = useState<"loading" | "ready" | "off" | "error" | "changed">("loading");
   const ck = useRef<WhopCheckout | null>(null);
   const onPaidRef = useRef(onPaid);
   onPaidRef.current = onPaid;
@@ -59,9 +59,10 @@ export function CheckoutSheet({
 
     (async () => {
       try {
-        const r = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: plan.id, period, upgrade: !!upgrade }) });
+        const r = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: plan.id, period, upgrade: !!upgrade, cents: period === "year" && plan.yearCents != null ? plan.yearCents : plan.monthCents }) });
         const j = await r.json();
         if (dead) return;
+        if (j.error === "price_changed") return setPhase("changed");
         if (r.status === 409 || j.error === "payments_off") return setPhase("off");
         if (!r.ok) return setPhase("error");
         const { embed, ref, fallback_url } = j as { embed: string | null; ref: string; fallback_url: string };
@@ -142,6 +143,13 @@ export function CheckoutSheet({
             <div className="rounded-2xl border border-line bg-card p-5 text-[15px]">
               <div className="font-semibold">Payments open in a moment. Your plan is saved.</div>
               <p className="mt-1 text-muted">Close this and try again in a few minutes. Nothing is lost.</p>
+            </div>
+          )}
+          {phase === "changed" && (
+            <div className="rounded-2xl border border-line bg-card p-5 text-[15px]">
+              <div className="font-semibold">Prices were just updated.</div>
+              <p className="mt-1 text-muted">Nothing was charged. Refresh the page to see the new price, then continue.</p>
+              <button onClick={() => location.reload()} className="press mt-4 rounded-full bg-white px-4 py-2 text-[14px] font-semibold text-ink">Refresh prices</button>
             </div>
           )}
           {phase === "error" && (

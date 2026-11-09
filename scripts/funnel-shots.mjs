@@ -26,8 +26,12 @@ for (const [tag, vp] of [["390", { width: 390, height: 844 }], ["1440", { width:
   await p.waitForTimeout(3500); await shot("6building");
   await p.waitForURL(/plan/, { timeout: 30000 }); await p.waitForTimeout(1200); await shot("7plan");
   await p.screenshot({ path: `shots/f-7planfull-${tag}.png`, fullPage: true });
-  await p.waitForTimeout(2500); await shot("8paywall");
+  await p.waitForTimeout(2500);
   const d = p.getByRole("dialog", { name: "Choose your plan" });
+  if (!(await d.isVisible())) await p.getByRole("button", { name: /Unlock my full plan/ }).last().click();
+  await d.waitFor(); await p.waitForTimeout(1200); await shot("8paywall");
+  await d.getByRole("button", { name: /^Yearly/ }).click().catch(() => {}); await p.waitForTimeout(600); await shot("8paywall-year");
+  await d.getByRole("button", { name: "Monthly" }).click().catch(() => {});
   await d.getByRole("button", { name: /^Continue with/ }).first().click();
   await p.waitForTimeout(9000); await shot("9checkout");
   console.log(tag, errs.length ? errs.slice(0, 5) : "no errors");

@@ -6,9 +6,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Sheet } from "@/components/ui/sheet";
 import { MainButton } from "@/components/ui/button";
 import { CheckoutSheet } from "./checkout-sheet";
-import { fmt, type PublicPlan } from "@/lib/pricing";
+import { dollars } from "./pricing-table";
+import { beatsCompetitor, coachSaving, fmt, maxYearSavePct, type PublicPlan } from "@/lib/pricing";
 import { TIER_TAGS, UNLOCKS } from "@/lib/tiers";
-import { cn } from "@/lib/utils";
+import { cn, money } from "@/lib/utils";
 
 const QA = [
   { q: "Will it work with my gear?", a: "Yes. Your plan only uses the equipment you picked. If your gear changes, rebuild your plan in one tap and every exercise adapts." },
@@ -35,20 +36,25 @@ function PlanRows({ plans, period, selected, onSelect, compact }: { plans: Publi
               popular && "mt-3",
             )}
           >
-            {popular && <span className="absolute -top-3 left-4 rounded-full bg-lime px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-lime-ink">Most popular</span>}
+            {popular && <span className="absolute -top-3 left-4 rounded-full bg-lime px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-lime-ink">{beatsCompetitor(p) ? "Competitor Beat-Down" : "Most popular"}</span>}
             <span className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2", on ? "border-lime" : "border-white/25")}>{on && <span className="h-2.5 w-2.5 rounded-full bg-lime" />}</span>
             <span className="min-w-0 flex-1">
               <span className="block text-[17px] font-semibold">{p.name}</span>
               <span className="block text-[13px] text-muted">
                 {yearly ? (
                   <>
-                    <s className="mr-1 text-dim">{fmt(p.monthCents * 12)}</s>
-                    {fmt(p.yearCents!)} / year
+                    {(p.wasYearCents ?? p.monthCents * 12) > p.yearCents! && <s className="mr-1 text-dim">{money(p.wasYearCents ?? p.monthCents * 12)}</s>}
+                    {money(p.yearCents!)} / year
+                    {p.yearSaveCents ? <span className="ml-1.5 whitespace-nowrap font-semibold text-lime">save {dollars(p.yearSaveCents)}</span> : null}
                   </>
                 ) : (
-                  `${fmt(p.monthCents)} / month`
+                  <>
+                    {p.wasMonthCents && <s className="mr-1 text-dim">{fmt(p.wasMonthCents)}</s>}
+                    {fmt(p.monthCents)} / month
+                  </>
                 )}
               </span>
+              {!compact && <span className="mt-1 block text-[12.5px] text-fg/60">{dollars(coachSaving(p, yearly ? "year" : "month"))} less than a weekly coach</span>}
               {!compact && <span className="mt-1 block text-[13px] text-fg/70">{TIER_TAGS[p.tier]}</span>}
             </span>
             <span className="text-right">
@@ -135,7 +141,7 @@ export function Paywall({
                   <div className="flex rounded-full border border-line bg-card p-1 text-[13px] font-medium">
                     {(["month", "year"] as const).map((p) => (
                       <button key={p} onClick={() => setPeriod(p)} className={cn("press rounded-full px-3 py-1.5", period === p ? "bg-white text-ink" : "text-muted hover:text-fg")}>
-                        {p === "month" ? "Monthly" : "Yearly −20%"}
+                        {p === "month" ? "Monthly" : `Yearly${maxYearSavePct(plans) ? ` −${maxYearSavePct(plans)}%` : ""}`}
                       </button>
                     ))}
                   </div>

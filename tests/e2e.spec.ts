@@ -41,7 +41,7 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   if (!(await dialog.isVisible())) await page.getByRole("button", { name: /Unlock my full plan/ }).last().click();
   await expect(dialog).toBeVisible({ timeout: 10_000 });
   await expect(dialog.getByText("Your 4-week plan is ready.")).toBeVisible();
-  await expect(dialog.getByText("Most popular").first()).toBeVisible();
+  await expect(dialog.getByText(/Most popular|Competitor Beat-Down/).first()).toBeVisible();
   await dialog.getByRole("button", { name: /^Continue with/ }).first().click();
 
   // checkout sheet opens inside the page (never pay)
@@ -56,6 +56,20 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   // returning visitor lands on their locked plan
   await page.goto("/");
   await expect(page).toHaveURL(/\/plan/);
+
+  // the pricing table: 3 plans, yearly savings, coach value, checkout inside the page with the live price
+  await page.goto("/pricing");
+  await expect(page.locator("[data-tier]")).toHaveCount(3);
+  await page.getByRole("radio", { name: /Yearly/ }).click();
+  await expect(page.getByTestId("year-save").first()).toBeVisible();
+  await expect(page.getByTestId("coach-value").first()).toBeVisible();
+  await page.getByRole("radio", { name: "Monthly" }).click();
+  await expect(page.getByTestId("year-save")).toHaveCount(0);
+  await page.getByRole("button", { name: "Unlock my full plan" }).click();
+  const ck2 = page.getByRole("dialog", { name: "Secure checkout" });
+  await expect(ck2.getByText(/Pro · \$\d+\.\d{2} \/ month/)).toBeVisible();
+  await expect(ck2.locator("#whop-checkout iframe").or(ck2.getByText("Payments open in a moment"))).toBeVisible({ timeout: 20_000 });
+  await ck2.getByRole("button", { name: "Close" }).click();
 
   await page.goto("/account");
   await expect(page.getByText(email)).toBeVisible();

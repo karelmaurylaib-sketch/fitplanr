@@ -1,25 +1,27 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
-import { Paywall } from "@/components/paywall/paywall";
+import { PricingTable } from "@/components/paywall/pricing-table";
+import { Reveal } from "@/components/ui/motion";
 import type { PublicPlan } from "@/lib/pricing";
+import type { Tier } from "@/lib/tiers";
 
-export function PricingClient({ plans, line }: { plans: PublicPlan[]; line: string }) {
+export function PricingClient({ plans, line, tier }: { plans: PublicPlan[]; line: string; tier: Tier | null }) {
   const router = useRouter();
-  const [open, setOpen] = useState(true);
-  const close = useCallback(() => {
-    setOpen(false);
-    router.push("/plan");
-  }, [router]);
   return (
-    <Paywall
-      open={open}
-      onClose={close}
-      plans={plans}
-      title="Your 4-week plan is ready."
-      line={line}
-      onPaid={(ref) => router.push(`/dashboard?paid=1&ref=${encodeURIComponent(ref)}`)}
-    />
+    <div className="lg:-mx-[80px]">
+      <Reveal className="mx-auto max-w-[640px] text-center">
+        <div className="label">[ Plans ]</div>
+        <h1 className="display mt-3 text-[42px] sm:text-[56px]">{tier ? "Train further for less." : "Your 4-week plan is ready."}</h1>
+        <p className="mt-3 text-[16px] text-muted">{tier ? "Every plan costs less than one session with a coach." : line}</p>
+      </Reveal>
+      <div className="mt-8">
+        <PricingTable
+          plans={plans}
+          currentTier={tier}
+          onPaid={(ref, upgrade) => router.push(`/dashboard?paid=1&ref=${encodeURIComponent(ref)}${upgrade ? "&upgrade=1" : ""}`)}
+        />
+      </div>
+    </div>
   );
 }
