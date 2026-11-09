@@ -1,6 +1,7 @@
 import type { Answers, Plan, PlannedDay } from "./engine/generate";
 import { loadStep } from "./engine/generate";
 import { nextTarget, type LoggedSession, type Target } from "./engine/progression";
+import { recoveryMap, untilText } from "./recovery";
 
 export type LogEntry = { slot: string; exId: string; name: string; sets: { reps: number; load: number | null; done: boolean }[] };
 export type LogRow = { id: string; plan_id: string | null; week: number; day: number; day_name: string | null; entries: LogEntry[]; started_at: string; finished_at: string | null; created_at: string };
@@ -31,4 +32,14 @@ export function smartTargets(day: PlannedDay, logs: LogRow[], answers: Answers):
     out[e.slot] = nextTarget(e, history, loadStep(e.exId, answers), isDb ? max : undefined);
   }
   return out;
+}
+
+/** Muscle recovery from finished logs, with a ready-in line per muscle (relative, so no time zone issue). */
+export function recoveryOf(logs: LogRow[], level: Answers["level"], now = new Date()) {
+  const map = recoveryMap(
+    logs.filter((l) => l.finished_at).map((l) => ({ at: l.finished_at!, entries: l.entries })),
+    level,
+    now,
+  );
+  return map.map((m) => ({ ...m, until: untilText(m.readyAt, now) }));
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowDown, ArrowUp, Check, ChevronDown, Info, Loader2, Lock, Minus, Pause, Plus, SkipForward, Sparkles, Trophy } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, ChevronDown, Info, Loader2, Lock, Minus, Pause, Play, Plus, SkipForward, Sparkles, Timer, Trophy, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { PlannedDay, PlannedExercise } from "@/lib/engine/generate";
 import type { Target } from "@/lib/engine/progression";
 import { EXERCISE_BY_ID } from "@/lib/engine/exercises";
@@ -14,6 +14,8 @@ import { MainButton } from "@/components/ui/button";
 import { Ring } from "@/components/ui/motion";
 import { useUpgrade } from "@/components/paywall/upgrade";
 import { cn } from "@/lib/utils";
+import { restFor } from "@/lib/recovery";
+import { reportFeature } from "@/components/recovery";
 
 type SetState = { reps: number; load: number | null; done: boolean };
 
@@ -30,38 +32,90 @@ function Stepper({ value, onChange, step, min = 0, suffix, label }: { value: num
   );
 }
 
-function RestTimer({ seconds, onDone, onClose }: { seconds: number; onDone: () => void; onClose: () => void }) {
-  const [left, setLeft] = useState(seconds);
+function RestTimer({ seconds, reason, upNext, onClose }: { seconds: number; reason: string; upNext: string | null; onClose: () => void }) {
+  const reduce = useReducedMotion();
+  // clock from an end time, so the count stays right when the phone locks or the tab sleeps
+  const [end, setEnd] = useState(() => Date.now() + seconds * 1000);
   const [total, setTotal] = useState(seconds);
-  const [paused, setPaused] = useState(false);
+  const [pausedLeft, setPausedLeft] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+  const left = pausedLeft ?? Math.max(0, Math.ceil((end - now) / 1000));
+  const over = left <= 0;
   useEffect(() => {
-    if (paused) return;
-    if (left <= 0) {
-      try {
-        navigator.vibrate?.([120, 80, 120]);
-      } catch {}
-      onDone();
-      return;
-    }
-    const id = setTimeout(() => setLeft((l) => l - 1), 1000);
-    return () => clearTimeout(id);
-  }, [left, paused, onDone]);
+    if (pausedLeft !== null || over) return;
+    const id = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(id);
+  }, [pausedLeft, over]);
+  useEffect(() => {
+    if (!over) return;
+    try {
+      navigator.vibrate?.([120, 80, 120]);
+    } catch {}
+    const t = setTimeout(onClose, 2600);
+    return () => clearTimeout(t);
+  }, [over, onClose]);
   const mm = Math.floor(left / 60);
   const ss = String(left % 60).padStart(2, "0");
+  const add = (s: number) => {
+    if (pausedLeft !== null) setPausedLeft((p) => Math.max(0, (p ?? 0) + s));
+    else setEnd((e) => Math.max(Date.now(), e + s * 1000));
+    setTotal((t) => Math.max(5, t + s));
+  };
+  const toggle = () => {
+    if (pausedLeft === null) setPausedLeft(left);
+    else {
+      setEnd(Date.now() + pausedLeft * 1000);
+      setNow(Date.now());
+      setPausedLeft(null);
+    }
+  };
   return (
-    <motion.div initial={{ y: 120, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 120, opacity: 0 }} transition={{ type: "spring", damping: 26 }} className="fixed inset-x-3 bottom-[88px] z-50 mx-auto max-w-[520px] rounded-[24px] border border-line-2 bg-[rgb(18_20_14/0.96)] p-3 shadow-[0_30px_80px_-20px_rgb(0_0_0/0.9)] backdrop-blur-xl md:bottom-6" role="timer" aria-live="polite">
+    <motion.div
+      initial={reduce ? false : { y: 120, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 120, opacity: 0 }}
+      transition={{ type: "spring", damping: 26 }}
+      className={cn(
+        "fixed inset-x-3 bottom-[88px] z-50 mx-auto max-w-[520px] rounded-[24px] border p-3 shadow-[0_30px_80px_-20px_rgb(0_0_0/0.9)] backdrop-blur-xl transition-colors duration-300 md:bottom-6",
+        over ? "border-lime bg-lime text-lime-ink" : "border-line-2 bg-[rgb(18_20_14/0.96)]",
+      )}
+      role="timer"
+      aria-live="polite"
+      aria-label="Rest timer"
+    >
       <div className="flex items-center gap-3">
-        <Ring value={left / total} size={58} stroke={6}>
-          <span className="font-display text-[17px] font-bold tabular-nums">{mm}:{ss}</span>
-        </Ring>
-        <div className="flex-1">
-          <div className="text-[15px] font-semibold">Rest</div>
-          <div className="text-[13px] text-muted">Breathe. Next set when it hits zero.</div>
+        {over ? (
+          <motion.span initial={reduce ? false : { scale: 0.4 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 10 }} className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-lime-ink text-lime">
+            <Check size={28} strokeWidth={3} />
+          </motion.span>
+        ) : (
+          <Ring value={left / total} size={58} stroke={6}>
+            <span className="font-display text-[17px] font-bold tabular-nums">{mm}:{ss}</span>
+          </Ring>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="text-[15px] font-semibold">{over ? "Rest done. Go!" : pausedLeft !== null ? "Rest paused" : "Rest"}</div>
+          <div className={cn("line-clamp-2 text-[13px] leading-snug", over ? "text-lime-ink/75" : "text-muted")}>{upNext ? `Next: ${upNext}` : reason}</div>
         </div>
-        <button onClick={() => { setLeft((l) => l + 15); setTotal((t) => t + 15); }} className="press h-10 rounded-full bg-white/[0.07] px-3 text-[13px] font-semibold">+15s</button>
-        <button onClick={() => setPaused((p) => !p)} aria-label={paused ? "Resume" : "Pause"} className="press flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.07]">{paused ? <Plus size={16} /> : <Pause size={16} />}</button>
-        <button onClick={onClose} aria-label="Skip rest" className="press flex h-10 w-10 items-center justify-center rounded-full bg-lime text-lime-ink"><SkipForward size={16} /></button>
+        {!over && (
+          <div className="hidden items-center gap-2 sm:flex">
+            <button onClick={() => add(-15)} aria-label="15 seconds less" className="press h-10 rounded-full bg-white/[0.07] px-3 text-[13px] font-semibold">−15s</button>
+            <button onClick={() => add(15)} aria-label="15 seconds more" className="press h-10 rounded-full bg-white/[0.07] px-3 text-[13px] font-semibold">+15s</button>
+            <button onClick={toggle} aria-label={pausedLeft !== null ? "Resume" : "Pause"} className="press flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.07]">{pausedLeft !== null ? <Play size={16} /> : <Pause size={16} />}</button>
+          </div>
+        )}
+        <button onClick={onClose} aria-label={over ? "Close" : "Skip rest"} className={cn("press flex h-10 w-10 shrink-0 items-center justify-center rounded-full", over ? "bg-lime-ink text-lime" : "bg-lime text-lime-ink")}>
+          {over ? <X size={16} /> : <SkipForward size={16} />}
+        </button>
       </div>
+      {!over && (
+        <div className="mt-2.5 grid grid-cols-3 gap-2 sm:hidden">
+          <button onClick={() => add(-15)} aria-label="15 seconds less" className="press h-10 rounded-full bg-white/[0.07] text-[13px] font-semibold">−15s</button>
+          <button onClick={() => add(15)} aria-label="15 seconds more" className="press h-10 rounded-full bg-white/[0.07] text-[13px] font-semibold">+15s</button>
+          <button onClick={toggle} aria-label={pausedLeft !== null ? "Resume" : "Pause"} className="press flex h-10 items-center justify-center rounded-full bg-white/[0.07]">{pausedLeft !== null ? <Play size={16} /> : <Pause size={16} />}</button>
+        </div>
+      )}
+      {!over && upNext && reason && <p className="mt-2 px-1 text-[12px] leading-snug text-dim">{reason}</p>}
     </motion.div>
   );
 }
@@ -77,6 +131,7 @@ export function Logger({
   smart,
   quota,
   rebuilt,
+  recovery,
 }: {
   planId: string;
   week: number;
@@ -88,6 +143,7 @@ export function Logger({
   smart: boolean;
   quota: { used: number; max: number };
   rebuilt: boolean;
+  recovery?: ReactNode;
 }) {
   const reduce = useReducedMotion();
   const { open: openUpgrade } = useUpgrade();
@@ -103,7 +159,7 @@ export function Logger({
   }, [day, targets]);
   const [state, setState] = useState<Record<string, SetState[]>>(init);
   const [startedAt] = useState(() => new Date().toISOString());
-  const [rest, setRest] = useState<{ id: number; s: number } | null>(null);
+  const [rest, setRest] = useState<{ id: number; s: number; reason: string; upNext: string | null } | null>(null);
   const [info, setInfo] = useState<PlannedExercise | null>(null);
   const [picker, setPicker] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -111,6 +167,7 @@ export function Logger({
   const [done, setDone] = useState<null | { sets: number; volume: number; bests: string[] }>(null);
   const [toast, setToast] = useState(rebuilt ? "Your new plan is live." : "");
   const loaded = useRef(false);
+  const closeRest = useCallback(() => setRest(null), []);
 
   useEffect(() => {
     try {
@@ -140,7 +197,19 @@ export function Logger({
   function toggle(e: PlannedExercise, i: number) {
     const was = state[e.slot][i].done;
     update(e.slot, i, { done: !was });
-    if (!was) setRest({ id: Date.now(), s: e.rest });
+    if (was) return;
+    // smart rest: starts on its own after each logged set
+    const sets = state[e.slot];
+    const after = sets.findIndex((s, k) => k > i && !s.done);
+    const nextOpen = after !== -1 ? after : sets.findIndex((s, k) => k !== i && !s.done);
+    const k = day.exercises.findIndex((x) => x.slot === e.slot);
+    const nextEx = day.exercises.slice(k + 1).find((x) => (state[x.slot] ?? []).some((s) => !s.done)) ?? null;
+    const call = restFor(e, sets[i], { lastSet: nextOpen === -1, next: nextEx });
+    if (call.seconds <= 0) return setRest(null);
+    const s = nextOpen === -1 ? null : sets[nextOpen];
+    const upNext = s ? `Set ${nextOpen + 1} · ${s.load ? `${s.load} lb × ` : ""}${s.reps}${e.unit === "sec" ? " s" : ""}` : nextEx ? nextEx.name : null;
+    setRest({ id: Date.now(), s: call.seconds, reason: call.reason, upNext });
+    reportFeature("smart_rest");
   }
 
   async function finish() {
@@ -217,6 +286,8 @@ export function Logger({
         </Ring>
       </div>
 
+      {recovery}
+
       <div className="space-y-4">
         {day.exercises.map((e) => {
           const ex = EXERCISE_BY_ID[e.exId];
@@ -235,7 +306,7 @@ export function Logger({
                   </button>
                   <div className="text-[13px] text-muted">
                     Target {t?.sets ?? e.sets} × {t?.target ?? e.target}{e.unit === "sec" ? " s" : ""}
-                    {(t?.load ?? e.load) ? ` · ${t?.load ?? e.load} lb` : e.loadLabel ? ` · ${e.loadLabel}` : ""} · rest {e.rest}s
+                    {(t?.load ?? e.load) ? ` · ${t?.load ?? e.load} lb` : e.loadLabel ? ` · ${e.loadLabel}` : ""} <span className="inline-flex items-center gap-0.5"> · <Timer size={12} /> {e.rest}s</span>
                   </div>
                   {prev && prev.length > 0 && <div className="text-[12px] text-dim">Last time: {prev.map((p) => `${p.load ? p.load + "×" : ""}${p.reps}`).join(", ")}</div>}
                 </div>
@@ -284,7 +355,7 @@ export function Logger({
         <p className="mt-3 text-center text-[13px] text-dim">{quota.used} of {quota.max} workouts logged this billing month</p>
       </div>
 
-      <AnimatePresence>{rest && <RestTimer key={rest.id} seconds={rest.s} onDone={() => setRest(null)} onClose={() => setRest(null)} />}</AnimatePresence>
+      <AnimatePresence>{rest && <RestTimer key={rest.id} seconds={rest.s} reason={rest.reason} upNext={rest.upNext} onClose={closeRest} />}</AnimatePresence>
       <ExerciseSheet exercise={info} onClose={() => setInfo(null)} />
 
       <Sheet open={picker} onClose={() => setPicker(false)} variant="bottom" label="Pick a workout" closeSide="right">

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Flame, RefreshCw } from "lucide-react";
+import { ArrowRight, BatteryCharging, Flame, RefreshCw } from "lucide-react";
 import { PageTitle } from "@/components/app-shell";
 import { MainButton } from "@/components/ui/button";
 import { Ring } from "@/components/ui/motion";
@@ -9,7 +9,9 @@ import { LockedPart } from "@/components/paywall/upgrade";
 import { ShareButton } from "@/components/share-button";
 import { getSession } from "@/lib/access";
 import { requirePaid } from "@/lib/guard";
-import { dayOf, nextSession, type LogRow } from "@/lib/workout";
+import { dayOf, nextSession, recoveryOf, type LogRow } from "@/lib/workout";
+import { READY_COLOR, sessionReadiness, untilText } from "@/lib/recovery";
+import { RecoveryBoard, WeekRhythm } from "@/components/recovery";
 import { e1rm } from "@/lib/engine/progression";
 import { fmtDate } from "@/lib/utils";
 import { ConfirmPaid } from "./confirm-paid";
@@ -35,7 +37,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const sp = await searchParams;
   if (sp.paid && sp.ref && /^[\w\-:.]{4,128}$/.test(sp.ref)) return <ConfirmPaid refId={sp.ref} upgrade={sp.upgrade === "1"} />;
 
-  const { access, plan } = await requirePaid();
+  const { access, plan, answers } = await requirePaid();
   const { sb, user } = await getSession();
   const { data } = await sb.from("workout_logs").select("*").eq("user_id", user!.id).not("finished_at", "is", null).order("finished_at", { ascending: false }).limit(60);
   const logs = (data ?? []) as LogRow[];
@@ -45,6 +47,11 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const perWeek = plan.data.weeks[0].days.length;
   const thisWeek = onPlan.filter((l) => l.week === next.week).length;
   const planPct = onPlan.length / (perWeek * 4);
+  const muscles = recoveryOf(logs, answers.level);
+  const ready = sessionReadiness(day, muscles);
+  const readyIn = untilText(ready.readyAt);
+  const todayKey = new Date().toDateString();
+  const trainedToday = logs.some((l) => new Date(l.finished_at!).toDateString() === todayKey);
 
   // streak: consecutive weeks (Mon-based) with at least one workout
   const weekKey = (d: Date) => {
@@ -92,8 +99,35 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             <div className="mt-1 text-[15px] text-muted">
               {day.exercises.length} moves · {day.minutes} min · starts with {day.exercises[0]?.name}
             </div>
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-line bg-black/30 px-3 py-1.5 text-[13px]">
+              <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: READY_COLOR[ready.status] }} />
+              {ready.status === "ready" ? "Muscles ready: train today" : ready.status === "almost" ? `Almost ready · fully rested ${readyIn}` : `Recovering · best ${readyIn}`}
+            </div>
           </div>
           <MainButton href="/workout">Start workout</MainButton>
+        </div>
+      </section>
+
+      <section className="mt-4 rounded-[20px] border border-line bg-card p-5 sm:p-6" aria-label="Muscle recovery">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <div className="flex items-center gap-2 text-[16px] font-semibold"><BatteryCharging size={17} className="text-lime" /> Muscle recovery</div>
+            <div className="text-[13px] text-muted">
+              {logs.length ? "From your last 7 days of sets. Muscles grow while they rest: about 48 h for big ones, 36 h for small ones." : "Fresh: every muscle is ready. Log a workout and this tracks how long each one needs to rest."}
+            </div>
+          </div>
+          <div className="flex gap-3 text-[11px] text-muted">
+            {(["ready", "almost", "recovering"] as const).map((k) => (
+              <span key={k} className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: READY_COLOR[k] }} />{k === "ready" ? "Ready" : k === "almost" ? "Almost" : "Recovering"}</span>
+            ))}
+          </div>
+        </div>
+        <div className="mt-4">
+          <RecoveryBoard muscles={muscles} highlight={ready.groups.map((g) => g.group)} />
+        </div>
+        <div className="mt-5">
+          <div className="mb-2 text-[13px] font-semibold">Your training week</div>
+          <WeekRhythm days={plan.data.weeks[0].days.map((d) => ({ weekday: d.weekday, name: d.name }))} doneToday={trainedToday} />
         </div>
       </section>
 

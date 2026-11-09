@@ -8,6 +8,7 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Two dumbbells");
   await expect(page.getByText(/pricing|\$\d/i)).toHaveCount(0); // never a price on the landing page
+  await expect(page.locator("#plans").getByText("Most popular")).toBeAttached(); // the plans are explained, without prices
   await page.getByRole("link", { name: "Build my plan" }).first().click();
 
   await expect(page).toHaveURL(/\/signup/);
@@ -53,8 +54,11 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   await dialog.getByRole("button", { name: "Close" }).click();
   await expect(page.getByRole("button", { name: /Unlock my full plan ·/ })).toBeVisible();
 
-  // returning visitor lands on their locked plan
+  // returning visitor sees the overview first (no bounce to prices), with a way back to their plan
   await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Two dumbbells");
+  await expect(page.getByText(/\$\d/)).toHaveCount(0);
+  await page.getByRole("link", { name: "Open my plan" }).first().click();
   await expect(page).toHaveURL(/\/plan/);
 
   await page.goto("/account");

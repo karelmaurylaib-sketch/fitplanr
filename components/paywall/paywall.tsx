@@ -86,6 +86,10 @@ export function Paywall({
     return (want && plans.find((p) => p.name.toLowerCase() === want || p.tier === want)) || plans.find((p) => p.tier === "pro") || plans[0] || null;
   }, [plans, preselect]);
   const [sel, setSel] = useState<number | null>(initial?.id ?? null);
+  // opening from a plan card selects that plan
+  useEffect(() => {
+    if (open && initial) setSel(initial.id);
+  }, [open, initial]);
   const [qa, setQa] = useState<number | null>(null);
   const [checkout, setCheckout] = useState(false);
   const [btnVisible, setBtnVisible] = useState(true);

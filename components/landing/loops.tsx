@@ -164,3 +164,50 @@ export function PlanMini() {
   );
 }
 
+
+/** Rest timer counting down after a set, while the muscles of the last session fill back up to "ready". */
+export function RecoveryLoop() {
+  const { ref, i } = useLoop(15, 700);
+  const left = Math.max(0, 90 - i * 9);
+  const muscles = [
+    { g: "Chest", from: 0.55 },
+    { g: "Back", from: 0.62 },
+    { g: "Quads", from: 0.38 },
+    { g: "Glutes", from: 0.45 },
+    { g: "Shoulders", from: 0.7 },
+    { g: "Arms", from: 0.8 },
+  ];
+  const t = Math.min(1, i / 11);
+  return (
+    <div ref={ref} className="grid gap-4 sm:grid-cols-[1fr_1.25fr] sm:items-center">
+      <div className={cn("flex items-center gap-3 rounded-[20px] border p-3 transition-colors duration-300", left === 0 ? "border-lime bg-lime text-lime-ink" : "border-line-2 bg-[rgb(18_20_14/0.96)]")}>
+        {left === 0 ? (
+          <span className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-lime-ink text-lime"><Check size={26} strokeWidth={3} /></span>
+        ) : (
+          <Ring value={left / 90} size={58} stroke={6}>
+            <span className="font-display text-[17px] font-bold tabular-nums">{Math.floor(left / 60)}:{String(left % 60).padStart(2, "0")}</span>
+          </Ring>
+        )}
+        <div className="min-w-0">
+          <div className="text-[15px] font-semibold">{left === 0 ? "Rest done. Go!" : "Rest"}</div>
+          <div className={cn("text-[12px]", left === 0 ? "text-lime-ink/75" : "text-muted")}>Up next: Set 3 · 25 lb × 10</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {muscles.map((m) => {
+          const r = Math.min(1, m.from + (1 - m.from) * t);
+          const ready = r >= 0.999;
+          return (
+            <div key={m.g} className="flex flex-col items-center rounded-2xl border border-line bg-white/[0.02] py-2.5">
+              <Ring value={r} size={44} stroke={4} color={ready ? "var(--lime)" : r >= 0.7 ? "rgb(200 255 61 / 0.55)" : "#8a8f82"}>
+                <span className="font-display text-[13px] font-bold tabular-nums">{Math.round(r * 100)}</span>
+              </Ring>
+              <div className="mt-1.5 text-[12px] font-semibold">{m.g}</div>
+              <div className={cn("text-[10px]", ready ? "text-lime" : "text-muted")}>{ready ? "Ready" : r >= 0.7 ? "Almost" : "Recovering"}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

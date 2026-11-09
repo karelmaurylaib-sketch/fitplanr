@@ -56,9 +56,11 @@ Day 1 clear, rest blurred → "Unlock my full plan" → paywall sheet → Whop c
 
 ### Screens, in order, with copy
 1. `/` landing — sections: hero → VSL → [ THE PROBLEM ] "Too many exercises. No idea what's next." → [ HOW IT WORKS ]
-   Select gear / Get routine / Track progress (animated phone frames) → [ IN ACTION ] 4 feature loops (Equipment Sync,
-   Smart Progression, Visual Logs, Form Library) → [ THE USUAL WAY vs FITPLANR ] comparison → [ QUESTIONS ] 6 FAQs →
-   final block "Tonight: your first workout, already planned." + button → footer with giant faded wordmark.
+   Select gear / Get routine / Track progress (animated phone frames) → [ IN ACTION ] 5 feature loops (Equipment Sync,
+   Smart Progression, Visual Logs, Form Library, Rest & Recovery wide card) → [ THE USUAL WAY vs FITPLANR ] comparison →
+   [ PLANS ] "Try it free. Then pick your pace." Starter / Pro ★ / Elite cards (tag + what's included, NO prices) →
+   [ QUESTIONS ] 7 FAQs → final block + button → footer with giant faded wordmark.
+   Signed-in visitors also see the landing (no redirect): the buttons read "Open my plan" / "Open the app".
 2. `/signup` — centered card: "Sign up so FitPlanr can build your plan." Google (white, G) / or / email / password
    (show/hide) / "Build my plan" / "Already have an account? Log in" / Terms · Privacy.
 3. `/start` — the personal flow, one typed question per screen, thin progress bar, "← Previous question":
@@ -96,12 +98,12 @@ time. Starting load from level + available dumbbell max (conservative, RPE 7). W
 "Smart Progression" = this algorithm reading the user's logged sets: hit the top of the rep range on all sets → next
 session +1 step; missed twice → hold; missed 3× → -10%. Shown honestly as "automatic progression", not "AI".
 
-### Plans (Kwop) — owner picked option C (Nov 8, 2026). Saved in Kwop; the app always reads them from GET KWOP_API.
+### Plans (Kwop) — prices updated by the owner (Nov 9, 2026). Saved in Kwop; the app always reads them from GET KWOP_API.
 | Plan (Kwop id) | Month | Year (−20%) | Tag | Quotas per billing period |
 |---|---|---|---|---|
-| Starter (1567) | $9.99 · $0.33/day | $96 · $0.26/day | For 2–3 workouts a week | 12 logged workouts, 2 plan rebuilds, 30 days history, plan targets only (no Smart Progression), form guides for plan exercises only |
-| Pro (1568) ★ Most popular | $15.99 · $0.53/day | $154 · $0.42/day | For lifters who never miss a week | 30 logged workouts, 6 rebuilds, Smart Progression, strength charts, full form library, all history |
-| Elite (1569) | $24.99 · $0.83/day | $240 · $0.66/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload week, CSV export |
+| Starter (1567) | $4.99 · $0.17/day | $48 · $0.13/day | For occasional gym goers | 1 active plan, 2 rebuilds, 12 logged workouts, weights you raise yourself (no Smart Progression), 30 days history |
+| Pro (1568) ★ Most popular | $8.99 · $0.30/day | $86 · $0.24/day | Best for consistent athletes | 6 rebuilds, 30 logged workouts, automatic weekly weight increases, progress charts, full form library, all history |
+| Elite (1569) | $12.99 · $0.43/day | $125 · $0.34/day | For serious muscle building | 20 rebuilds, 90 logged workouts, custom split (swap exercises, move days), deload weeks, CSV export, everything in Pro |
 Quotas live in `lib/tiers.ts` (tier matched by plan name). The first plan of an account is free (not a rebuild).
 Free (unpaid): the plan is built and saved; Week 1 Day 1 is sent in clear, everything else is masked server-side (`lib/teaser.ts`).
 
@@ -119,6 +121,25 @@ The notification iPhone in the hero + the device frames of how-it-works.
   reveals 14 px / .5 s cubic-bezier(.22,.8,.24,1) stagger 60 ms, count-ups 1.3 s, reduced motion respected.
 
 ---
+
+### Rest & Recovery (added Nov 9, 2026) — `lib/recovery.ts`, `components/recovery.tsx`
+- Smart rest timer (workout view): auto-starts after every logged set. Seconds = the plan's rest for that move;
+  +30 s if reps fell under the range; the last set of a move hands over to the next move (min 60 s, +15 s if it is a
+  big lift); no timer after the very last set. Shows "Next: Set 2 · 25 lb × 8" + the reason, −15s / +15s / pause /
+  skip, runs on an end time (correct when the phone locks), vibrates and flashes lime "Rest done. Go!" for 2.6 s.
+- Muscle recovery: 9 groups (Chest, Back, Shoulders, Arms, Quads, Glutes, Hamstrings, Core, Calves) from the exercise DB
+  (first muscle = 1 set, others ½). Hours needed = base (48 big / 36 Shoulders+Arms / 24 Core+Calves) × volume
+  (0.75–1.35, 6 sets = 1) × level (new 1.1, some 1, year 0.95). Readiness = hours since / hours needed; the least
+  recovered session of the last 7 days sets the clock. Ready ≥100 % (lime), Almost ≥70 % (lime 55 %), Recovering (muted).
+- Workout view: "Recovery check" ring for the day's muscles; if still recovering it says "Best: rest today" and links
+  to a day of the same week whose muscles are ready. Dashboard: up-next readiness pill, 9 muscle rings, and a 7-day
+  "Your training week" strip (train days vs "Rest · Muscles rebuild") so beginners see that rest is planned.
+- Derived from `workout_logs` only: no new table, no migration. All paid tiers get it (safety feature, not upsold).
+  Paid pages already go through `requirePaid()` (getPlan on the server). Kwop events: feature_used "smart_rest",
+  "recovery_tracker" (once per browser session). No share image: it is a status, not a result to share.
+- Landing demo: `RecoveryLoop` in `components/landing/loops.tsx` (timer counts down while muscle rings fill to Ready).
+- Locked `/plan` also shows the 3 plan cards (price per day) under the plan; tapping one opens the paywall with that
+  plan selected. The auto-open paywall at the peak (2.6 s, once) is kept.
 
 ## Tech
 Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + lucide-react. Supabase Postgres + Auth
@@ -143,6 +164,8 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 - Personal-flow funnel ⇒ no anonymous tries, so no per-IP try limiter is needed; every API route requires a session.
 - Paywall auto-opens once (2.6 s after the plan first shows), then lives behind the sticky unlock bar.
 - Upgrade = checkout of the next plan inside the page, then POST /cancel {email, except_ref} so the old plan stops.
+- Landing never bounces signed-in people to their locked plan (owner: "it takes you straight to the prices"): the
+  overview always comes first; plans are explained on the landing without prices, prices per day show on /plan.
 - Share: `/s/<share_id>` public page shows title, summary and Day 1 only, with a next/og image.
 - Google button hidden until `NEXT_PUBLIC_GOOGLE_ENABLED=1` (set once Google OAuth is configured in Supabase).
 
@@ -150,7 +173,7 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 - `app/page.tsx` landing · `app/signup|login|forgot|reset` auth · `app/start` flow · `app/start/building` the work ·
   `app/plan` RESULT + paywall · `app/(app)/*` dashboard, workout, history, settings, account, library, pricing ·
   `app/api/*` server routes · `lib/kwop.ts` the only Kwop client · `lib/access.ts` session/profile/getAccess.
-- Screenshots: `node scripts/shot.mjs / home` (server on :3000). E2E: `npx playwright test` (needs a real Supabase).
+- Screenshots: `node scripts/shot.mjs / home` (server on :3000); rest/recovery + landing plans: `BASE_URL=http://localhost:3001 node scripts/recovery-shots.mjs` (dev server with DEV_PAID_EMAIL_SUFFIX). E2E: `npx playwright test` (needs a real Supabase).
 
 ## Live setup (Nov 8, 2026)
 - Production: https://fitplanr-3.vercel.app (Vercel project `fitplanr-3`, id prj_81MgYf5SabOl9zUdH7nk80MqxZz6).

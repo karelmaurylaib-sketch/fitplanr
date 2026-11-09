@@ -12,7 +12,7 @@ export function KwopFlow() {
   return <Script src="https://kwop.io/flow.js" data-site="s_dc316cd00c" strategy="lazyOnload" />;
 }
 
-export function TopBar({ cta = "/signup" }: { cta?: string }) {
+export function TopBar({ cta = "/signup", label = "Build my plan", signedIn = false }: { cta?: string; label?: string; signedIn?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 12);
@@ -36,14 +36,21 @@ export function TopBar({ cta = "/signup" }: { cta?: string }) {
         <div className="hidden items-center gap-7 text-[14px] text-muted md:flex">
           <a href="#how" className="hover:text-fg">How it works</a>
           <a href="#features" className="hover:text-fg">Features</a>
+          <a href="#plans" className="hover:text-fg">Plans</a>
           <a href="#questions" className="hover:text-fg">Questions</a>
         </div>
         <div className="flex items-center gap-1">
-          <Link href="/login" className="press rounded-full px-3.5 py-2 text-[14px] font-medium text-fg/85 hover:text-fg">
-            Log in
-          </Link>
+          {signedIn ? (
+            <Link href={cta} className="press rounded-full px-3.5 py-2 text-[14px] font-medium text-fg/85 hover:text-fg sm:hidden">
+              {label}
+            </Link>
+          ) : (
+            <Link href="/login" className="press rounded-full px-3.5 py-2 text-[14px] font-medium text-fg/85 hover:text-fg">
+              Log in
+            </Link>
+          )}
           <MainButton href={cta} size="sm" className="hidden sm:inline-flex">
-            Build my plan
+            {label}
           </MainButton>
         </div>
       </nav>
@@ -51,7 +58,7 @@ export function TopBar({ cta = "/signup" }: { cta?: string }) {
   );
 }
 
-export function StickyCta({ href = "/signup" }: { href?: string }) {
+export function StickyCta({ href = "/signup", label = "Build my plan" }: { href?: string; label?: string }) {
   const [show, setShow] = useState(false);
   useEffect(() => {
     const on = () => {
@@ -68,7 +75,7 @@ export function StickyCta({ href = "/signup" }: { href?: string }) {
       className={cn("safe-bottom fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pt-6 transition-transform duration-300 ease-out sm:hidden", show ? "translate-y-0" : "pointer-events-none translate-y-full")}
     >
       <MainButton href={href} className="w-full">
-        Build my plan
+        {label}
       </MainButton>
     </div>
   );
@@ -113,6 +120,7 @@ export function Footer({ minimal }: { minimal?: boolean }) {
             <ul className="space-y-2 text-sm text-fg/80">
               <li><Link href="/#how" className="hover:text-fg">How it works</Link></li>
               <li><Link href="/#features" className="hover:text-fg">Features</Link></li>
+              <li><Link href="/#plans" className="hover:text-fg">Plans</Link></li>
               <li><Link href="/signup" className="hover:text-fg">Build my plan</Link></li>
               <li><Link href="/login" className="hover:text-fg">Log in</Link></li>
             </ul>

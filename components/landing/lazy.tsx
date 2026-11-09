@@ -27,6 +27,7 @@ export const LazyProgression = dynamic(() => import("./loops").then((m) => m.Pro
 export const LazyLog = dynamic(() => import("./loops").then((m) => m.LogLoop), { ssr: false });
 export const LazyForm = dynamic(() => import("./loops").then((m) => m.FormLoop), { ssr: false });
 export const LazyPlanMini = dynamic(() => import("./loops").then((m) => m.PlanMini), { ssr: false });
+export const LazyRecovery = dynamic(() => import("./loops").then((m) => m.RecoveryLoop), { ssr: false });
 
 export function PhoneScreen({ label, title, children }: { label: string; title: string; children: ReactNode }) {
   return (

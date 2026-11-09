@@ -4,7 +4,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowRight, Lock } from "lucide-react";
+import { ArrowRight, Check, Lock } from "lucide-react";
+import { TIER_TAGS, UNLOCKS } from "@/lib/tiers";
+import { cn } from "@/lib/utils";
 import type { Plan } from "@/lib/engine/generate";
 import type { PublicPlan } from "@/lib/pricing";
 import { PlanView } from "@/components/plan-view";
@@ -31,6 +33,7 @@ export function PlanResult({
 }) {
   const router = useRouter();
   const [paywall, setPaywall] = useState(false);
+  const [pick, setPick] = useState<string | null>(null);
   const [film, setFilm] = useState<string | null>(null);
   const [unblurring, setUnblurring] = useState(false);
   const cheapest = plans.find((p) => p.tier === "pro") ?? plans[0];
@@ -108,6 +111,40 @@ export function PlanResult({
         <div className="mt-8">
           <PlanView plan={plan} locked={locked} onLocked={() => setPaywall(true)} />
         </div>
+
+        {locked && plans.length > 0 && (
+          <section className="mt-12" aria-label="Plans">
+            <div className="label">[ Unlock all 4 weeks ]</div>
+            <h2 className="display mt-3 text-[32px] sm:text-[40px]">Pick how far you want to go.</h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {plans.map((p) => {
+                const pro = p.tier === "pro";
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      setPick(p.tier);
+                      setPaywall(true);
+                    }}
+                    className={cn("press relative flex flex-col rounded-[20px] border-2 p-4 text-left transition-colors", pro ? "border-lime bg-lime/[0.05]" : "border-line bg-card hover:border-line-2")}
+                  >
+                    {pro && <span className="absolute -top-3 left-4 rounded-full bg-lime px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-lime-ink">Most popular</span>}
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="text-[17px] font-semibold">{p.name}</span>
+                      <span><span className="font-display text-[26px] font-bold tabular-nums">{p.perDayMonth}</span><span className="text-[12px] text-muted"> / day</span></span>
+                    </span>
+                    <span className="mt-0.5 text-[13px] text-muted">{TIER_TAGS[p.tier]}</span>
+                    <ul className="mt-3 space-y-1.5 text-[13px] text-fg/80">
+                      {UNLOCKS[p.tier].slice(0, 3).map((u) => (
+                        <li key={u} className="flex gap-2"><Check size={14} className={cn("mt-0.5 shrink-0", pro ? "text-lime" : "text-fg/50")} /> {u}</li>
+                      ))}
+                    </ul>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </motion.div>
 
       <AnimatePresence>
@@ -126,7 +163,7 @@ export function PlanResult({
       </AnimatePresence>
 
       {locked && (
-        <Paywall open={paywall} onClose={() => setPaywall(false)} plans={plans} title="Your 4-week plan is ready." line={personal} preselect={preselect} onPaid={unlock} />
+        <Paywall open={paywall} onClose={() => setPaywall(false)} plans={plans} title="Your 4-week plan is ready." line={personal} preselect={pick ?? preselect} onPaid={unlock} />
       )}
       <UnlockFilm open={!!film} planName={film ?? ""} onDone={endFilm} />
     </main>

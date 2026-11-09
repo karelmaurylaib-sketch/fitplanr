@@ -1,16 +1,17 @@
-import { redirect } from "next/navigation";
 import fs from "node:fs";
 import path from "node:path";
-import { Check, Clock, Dumbbell, ListChecks, TrendingUp, Video, X } from "lucide-react";
+import { BatteryCharging, Check, Clock, Dumbbell, ListChecks, TrendingUp, Video, X } from "lucide-react";
 import { MainButton } from "@/components/ui/button";
 import { Reveal, Stagger, StaggerItem, CountUp } from "@/components/landing/css-motion";
 import { IPhone } from "@/components/iphone";
 import { NotificationStack } from "@/components/landing/notifications";
-import { PhoneScreen, LazyMount, LazyVSL, LazyGear, LazyProgression, LazyLog, LazyForm, LazyPlanMini } from "@/components/landing/lazy";
+import { PhoneScreen, LazyMount, LazyVSL, LazyGear, LazyProgression, LazyLog, LazyForm, LazyPlanMini, LazyRecovery } from "@/components/landing/lazy";
 import { TopBar, StickyCta, Faq, Footer, KwopFlow } from "@/components/landing/chrome";
 import { getSession } from "@/lib/access";
 import { landingRedirect } from "@/lib/route";
 import { publicPlanCount } from "@/lib/stats";
+import { TIER_ORDER, TIER_TAGS, UNLOCKS } from "@/lib/tiers";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -20,12 +21,16 @@ const FAQ = [
   { q: "How does the weight go up?", a: "Your plan adds reps each week, then adds weight once you hit the top of the range on every set. On Pro and Elite, it reads what you actually logged and adjusts your next session." },
   { q: "Is it safe if my knees or back bother me?", a: "Tell FitPlanr what to protect and it swaps out moves that load those joints. It never asks you to test a max. If you have pain or an injury, check with a doctor first." },
   { q: "How long are the workouts?", a: "You choose 30, 45 or 60 minutes. The plan fits the number of exercises, sets and rest to that time." },
-  { q: "How much does it cost?", a: "You try it free first. The plans show up once your first 4-week plan is ready." },
+  { q: "How long should I rest?", a: "FitPlanr tells you. A rest timer starts on its own after every set: longer for big lifts, a little more if you missed your reps. The recovery tracker shows when each muscle is ready again, usually 36 to 48 hours after you trained it." },
+  { q: "How much does it cost?", a: "You try it free first: your plan is built before you pay anything. Starter, Pro and Elite show their price per day once your 4-week plan is ready, and you can cancel anytime." },
 ];
 
 export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  // Signed-in visitors see the same overview (no bounce to their locked plan); the button takes them back in.
   const { user } = await getSession();
-  if (user) redirect(await landingRedirect());
+  const home = user ? await landingRedirect() : null;
+  const signedIn = !!home && home !== "/signup";
+  const label = home === "/dashboard" ? "Open the app" : home === "/plan" ? "Open my plan" : "Build my plan";
 
   const sp = await searchParams;
   const keep = new URLSearchParams();
@@ -33,14 +38,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
     const v = sp[k];
     if (typeof v === "string") keep.set(k, v);
   }
-  const cta = `/signup${keep.toString() ? `?${keep}` : ""}`;
+  const cta = signedIn ? home! : `/signup${keep.toString() ? `?${keep}` : ""}`;
   const hasVideo = fs.existsSync(path.join(process.cwd(), "public", "vsl.mp4"));
   const built = await publicPlanCount();
 
   return (
     <main className="relative overflow-x-clip">
       <KwopFlow />
-      <TopBar cta={cta} />
+      <TopBar cta={cta} label={label} signedIn={signedIn} />
 
       {/* ---------- HERO ---------- */}
       <section className="relative pt-[112px] sm:pt-[140px]">
@@ -58,9 +63,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
             </p>
             <div className="mt-8 flex flex-col items-start gap-4">
               <MainButton href={cta} className="w-full sm:w-auto">
-                Build my plan
+                {label}
               </MainButton>
-              <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-muted">Free to try · No card · Ready in 60 seconds</p>
+              <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-muted">{signedIn ? "Welcome back · your plan is saved" : "Free to try · No card · Ready in 60 seconds"}</p>
               {built !== null && <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-lime">{built.toLocaleString("en-US")}+ plans built so far</p>}
             </div>
           </div>
@@ -157,8 +162,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
               { icon: TrendingUp, t: "Smart Progression", d: "Reps climb each week, then the weight goes up. On Pro, it adjusts from what you really lifted.", el: <LazyMount minHeight={220}><LazyProgression /></LazyMount> },
               { icon: ListChecks, t: "Visual Logs", d: "Tap a set to log it. Rest timer starts on its own. Nothing to type.", el: <LazyMount minHeight={170}><LazyLog /></LazyMount> },
               { icon: Video, t: "Form Library", d: "Short, silent loops of every move with three cues you can read mid-set.", el: <LazyMount minHeight={130}><LazyForm /></LazyMount> },
+              { icon: BatteryCharging, t: "Rest & Recovery", d: "A rest timer starts on its own after every set and tells you what's next. Each muscle shows when it's ready again, so you know which day to train and which day to rest.", el: <LazyMount minHeight={200}><LazyRecovery /></LazyMount>, wide: true },
             ].map((f, k) => (
-              <Reveal key={f.t} delay={(k % 2) * 0.06} className="rounded-[22px] border border-line bg-card p-6 sm:p-8">
+              <Reveal key={f.t} delay={(k % 2) * 0.06} className={cn("rounded-[22px] border border-line bg-card p-6 sm:p-8", "wide" in f && f.wide && "md:col-span-2")}>
                 <div className="flex items-center gap-3">
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime/10 text-lime">
                     <f.icon size={20} />
@@ -197,7 +203,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
             <Reveal delay={0.06} className="rounded-[22px] bg-ink p-6 text-fg sm:p-8">
               <div className="text-[18px] font-semibold">With FitPlanr</div>
               <ul className="mt-5 space-y-4 text-[15px]">
-                {["Every move uses only the gear you picked", "A clear target every session: weight × reps", "One tap per set, history kept for you", "A rest timer that starts on its own"].map((x) => (
+                {["Every move uses only the gear you picked", "A clear target every session: weight × reps", "One tap per set, history kept for you", "Rest timed for you, recovery tracked per muscle"].map((x) => (
                   <li key={x} className="flex gap-3">
                     <Check size={18} className="mt-0.5 shrink-0 text-lime" /> {x}
                   </li>
@@ -223,6 +229,41 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
         </div>
       </section>
 
+      {/* ---------- PLANS (no prices here: they show, per day, once the plan is built) ---------- */}
+      <section id="plans" className="mx-auto max-w-[1120px] scroll-mt-24 px-5 pt-20 sm:pt-32">
+        <Reveal>
+          <div className="label">[ Plans ]</div>
+          <h2 className="display mt-4 text-[40px] sm:text-[64px]">
+            Try it free.
+            <span className="grad-2 block">Then pick your pace.</span>
+          </h2>
+          <p className="mt-5 max-w-[560px] text-[16px] text-muted">Your first 4-week plan is built before you pay anything. When it&apos;s ready you choose one of three plans, each shown as a price per day. Cancel anytime.</p>
+        </Reveal>
+        <Stagger className="mt-12 grid gap-4 md:grid-cols-3">
+          {TIER_ORDER.map((t) => {
+            const pro = t === "pro";
+            return (
+              <StaggerItem key={t} className={cn("relative flex flex-col rounded-[22px] border p-6 sm:p-7", pro ? "border-lime/60 bg-lime/[0.04] shadow-[0_0_80px_-30px_rgb(200_255_61/0.5)]" : "border-line bg-card")}>
+                {pro && <span className="absolute -top-3 left-6 rounded-full bg-lime px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-lime-ink">Most popular</span>}
+                <div className="display text-[30px]">{t === "starter" ? "Starter" : t === "pro" ? "Pro" : "Elite"}</div>
+                <div className="mt-1 text-[14px] text-muted">{TIER_TAGS[t]}</div>
+                <ul className="mt-5 flex-1 space-y-2.5 text-[14px]">
+                  {UNLOCKS[t].map((u) => (
+                    <li key={u} className="flex gap-2.5">
+                      <Check size={16} className={cn("mt-0.5 shrink-0", pro ? "text-lime" : "text-fg/60")} /> {u}
+                    </li>
+                  ))}
+                </ul>
+              </StaggerItem>
+            );
+          })}
+        </Stagger>
+        <Reveal className="mt-8 flex flex-col items-center gap-3 text-center">
+          <MainButton href={cta}>{label}</MainButton>
+          <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-muted">Free to try · Price per day shown with your plan</p>
+        </Reveal>
+      </section>
+
       {/* ---------- QUESTIONS ---------- */}
       <section id="questions" className="mx-auto max-w-[820px] scroll-mt-24 px-5 py-20 sm:py-32">
         <Reveal>
@@ -242,13 +283,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
           </h2>
           <p className="mx-auto mt-5 max-w-md text-[17px] text-muted">Five taps, your gear, your days. Your 4-week plan is ready before your pre-workout kicks in.</p>
           <div className="mt-8 flex justify-center">
-            <MainButton href={cta}>Build my plan</MainButton>
+            <MainButton href={cta}>{label}</MainButton>
           </div>
         </Reveal>
       </section>
 
       <Footer />
-      <StickyCta href={cta} />
+      <StickyCta href={cta} label={label} />
     </main>
   );
 }
