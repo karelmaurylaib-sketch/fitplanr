@@ -149,6 +149,19 @@ A 5th feature, paid app only: `/nutrition` (bottom tab on phone, sidebar link on
   Nutrition, History, Settings (Account reached from Settings on phones; sidebar keeps all 6).
 - Screens: `node scripts/nutrition-shots.mjs [390|1440]` (dev server on :3001 with DEV_PAID_EMAIL_SUFFIX, fake camera).
 
+## Muscle map (Nov 10, 2026)
+Dashboard card "Muscle map" (`components/muscle-map.tsx`, `lib/engine/muscles.ts`): SVG front/back body, 12 muscle
+groups lit by the sets the plan gives them (pattern → primary muscle 1 set, helpers ½ or ¼). Scopes: this week + each
+day. Tap a muscle or a row → its sets and moves; the week view names muscles not hit (e.g. calves on short 3-day plans).
+Every paid plan. Deterministic, like the rest of the engine.
+
+## 4-step promo video (Nov 10, 2026)
+`video/record.mjs` drives the real app (dev :3001, paid preview, fake camera fed `video/build/plate.y4m`, drawn by
+`video/plate.mjs`) and captures Chrome screencast frames at 1080×1920; `video/overlays.mjs` renders the text in the
+app's fonts; `video/compose.py` assembles it with the voiceover (`video/build/vo.wav`, Higgsfield seed_audio "Holden",
+cut at the pauses and played 1.2×). Output `video/out/fitplanr-4-step.mp4` (26 s) + `caption.txt` (not committed).
+Step 4 says "log your macros", not "auto-scan": photo recognition stays off until `ANTHROPIC_API_KEY` is set.
+
 ## Tech
 Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + lucide-react. Supabase Postgres + Auth
 (RLS everywhere, SQL in `supabase/migrations`). Vercel. No AI provider: the engine is deterministic (`lib/engine`).

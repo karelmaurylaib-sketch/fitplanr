@@ -10,3 +10,7 @@ shots
 *.tsbuildinfo
 next-env.d.ts
 .supabase-secrets
+
+# video renders (frames, wav, mp4)
+/video/build
+/video/out

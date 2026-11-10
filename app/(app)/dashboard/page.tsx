@@ -13,6 +13,9 @@ import { dayOf, nextSession, type LogRow } from "@/lib/workout";
 import { e1rm } from "@/lib/engine/progression";
 import { fmtDate } from "@/lib/utils";
 import { ConfirmPaid } from "./confirm-paid";
+import { MuscleMap, type MapScope } from "@/components/muscle-map";
+import { muscleLoad } from "@/lib/engine/muscles";
+import { EXERCISE_BY_ID } from "@/lib/engine/exercises";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -69,6 +72,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       return best ? { x: new Date(l.finished_at!).toLocaleDateString("en-US", { month: "short", day: "numeric" }), y: best } : null;
     })
     .filter(Boolean) as { x: string; y: number }[];
+  const pat = (id: string) => EXERCISE_BY_ID[id]?.pattern;
+  const wk = plan.data.weeks[next.week - 1];
+  const scopes: MapScope[] = [
+    { key: "week", label: `Week ${next.week}`, scope: "week", load: muscleLoad(wk.days, pat) },
+    ...wk.days.map((d) => ({ key: `d${d.day}`, label: `Day ${d.day} · ${d.name}`, scope: "day" as const, load: muscleLoad([d], pat) })),
+  ];
   const demo = [
     { x: "Wk 1", y: 40 },
     { x: "", y: 42 },
@@ -124,6 +133,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </div>
         </div>
       </div>
+
+      <section className="mt-4 rounded-[20px] border border-line bg-card p-5 sm:p-6" aria-label="Muscle map">
+        <div className="text-[16px] font-semibold">Muscle map</div>
+        <div className="text-[13px] text-muted">What your plan trains. Tap a muscle to see its sets and moves.</div>
+        <MuscleMap scopes={scopes} className="mt-4" />
+      </section>
 
       <section className="mt-4 rounded-[20px] border border-line bg-card p-5 sm:p-6">
         <div className="flex items-center justify-between">
