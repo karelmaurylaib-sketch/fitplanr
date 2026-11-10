@@ -7,7 +7,7 @@ const TEXTS = {
   t1: { tag: "Step 1", text: "Input your exact gear" },
   t2: { tag: "Step 2", text: "Track progressive sets & reps" },
   t3: { tag: "Step 3", text: "See targeted muscle highlights" },
-  t4: { tag: "Step 4", text: "Pick meals or photo-scan food" },
+  t4: { tag: "Step 4", text: "Pick meals that hit your macros" },
 };
 const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
 const p = await b.newPage({ viewport: { width: 1080, height: 1920 } });

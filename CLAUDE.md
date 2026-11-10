@@ -159,8 +159,10 @@ Every paid plan. Deterministic, like the rest of the engine.
 `video/record.mjs` drives the real app (dev :3001, paid preview, fake camera fed `video/build/plate.y4m`, drawn by
 `video/plate.mjs`) and captures Chrome screencast frames at 1080×1920; `video/overlays.mjs` renders the text in the
 app's fonts; `video/compose.py` assembles it with the voiceover (`video/build/vo.wav`, Higgsfield seed_audio "Holden",
-cut at the pauses and played 1.2×). Output `video/out/fitplanr-4-step.mp4` (26 s) + `caption.txt` (not committed).
-Step 4 says "log your macros", not "auto-scan": photo recognition stays off until `ANTHROPIC_API_KEY` is set.
+cut at the pauses and played 1.2×; Step 4 line re-recorded as `vo4.wav`). Output `video/out/fitplanr-4-step.mp4`
+(26 s) + `caption.txt` (not committed). Owner decision (Nov 10): the meal photo scan is NOT part of the product story,
+so the video never shows it: Step 4 = "Pick meals that hit your macros" (swap a food, "Ate it", rings fill), and the
+scan buttons are hidden in that recording. The scan code still exists in the app (`/nutrition`).
 
 ## Tech
 Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + lucide-react. Supabase Postgres + Auth

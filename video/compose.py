@@ -6,7 +6,10 @@ B = "video/build"
 FPS = 30
 TEMPO = 1.2
 # voiceover lines in vo.wav (seconds, from silencedetect), spoken at 1.2x
-VO = [(0.40, 4.80), (5.55, 9.55), (10.12, 15.30), (16.10, 21.35), (22.26, 28.30), (28.97, 31.95)]
+# (file, start, end). Line 4 is a re-recorded take (vo4c.wav, the pause after "Step four:" tightened):
+# the photo-scan sentence was removed from the video.
+VO4_LEN = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f"{B}/vo4c.wav"], capture_output=True, text=True).stdout)
+VO = [("vo.wav", 0.40, 4.80), ("vo.wav", 5.55, 9.55), ("vo.wav", 10.12, 15.30), ("vo.wav", 16.10, 21.35), ("vo4c.wav", 0.0, VO4_LEN), ("vo.wav", 28.97, 31.95)]
 PAD = 0.35
 
 
@@ -69,7 +72,7 @@ def scaled(pieces, total):
     return [(a, z, s * total / w) for a, z, s in pieces]
 
 
-vo_len = [(z - a) / TEMPO for a, z in VO]
+vo_len = [(z - a) / TEMPO for _, a, z in VO]
 D = [l + PAD for l in vo_len]
 D[5] = vo_len[5] + 1.1
 print("segments", [round(x, 2) for x in D], "total", round(sum(D), 2))
@@ -91,11 +94,8 @@ segs.append(("s3", render("s3", [(m["start"], m["end"], D[3])], f"{B}/seg3.mp4",
 _, _, m = load("s4")
 p4 = scaled(
     [
-        (m["start"] + 0.3, m["swapDone"], 1.35),  # swap: blueberries → pear
-        (m["scanFrom"], m["shot"], 0.95),  # camera with the plate in the glowing frame
-        (m["shot"], m["sheet"], 0.6),  # reading the plate
-        (m["sheet"], m["macros"], 1.2),  # tap what's on the plate, macros count up
-        (m["macros"], m["end"], 0.9),  # added: rings fill
+        (m["start"] + 0.3, m["swapDone"], 1.0),  # swap: blueberries → pear
+        (m["swapDone"], m["end"], 1.0),  # "Ate it" → scroll up, rings filled
     ],
     D[4],
 )
@@ -114,12 +114,12 @@ starts = [0.0]
 for x in D[:-1]:
     starts.append(starts[-1] + x)
 parts, labels = [], []
-for i, ((a, z), st) in enumerate(zip(VO, starts)):
-    parts.append(f"[0:a]atrim={a}:{z},asetpts=PTS-STARTPTS,atempo={TEMPO},adelay={int((st + 0.12) * 1000)}|{int((st + 0.12) * 1000)}[a{i}]")
+for i, ((src, a, z), st) in enumerate(zip(VO, starts)):
+    parts.append(f"[{0 if src == 'vo.wav' else 1}:a]atrim={a}:{z},asetpts=PTS-STARTPTS,atempo={TEMPO},adelay={int((st + 0.12) * 1000)}|{int((st + 0.12) * 1000)}[a{i}]")
     labels.append(f"[a{i}]")
 total = sum(D)
 fc = ";".join(parts) + f";{''.join(labels)}amix=inputs={len(labels)}:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=7,apad,atrim=0:{total:.3f}[a]"
-run(["ffmpeg", "-y", "-i", f"{B}/vo.wav", "-filter_complex", fc, "-map", "[a]", "-ar", "48000", "-c:a", "aac", "-b:a", "192k", f"{B}/vo_mix.m4a"])
+run(["ffmpeg", "-y", "-i", f"{B}/vo.wav", "-i", f"{B}/vo4c.wav", "-filter_complex", fc, "-map", "[a]", "-ar", "48000", "-c:a", "aac", "-b:a", "192k", f"{B}/vo_mix.m4a"])
 os.makedirs("video/out", exist_ok=True)
 run(["ffmpeg", "-y", "-i", f"{B}/video_only.mp4", "-i", f"{B}/vo_mix.m4a", "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "copy", "-shortest", "-movflags", "+faststart", "video/out/fitplanr-4-step.mp4"])
 print("done video/out/fitplanr-4-step.mp4")

@@ -181,45 +181,33 @@ await p.waitForTimeout(800);
   await r.stop();
 }
 
-// ---------- scene 4: nutrition swap + meal scan ----------
+// ---------- scene 4: nutrition plan, swap a food, then "Ate it" fills the rings ----------
 {
   await p.goto(BASE + "/nutrition");
   await p.getByRole("button", { name: "Set my targets" }).tap();
   await p.getByText("Three plates a day").waitFor();
   const card = p.getByRole("article", { name: "Breakfast" });
   await card.evaluate((el) => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: "instant" }));
+  // the meal-photo scan is not part of the product story: hide its buttons in this recording
+  await p.evaluate(() => {
+    const scan = [...document.querySelectorAll("button")].find((b) => b.textContent?.trim().startsWith("Scan a meal") && b.closest("section"));
+    scan?.closest("section")?.querySelector(":scope > .relative.mt-6")?.remove();
+    [...document.querySelectorAll("button")].filter((b) => /Scan a meal|^Scan$/.test(b.textContent?.trim() ?? "")).forEach((b) => (b.style.visibility = "hidden"));
+  });
   await p.waitForTimeout(1500);
   const r = await recorder(p, "s4");
   r.mark("start");
   await wait(500);
-  await p.getByRole("button", { name: /^Swap Blueberries/ }).tap();
+  await p.getByRole("button", { name: /^Swap Blueberries/ }).dispatchEvent("click");
+  await wait(1100);
+  await p.getByRole("button", { name: /^Pear/ }).dispatchEvent("click");
   await wait(1000);
-  await p.getByRole("button", { name: /^Pear/ }).tap();
-  await wait(900);
   r.mark("swapDone");
-  await p.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-  await wait(250);
-  r.mark("scanFrom");
-  await p.getByRole("button", { name: "Scan a meal" }).first().tap();
-  await wait(1600);
-  await p.getByRole("button", { name: "Take photo" }).tap();
-  r.mark("shot");
-  const sheet = p.getByRole("region", { name: "Meal breakdown" });
-  await sheet.waitFor({ timeout: 20000 });
-  r.mark("sheet");
-  await wait(500);
-  for (const f of ["Chicken breast", "Brown rice", "Broccoli"]) {
-    await sheet.getByRole("button", { name: f, exact: true }).dispatchEvent("click");
-    await sheet.evaluate((el) => el.querySelector(".overflow-y-auto")?.scrollTo({ top: 0 }));
-    await wait(420);
-  }
-  await sheet.getByRole("button", { name: "Done" }).dispatchEvent("click");
-  await sheet.evaluate((el) => el.querySelector(".overflow-y-auto")?.scrollTo({ top: 0, behavior: "smooth" }));
-  await wait(1200);
-  r.mark("macros");
-  await sheet.getByRole("button", { name: "Add to today" }).tap();
-  await p.getByRole("status").waitFor();
-  await wait(1600);
+  await card.getByRole("button", { name: "Ate it" }).dispatchEvent("click");
+  await card.getByText("Logged today").waitFor();
+  await wait(150);
+  await p.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+  await wait(2200);
   r.mark("end");
   await r.stop();
 }
