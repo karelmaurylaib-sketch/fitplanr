@@ -164,3 +164,68 @@ export function PlanMini() {
   );
 }
 
+
+/** Meal scan loop: the plate in a glowing frame → scan line → items pop in → calorie ring and macros fill. Example values only. */
+export function NutritionLoop() {
+  const { ref, i } = useLoop(7, 1100);
+  const items = [
+    { n: "Chicken breast", a: "5 oz", k: 234, p: 44 },
+    { n: "Brown rice", a: "1 cup", k: 218, p: 5 },
+    { n: "Broccoli", a: "1 cup", k: 55, p: 4 },
+  ];
+  const shown = Math.max(0, Math.min(3, i - 1));
+  const kcal = items.slice(0, shown).reduce((s, x) => s + x.k, 0);
+  const protein = items.slice(0, shown).reduce((s, x) => s + x.p, 0);
+  const scanning = i === 1;
+  return (
+    <div ref={ref} className="grid items-center gap-5 sm:grid-cols-[180px_1fr]">
+      <div className="relative mx-auto aspect-square w-[180px]">
+        <div className="absolute inset-0 overflow-hidden rounded-[26px] bg-[#0b0c09]">
+          <svg viewBox="0 0 180 180" className="h-full w-full" aria-hidden>
+            <circle cx="90" cy="92" r="70" fill="#1b1d17" />
+            <circle cx="90" cy="92" r="58" fill="#24261f" />
+            <path d="M52 78c8-16 34-20 44-8 6 8-2 22-16 24-14 2-34-2-28-16z" fill="#d6a46a" />
+            <path d="M58 82c10-6 22-6 30-2" stroke="#b9854d" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            <ellipse cx="112" cy="114" rx="26" ry="18" fill="#efe8d8" />
+            <ellipse cx="104" cy="110" rx="6" ry="3" fill="#ddd4bf" />
+            {[
+              [114, 66, 9],
+              [127, 74, 8],
+              [120, 84, 7],
+              [70, 118, 8],
+            ].map(([x, y, r], k) => (
+              <g key={k}>
+                <circle cx={x} cy={y} r={r} fill="#4f9a3f" />
+                <circle cx={x - 3} cy={y - 2} r={r * 0.45} fill="#6dbb55" />
+              </g>
+            ))}
+          </svg>
+          {scanning && <div className="scan-line absolute inset-x-0 top-0 h-[10%]" />}
+        </div>
+        <div className={cn("pointer-events-none absolute inset-0 rounded-[26px]", i <= 1 && "scan-frame")} />
+        {["left-0 top-0 border-l-[3px] border-t-[3px] rounded-tl-[26px]", "right-0 top-0 border-r-[3px] border-t-[3px] rounded-tr-[26px]", "left-0 bottom-0 border-l-[3px] border-b-[3px] rounded-bl-[26px]", "right-0 bottom-0 border-r-[3px] border-b-[3px] rounded-br-[26px]"].map((c) => (
+          <span key={c} className={cn("pointer-events-none absolute h-9 w-9 border-lime", c)} />
+        ))}
+      </div>
+      <div>
+        <div className="flex items-center gap-4">
+          <Ring value={kcal / 700} size={72} stroke={7}>
+            <span className="font-display text-[17px] font-bold tabular-nums">{kcal}</span>
+          </Ring>
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-lime">{i === 0 ? "Snap your plate" : scanning ? "Reading your plate…" : "Lunch · estimate"}</div>
+            <div className="mt-1 text-[14px] font-semibold tabular-nums">{protein} g protein · {kcal} kcal</div>
+          </div>
+        </div>
+        <div className="mt-3 space-y-1.5">
+          {items.map((x, k) => (
+            <div key={x.n} className={cn("flex h-9 items-center justify-between rounded-lg border px-3 text-[13px] transition-all duration-500", k < shown ? "translate-y-0 border-line-2 bg-white/[0.04] opacity-100" : "translate-y-2 border-line opacity-0")}>
+              <span className="whitespace-nowrap">{x.n} <span className="text-muted">· {x.a}</span></span>
+              <span className="whitespace-nowrap font-semibold tabular-nums">{x.k} kcal</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

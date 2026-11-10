@@ -120,6 +120,35 @@ The notification iPhone in the hero + the device frames of how-it-works.
 
 ---
 
+## Nutrition & Meal Scan (Nov 10, 2026)
+A 5th feature, paid app only: `/nutrition` (bottom tab on phone, sidebar link on computer).
+- **Targets** (`lib/nutrition/plan.ts`, deterministic like the training engine): 4 numbers asked once (sex, age, height,
+  weight, pre-filled 28 / 5'10" / 170 lb) → Mifflin-St Jeor × activity from plan days (2→1.375 … 5→1.6) × goal
+  (muscle +10%, strength +7%, fat loss −20%, fit 0). Protein 0.8 g/lb (1 g/lb on a cut, cap 230 g), fat 27% kcal
+  (min 0.3 g/lb), carbs = the rest. Split 30% breakfast / 35% lunch / 35% dinner (3 meals, as asked; no snack slot).
+- **Meals**: each meal = protein + carb + fruit/veg + healthy fat slots, 3–5 options each (`SLOTS`), foods in
+  `lib/nutrition/foods.ts` (42 US grocery foods, USDA values). Portions solved per meal (fruit/veg fixed at 1 serving,
+  carb → protein → fat solved in turn, rounded to the food's step; a fatty protein never exceeds the meal's fat target).
+  Tap a food → bottom sheet of swaps, each already sized; picks saved in `nutrition_profiles.choices`.
+  Shown honestly: the meal total can land under/over its target when a food can't fit (e.g. eggs).
+- **Meal scan**: full-screen viewfinder (getUserMedia, rear camera, square crop, glowing lime frame, lime shutter) or
+  upload → photo resized to 1024 px JPEG in the browser → `POST /api/nutrition/scan` → `lib/ai.ts` (Claude vision,
+  structured output, server-side fallbacks) → breakdown card slides up with itemized kcal/P/C/F, ±¼ portion steppers,
+  remove, add from the food list, meal picker → "Add to today" → `food_logs` → rings update. Photos are never stored.
+- **AI switch**: AI only when `ANTHROPIC_API_KEY` is set (Vercel env; optional `AI_MODEL`, default claude-opus-5-5).
+  Without it (current production), the scan still opens the camera, then asks "Tap what's on your plate" (food list)
+  and computes the breakdown itself. No scan quota is used then. The "no AI provider" rule above still holds for plans.
+- **"Ate it"** on a planned meal logs it (source `plan`). Today = the browser's local date (`eaten_on`).
+- **Quotas** (`lib/tiers.ts` `scans`, counted in `meal_scans` per billing period, only real AI reads): Starter 30,
+  Pro 90, Elite 300. Nutrition plan itself: every paid plan. Free: `/nutrition` → `/plan` (requirePaid), API → 402.
+- **Tables** (migration `20261110000000_nutrition.sql`, RLS): `nutrition_profiles`, `meal_scans`, `food_logs`.
+- **Share**: scanned/manual meals get a `share_id` → `/m/<id>` public page + next/og image (title, items, macros only).
+- **Kwop events**: feature_used `nutrition_plan`, `nutrition_swap`, `nutrition_meal_scan`, `nutrition_log`.
+- **Landing**: wide 5th card in [ IN ACTION ] with a looping plate-scan demo (`NutritionLoop`), no prices.
+- Macro colors: protein `#C8FF3D` (lime), carbs `#7EE787`, fat `#3FD3A6`. Phone bottom bar = Home, Workout,
+  Nutrition, History, Settings (Account reached from Settings on phones; sidebar keeps all 6).
+- Screens: `node scripts/nutrition-shots.mjs [390|1440]` (dev server on :3001 with DEV_PAID_EMAIL_SUFFIX, fake camera).
+
 ## Tech
 Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + lucide-react. Supabase Postgres + Auth
 (RLS everywhere, SQL in `supabase/migrations`). Vercel. No AI provider: the engine is deterministic (`lib/engine`).

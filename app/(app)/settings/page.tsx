@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ChevronRight, UserRound } from "lucide-react";
 import { PageTitle } from "@/components/app-shell";
 import { requirePaid } from "@/lib/guard";
 import { swapOptions, generatePlan } from "@/lib/engine/generate";
@@ -30,6 +32,14 @@ export default async function SettingsPage() {
   return (
     <div>
       <PageTitle label="Settings" title="Your setup" />
+      <Link href="/account" className="press mb-4 flex items-center gap-3 rounded-[20px] border border-line bg-card p-4 hover:bg-white/[0.03] md:hidden">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.06]"><UserRound size={18} /></span>
+        <span className="flex-1">
+          <span className="block text-[15px] font-semibold">Account &amp; billing</span>
+          <span className="block text-[13px] text-muted">Email, plan, sign out</span>
+        </span>
+        <ChevronRight size={18} className="text-muted" />
+      </Link>
       <SettingsClient
         setup={setup}
         rebuilds={{ used: access.usage.rebuilds, max: access.quota.rebuilds }}

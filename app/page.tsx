@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import fs from "node:fs";
 import path from "node:path";
-import { Check, Clock, Dumbbell, ListChecks, TrendingUp, Video, X } from "lucide-react";
+import { Apple, Check, Clock, Dumbbell, ListChecks, TrendingUp, Video, X } from "lucide-react";
 import { MainButton } from "@/components/ui/button";
 import { Reveal, Stagger, StaggerItem, CountUp } from "@/components/landing/css-motion";
 import { IPhone } from "@/components/iphone";
 import { NotificationStack } from "@/components/landing/notifications";
-import { PhoneScreen, LazyMount, LazyVSL, LazyGear, LazyProgression, LazyLog, LazyForm, LazyPlanMini } from "@/components/landing/lazy";
+import { PhoneScreen, LazyMount, LazyVSL, LazyGear, LazyProgression, LazyLog, LazyForm, LazyPlanMini, LazyNutrition } from "@/components/landing/lazy";
 import { TopBar, StickyCta, Faq, Footer, KwopFlow } from "@/components/landing/chrome";
 import { getSession } from "@/lib/access";
 import { landingRedirect } from "@/lib/route";
@@ -169,6 +169,20 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
                 <div className="mt-6">{f.el}</div>
               </Reveal>
             ))}
+            <Reveal className="grid gap-6 rounded-[22px] border border-line bg-card p-6 sm:p-8 md:col-span-2 md:grid-cols-[0.8fr_1.2fr] md:items-center md:gap-10">
+              <div>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime/10 text-lime">
+                    <Apple size={20} />
+                  </span>
+                  <div className="text-[20px] font-semibold">Nutrition &amp; Meal Scan</div>
+                </div>
+                <p className="mt-3 text-[15px] leading-relaxed text-muted">
+                  Calories, protein, carbs and fat for breakfast, lunch and dinner, sized for your goal. Don&apos;t like a food? Swap it: pear for apple, tofu for chicken. Snap your plate and it fills your rings.
+                </p>
+              </div>
+              <LazyMount minHeight={200}><LazyNutrition /></LazyMount>
+            </Reveal>
           </div>
         </div>
       </section>

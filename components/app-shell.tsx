@@ -2,17 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Dumbbell, History, LayoutDashboard, Settings, UserRound } from "lucide-react";
+import { Apple, Dumbbell, History, LayoutDashboard, Settings, UserRound } from "lucide-react";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/workout", label: "Workout", icon: Dumbbell },
-  { href: "/history", label: "History", icon: History },
-  { href: "/settings", label: "Settings", icon: Settings },
-  { href: "/account", label: "Account", icon: UserRound },
+  { href: "/dashboard", label: "Dashboard", short: "Home", icon: LayoutDashboard, phone: true },
+  { href: "/workout", label: "Workout", short: "Workout", icon: Dumbbell, phone: true },
+  { href: "/nutrition", label: "Nutrition", short: "Nutrition", icon: Apple, phone: true },
+  { href: "/history", label: "History", short: "History", icon: History, phone: true },
+  { href: "/settings", label: "Settings", short: "Settings", icon: Settings, phone: true },
+  // phone: Account is reached from Settings, so the bottom bar keeps 5 tabs
+  { href: "/account", label: "Account", short: "Account", icon: UserRound, phone: false },
 ];
 
 export function AppShell({ children, planName }: { children: ReactNode; planName: string | null }) {
@@ -40,9 +42,9 @@ export function AppShell({ children, planName }: { children: ReactNode; planName
       <div className="mx-auto max-w-[920px] px-5 pb-32 pt-6 md:px-10 md:pb-16 md:pt-10">{children}</div>
       <nav className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-line bg-[rgb(8_9_6/0.92)] pt-2 backdrop-blur-xl md:hidden" aria-label="App">
         <div className="mx-auto flex max-w-[520px] justify-around">
-          {NAV.map((n) => (
-            <Link key={n.href} href={n.href} className={cn("press flex min-w-[60px] flex-col items-center gap-1 rounded-xl px-2 py-1.5 text-[11px] font-medium", active(n.href) ? "text-lime" : "text-muted")}>
-              <n.icon size={22} /> {n.label}
+          {NAV.filter((n) => n.phone).map((n) => (
+            <Link key={n.href} href={n.href} className={cn("press flex min-w-[60px] flex-col items-center gap-1 rounded-xl px-2 py-1.5 text-[11px] font-medium", active(n.href) || (n.href === "/settings" && path === "/account") ? "text-lime" : "text-muted")}>
+              <n.icon size={22} /> {n.short}
             </Link>
           ))}
         </div>
