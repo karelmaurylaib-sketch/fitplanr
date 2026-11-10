@@ -191,7 +191,9 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
   `/v1/projects/ehokzomaenbonjnysvhy/config/auth` with external_google_enabled/client_id/secret, then set
   `NEXT_PUBLIC_GOOGLE_ENABLED=1` in Vercel and redeploy. Redirect URI: https://ehokzomaenbonjnysvhy.supabase.co/auth/v1/callback
 - Deploy from this cloud box: `NODE_USE_ENV_PROXY=1 npx vercel deploy --prod --yes --token <any-placeholder>`
-  (the proxy injects the real token). Local server needs `NODE_USE_ENV_PROXY=1` to reach Supabase.
+  (the proxy injects the real token). Check `.vercel/project.json` names `fitplanr-3` first, or pass
+  `VERCEL_ORG_ID=team_vZWbcKclLZzvIpalbselNYs8 VERCEL_PROJECT_ID=prj_81MgYf5SabOl9zUdH7nk80MqxZz6`: a fresh box was
+  linked to an older `fitplanr` project (fitplanr-roan.vercel.app) on Nov 10. Local server needs `NODE_USE_ENV_PROXY=1` to reach Supabase.
 - Paid-app preview in local dev only: `DEV_PAID_EMAIL_SUFFIX=.paidpreview@fitplanr-test.com DEV_PAID_TIER=Pro npx next dev`
   (ignored in production builds). Scripts: `scripts/shot.mjs`, `scripts/funnel-shots.mjs`, `scripts/app-shots.mjs`.
 - Verified: e2e 3× phone + 3× computer on production (green), RLS cross-user test (blocked), no secrets in
