@@ -13,13 +13,12 @@ export type Quota = {
   swaps: boolean; // custom split changes
   deload: boolean;
   exportCsv: boolean;
-  scans: number; // meal photo scans per period (the nutrition plan itself is on every paid plan)
 };
 
 export const QUOTAS: Record<Tier, Quota> = {
-  starter: { rebuilds: 2, workouts: 12, historyDays: 30, smart: false, charts: false, fullLibrary: false, swaps: false, deload: false, exportCsv: false, scans: 30 },
-  pro: { rebuilds: 6, workouts: 30, historyDays: null, smart: true, charts: true, fullLibrary: true, swaps: false, deload: false, exportCsv: false, scans: 90 },
-  elite: { rebuilds: 20, workouts: 90, historyDays: null, smart: true, charts: true, fullLibrary: true, swaps: true, deload: true, exportCsv: true, scans: 300 },
+  starter: { rebuilds: 2, workouts: 12, historyDays: 30, smart: false, charts: false, fullLibrary: false, swaps: false, deload: false, exportCsv: false },
+  pro: { rebuilds: 6, workouts: 30, historyDays: null, smart: true, charts: true, fullLibrary: true, swaps: false, deload: false, exportCsv: false },
+  elite: { rebuilds: 20, workouts: 90, historyDays: null, smart: true, charts: true, fullLibrary: true, swaps: true, deload: true, exportCsv: true },
 };
 
 export const TIER_ORDER: Tier[] = ["starter", "pro", "elite"];
@@ -35,7 +34,7 @@ export const UNLOCKS: Record<Tier, string[]> = {
     "Your full 4-week plan, every day and every set",
     "12 logged workouts a month",
     "2 plan rebuilds a month when your gear or goal changes",
-    "A nutrition plan for your goal + 30 meal scans a month",
+    "A nutrition plan for your goal: calories and macros for 3 meals",
     "Form guides for every exercise in your plan",
     "30 days of workout history",
   ],
@@ -44,7 +43,7 @@ export const UNLOCKS: Record<Tier, string[]> = {
     "Weights go up on their own, from what you really lifted",
     "30 logged workouts a month",
     "6 plan rebuilds a month",
-    "A nutrition plan + 90 meal photo scans a month",
+    "A nutrition plan with meals you can swap",
     "Strength charts for every lift",
     "The full form library and all your history",
   ],
@@ -52,7 +51,6 @@ export const UNLOCKS: Record<Tier, string[]> = {
     "Everything in Pro",
     "90 logged workouts a month",
     "20 plan rebuilds a month",
-    "300 meal photo scans a month",
     "Swap any exercise and move your training days",
     "Built-in deload weeks so you come back stronger",
     "Export every set to CSV",
@@ -61,8 +59,8 @@ export const UNLOCKS: Record<Tier, string[]> = {
 
 export const ADDS: Record<Tier, string[]> = {
   starter: [],
-  pro: ["Weights that rise on their own from your logs", "30 workouts a month instead of 12", "90 meal scans a month instead of 30", "Strength charts and all your history"],
-  elite: ["Swap exercises and move training days", "Deload weeks built in", "90 workouts and 300 meal scans a month", "CSV export"],
+  pro: ["Weights that rise on their own from your logs", "30 workouts a month instead of 12", "Strength charts and all your history"],
+  elite: ["Swap exercises and move training days", "Deload weeks built in", "90 workouts a month and CSV export"],
 };
 
 export function tierOf(planName: string | null | undefined): Tier | null {

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { track } from "@/lib/kwop";
 import { nutritionAccess } from "@/lib/nutrition/server";
@@ -7,14 +6,13 @@ import { nutritionAccess } from "@/lib/nutrition/server";
 const Item = z.object({ name: z.string().min(1).max(60), portion: z.string().max(40), kcal: z.number().min(0).max(3000), protein: z.number().min(0).max(300), carbs: z.number().min(0).max(400), fat: z.number().min(0).max(300) });
 const Req = z.object({
   eatenOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  meal: z.enum(["breakfast", "lunch", "dinner", "snack"]),
+  meal: z.enum(["breakfast", "lunch", "dinner"]),
   title: z.string().min(1).max(60),
   items: z.array(Item).min(1).max(16),
-  source: z.enum(["scan", "plan", "manual"]),
-  scanId: z.string().uuid().nullable().optional(),
+  source: z.literal("plan"),
 });
 
-/** Add a meal to a day: totals are summed on the server from the items. */
+/** "Ate it": add a planned meal to a day. Totals are summed on the server from the items. */
 export async function POST(req: Request) {
   const a = await nutritionAccess();
   if ("error" in a) return NextResponse.json({ error: a.error }, { status: a.status });
@@ -35,13 +33,11 @@ export async function POST(req: Request) {
       carbs: sum("carbs"),
       fat: sum("fat"),
       source: b.source,
-      scan_id: b.scanId ?? null,
-      share_id: b.source === "plan" ? null : randomBytes(6).toString("base64url"),
     })
     .select("*")
     .single();
   if (error) return NextResponse.json({ error: "save" }, { status: 500 });
-  if (b.source !== "scan") track("feature_used", a.user.email, "nutrition_log");
+  track("feature_used", a.user.email, "nutrition_log");
   return NextResponse.json({ ok: true, log: data });
 }
 

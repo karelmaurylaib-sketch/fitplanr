@@ -1,5 +1,5 @@
 // FitPlanr food list: common US grocery foods with macros per serving (USDA FoodData Central, rounded).
-// Used by the nutrition plan (portions solved to hit each meal's targets) and to fix up a meal scan by hand.
+// Used by the nutrition plan: portions are solved to hit each meal's targets.
 
 export type FoodCat = "protein" | "carb" | "fruit" | "veg" | "fat";
 

@@ -9,7 +9,6 @@ import type { Goal } from "../engine/generate";
 export type Body = { sex: "m" | "f"; age: number; heightIn: number; weightLb: number };
 export type Macros = { kcal: number; p: number; c: number; f: number };
 export type MealKey = "breakfast" | "lunch" | "dinner";
-export type LogMeal = MealKey | "snack";
 
 export const MEALS: { key: MealKey; name: string; share: number; time: string }[] = [
   { key: "breakfast", name: "Breakfast", share: 0.3, time: "7–9 am" },
@@ -138,10 +137,3 @@ export function swapOptions(body: Body, goal: Goal, days: number, choices: Recor
 
 export const FOOD_LIST = FOODS;
 
-/** Meal guess from the local hour, for a new scan. */
-export function mealForHour(h: number): LogMeal {
-  if (h >= 4 && h < 11) return "breakfast";
-  if (h >= 11 && h < 16) return "lunch";
-  if (h >= 16 && h < 22) return "dinner";
-  return "snack";
-}

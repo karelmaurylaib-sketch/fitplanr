@@ -37,10 +37,7 @@ async function recorder(page, name) {
   };
 }
 
-const b = await chromium.launch({
-  executablePath: "/opt/pw-browsers/chromium",
-  args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream", `--use-file-for-fake-video-capture=${path.resolve(OUT, "plate.y4m")}`],
-});
+const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
 const only = process.argv[2];
 
 // ---------- scene 0: intro (animated dumbbell, drawn in code) + landing hero, logged out ----------
@@ -97,7 +94,7 @@ if (only !== "rest") {
 }
 
 // ---------- paid account for scenes 1–4 ----------
-const ctx = await b.newContext({ viewport: VIEW, deviceScaleFactor: 3, isMobile: true, hasTouch: true, permissions: ["camera"] });
+const ctx = await b.newContext({ viewport: VIEW, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
 const p = await ctx.newPage();
 const errs = [];
 p.on("pageerror", (e) => errs.push(String(e)));
@@ -188,12 +185,6 @@ await p.waitForTimeout(800);
   await p.getByText("Three plates a day").waitFor();
   const card = p.getByRole("article", { name: "Breakfast" });
   await card.evaluate((el) => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: "instant" }));
-  // the meal-photo scan is not part of the product story: hide its buttons in this recording
-  await p.evaluate(() => {
-    const scan = [...document.querySelectorAll("button")].find((b) => b.textContent?.trim().startsWith("Scan a meal") && b.closest("section"));
-    scan?.closest("section")?.querySelector(":scope > .relative.mt-6")?.remove();
-    [...document.querySelectorAll("button")].filter((b) => /Scan a meal|^Scan$/.test(b.textContent?.trim() ?? "")).forEach((b) => (b.style.visibility = "hidden"));
-  });
   await p.waitForTimeout(1500);
   const r = await recorder(p, "s4");
   r.mark("start");

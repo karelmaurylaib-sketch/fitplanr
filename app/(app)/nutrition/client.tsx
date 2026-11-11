@@ -1,20 +1,17 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeftRight, Camera, Check, ImageUp, Minus, Pencil, Plus, ScanLine, Trash2, UtensilsCrossed } from "lucide-react";
+import { ArrowLeftRight, Check, Minus, Pencil, Plus, Trash2, UtensilsCrossed } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { PageTitle } from "@/components/app-shell";
-import { Button, MainButton } from "@/components/ui/button";
+import { MainButton } from "@/components/ui/button";
 import { Ring } from "@/components/ui/motion";
 import { Sheet } from "@/components/ui/sheet";
-import { ShareButton } from "@/components/share-button";
-import { useUpgrade } from "@/components/paywall/upgrade";
 import { buildNutrition, DEFAULT_BODY, MEALS, SLOTS, swapOptions, type Body, type MealKey, type PlannedMeal } from "@/lib/nutrition/plan";
 import type { FoodLog } from "@/lib/nutrition/server";
 import type { Goal } from "@/lib/engine/generate";
 import { cn } from "@/lib/utils";
 import { MACRO_COLORS, localDay } from "./shared";
-import { MealScanner } from "./scanner";
 
 type Props = {
   initialBody: Body | null;
@@ -22,25 +19,20 @@ type Props = {
   goal: Goal;
   days: number;
   initialLogs: FoodLog[];
-  scans: { used: number; max: number };
-  ai: boolean;
 };
 
 const EASE = [0.22, 0.8, 0.24, 1] as const;
-const MEAL_NAME: Record<string, string> = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack" };
+const MEAL_NAME: Record<string, string> = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner" };
 
-export function NutritionClient({ initialBody, initialChoices, goal, days, initialLogs, scans, ai }: Props) {
+export function NutritionClient({ initialBody, initialChoices, goal, days, initialLogs }: Props) {
   const [body, setBody] = useState<Body | null>(initialBody);
   const [choices, setChoices] = useState(initialChoices);
   const [logs, setLogs] = useState(initialLogs);
-  const [used, setUsed] = useState(scans.used);
   const [today, setToday] = useState<string | null>(null);
   const [editBody, setEditBody] = useState(false);
   const [swap, setSwap] = useState<{ meal: MealKey; slot: string } | null>(null);
-  const [scanner, setScanner] = useState<null | "camera" | "upload">(null);
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { open: openUpgrade } = useUpgrade();
 
   useEffect(() => setToday(localDay()), []);
   useEffect(() => {
@@ -93,11 +85,6 @@ export function NutritionClient({ initialBody, initialChoices, goal, days, initi
     }
   }
 
-  function startScan(kind: "camera" | "upload") {
-    if (ai && used >= scans.max) return openUpgrade(`You've used your ${scans.max} meal scans this month`);
-    setScanner(kind);
-  }
-
   if (!body || !plan)
     return (
       <div>
@@ -123,11 +110,7 @@ export function NutritionClient({ initialBody, initialChoices, goal, days, initi
 
   return (
     <div>
-      <PageTitle label="Nutrition" title="Eat to grow">
-        <div className="hidden sm:block">
-          <MainButton size="sm" onClick={() => startScan("camera")}>Scan a meal</MainButton>
-        </div>
-      </PageTitle>
+      <PageTitle label="Nutrition" title="Eat to grow" />
 
       {/* ---------- today ---------- */}
       <section className="relative overflow-hidden rounded-[24px] border border-line-2 bg-card p-5 sm:p-7" aria-label="Today">
@@ -174,15 +157,7 @@ export function NutritionClient({ initialBody, initialChoices, goal, days, initi
             </div>
           </div>
         </div>
-        <div className="relative mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <MainButton className="w-full sm:hidden" onClick={() => startScan("camera")}>Scan a meal</MainButton>
-          <Button variant="outline" className="w-full sm:w-auto" onClick={() => startScan("upload")}>
-            <ImageUp size={17} /> Upload a photo
-          </Button>
-          <p className="text-center text-[13px] text-dim sm:ml-auto sm:text-right">
-            {ai ? `${Math.max(0, scans.max - used)} of ${scans.max} scans left this month` : "Snap or upload your plate, then tap what's on it"}
-          </p>
-        </div>
+        <p className="relative mt-5 text-center text-[13px] text-dim sm:text-left">Tap &ldquo;Ate it&rdquo; on a meal below and your rings fill.</p>
       </section>
 
       {error && (
@@ -207,7 +182,7 @@ export function NutritionClient({ initialBody, initialChoices, goal, days, initi
             key={m.key}
             meal={m}
             index={k}
-            logged={todays.some((l) => l.meal === m.key && l.source === "plan")}
+            logged={todays.some((l) => l.meal === m.key)}
             onSwap={(slot) => setSwap({ meal: m.key, slot })}
             onAte={() => logPlanned(m)}
           />
@@ -218,14 +193,11 @@ export function NutritionClient({ initialBody, initialChoices, goal, days, initi
       <section className="mt-10 rounded-[20px] border border-line bg-card p-5 sm:p-6" aria-label="Today's food">
         <div className="flex items-center justify-between">
           <div className="text-[16px] font-semibold">Today&apos;s food</div>
-          <button onClick={() => startScan("camera")} className="press flex items-center gap-1.5 text-[13px] text-muted hover:text-fg">
-            <ScanLine size={15} /> Scan
-          </button>
         </div>
         {todays.length === 0 ? (
           <div className="mt-4 flex items-center gap-4 rounded-2xl border border-dashed border-line-2 p-5">
-            <Camera size={22} className="shrink-0 text-muted" />
-            <p className="text-[14px] text-muted">Nothing yet today. Snap your next plate or tap &ldquo;Ate it&rdquo; on a planned meal: your rings fill as you go.</p>
+            <UtensilsCrossed size={22} className="shrink-0 text-muted" />
+            <p className="text-[14px] text-muted">Nothing yet today. Tap &ldquo;Ate it&rdquo; on a planned meal: your rings fill as you go.</p>
           </div>
         ) : (
           <ul className="mt-3 divide-y divide-line">
@@ -235,8 +207,8 @@ export function NutritionClient({ initialBody, initialChoices, goal, days, initi
                 .reverse()
                 .map((l) => (
                   <motion.li key={l.id} layout initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.4, ease: EASE }} className="flex items-center gap-3 py-3">
-                    <span className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", l.source === "scan" ? "bg-lime/10 text-lime" : "bg-white/[0.06] text-fg")}>
-                      {l.source === "scan" ? <Camera size={18} /> : l.source === "plan" ? <Check size={18} /> : <UtensilsCrossed size={17} />}
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-lime/10 text-lime">
+                      <Check size={18} />
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-[14px] font-semibold">{l.title}</div>
@@ -245,7 +217,6 @@ export function NutritionClient({ initialBody, initialChoices, goal, days, initi
                       </div>
                     </div>
                     <div className="text-right font-display text-[20px] font-bold tabular-nums">{l.kcal}<span className="ml-0.5 text-[11px] font-normal text-muted">kcal</span></div>
-                    {l.share_id && <ShareButton path={`/m/${l.share_id}`} title={l.title} text="My meal, scanned with FitPlanr." iconOnly />}
                     <button aria-label={`Remove ${l.title}`} onClick={() => remove(l.id)} className="press flex h-9 w-9 items-center justify-center rounded-full text-dim hover:bg-white/[0.06] hover:text-fg">
                       <Trash2 size={16} />
                     </button>
@@ -306,19 +277,6 @@ export function NutritionClient({ initialBody, initialChoices, goal, days, initi
         </div>
       </Sheet>
 
-      <MealScanner
-        mode={scanner}
-        ai={ai}
-        today={today}
-        onClose={() => setScanner(null)}
-        onQuota={() => (setScanner(null), openUpgrade(`You've used your ${scans.max} meal scans this month`))}
-        onScanned={() => setUsed((u) => u + 1)}
-        onSaved={(log) => {
-          setLogs((l) => [...l, log]);
-          setScanner(null);
-          setToast(`${MEAL_NAME[log.meal]} added · +${log.kcal} kcal`);
-        }}
-      />
       <Toast text={toast} />
     </div>
   );

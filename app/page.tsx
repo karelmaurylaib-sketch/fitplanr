@@ -175,10 +175,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime/10 text-lime">
                     <Apple size={20} />
                   </span>
-                  <div className="text-[20px] font-semibold">Nutrition &amp; Meal Scan</div>
+                  <div className="text-[20px] font-semibold">Nutrition Plan</div>
                 </div>
                 <p className="mt-3 text-[15px] leading-relaxed text-muted">
-                  Calories, protein, carbs and fat for breakfast, lunch and dinner, sized for your goal. Don&apos;t like a food? Swap it: pear for apple, tofu for chicken. Snap your plate and it fills your rings.
+                  Calories, protein, carbs and fat for breakfast, lunch and dinner, sized for your goal. Don&apos;t like a food? Swap it: pear for apple, tofu for chicken. Tap &ldquo;Ate it&rdquo; and your rings fill.
                 </p>
               </div>
               <LazyMount minHeight={200}><LazyNutrition /></LazyMount>

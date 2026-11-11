@@ -8,26 +8,24 @@ export type FoodItem = { name: string; portion: string; kcal: number; protein: n
 export type FoodLog = {
   id: string;
   eaten_on: string;
-  meal: "breakfast" | "lunch" | "dinner" | "snack";
+  meal: "breakfast" | "lunch" | "dinner";
   title: string;
   items: FoodItem[];
   kcal: number;
   protein: number;
   carbs: number;
   fat: number;
-  source: "scan" | "plan" | "manual";
-  share_id: string | null;
+  source: "plan";
   created_at: string;
 };
 
-/** Paid check (getPlan via getAccess) + scan usage for the billing period. Every nutrition API route starts here. */
+/** Paid check (getPlan via getAccess). Every nutrition API route starts here. */
 export async function nutritionAccess() {
   const { sb, user } = await getSession();
   if (!user) return { error: "auth" as const, status: 401 };
   const access = await getAccess();
   if (!access.kwop.paid || !access.quota) return { error: "paywall" as const, status: 402 };
-  const { count } = await sb.from("meal_scans").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", access.usage.since);
-  return { sb, user, access, quota: access.quota, scansUsed: count ?? 0 };
+  return { sb, user, access, quota: access.quota };
 }
 
 export async function nutritionContext() {

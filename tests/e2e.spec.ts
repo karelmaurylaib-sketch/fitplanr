@@ -8,7 +8,7 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Two dumbbells");
   await expect(page.getByText(/pricing|\$\d/i)).toHaveCount(0); // never a price on the landing page
-  await expect(page.getByText("Nutrition & Meal Scan")).toBeVisible(); // the feature loop is on the landing page
+  await expect(page.getByText("Nutrition Plan")).toBeVisible(); // the feature loop is on the landing page
   await page.getByRole("link", { name: "Build my plan" }).first().click();
 
   await expect(page).toHaveURL(/\/signup/);
@@ -61,8 +61,9 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   // Nutrition is a paid part: checked on the server, an unpaid account goes back to its locked plan
   await page.goto("/nutrition");
   await expect(page).toHaveURL(/\/plan/);
-  const scan = await page.request.post("/api/nutrition/scan", { data: { image: "x".repeat(200), type: "image/jpeg" } });
-  expect(scan.status()).toBe(402);
+  const log = await page.request.post("/api/nutrition/log", { data: { eatenOn: "2026-11-11", meal: "lunch", title: "x", items: [{ name: "x", portion: "1", kcal: 1, protein: 1, carbs: 1, fat: 1 }], source: "plan" } });
+  expect(log.status()).toBe(402);
+  expect((await page.request.post("/api/nutrition/scan")).status()).toBe(404); // the meal photo scan was removed
 
   await page.goto("/account");
   await expect(page.getByText(email)).toBeVisible();

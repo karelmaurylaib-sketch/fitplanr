@@ -1,15 +1,14 @@
-// Screenshots of Nutrition & Meal Scan (local dev only, DEV_PAID_EMAIL_SUFFIX set on the dev server).
-// The browser gets a fake camera, so the viewfinder and shutter work headless.
+// Screenshots of the Nutrition plan (local dev only, DEV_PAID_EMAIL_SUFFIX set on the dev server).
 import { chromium } from "playwright";
 import fs from "node:fs";
 const base = process.env.BASE_URL || "http://localhost:3001";
 const exe = fs.existsSync("/opt/pw-browsers/chromium") ? { executablePath: "/opt/pw-browsers/chromium" } : {};
-const b = await chromium.launch({ ...exe, args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"] });
+const b = await chromium.launch(exe);
 fs.mkdirSync("shots", { recursive: true });
 const sizes = process.argv[2] ? [process.argv[2]] : ["390", "1440"];
 for (const tag of sizes) {
   const vp = tag === "390" ? { width: 390, height: 844 } : { width: 1440, height: 900 };
-  const ctx = await b.newContext({ viewport: vp, permissions: ["camera"] });
+  const ctx = await b.newContext({ viewport: vp });
   const p = await ctx.newPage();
   const errs = [];
   p.on("pageerror", (e) => errs.push(String(e)));
@@ -46,31 +45,13 @@ for (const tag of sizes) {
   await p.waitForTimeout(1300);
   const k1 = await p.getByTestId("kcal-eaten").innerText();
 
-  await p.getByRole("button", { name: "Scan a meal" }).first().click(); await p.waitForTimeout(1800);
-  await p.screenshot({ path: `shots/n-camera-${tag}.png` });
-  await p.getByRole("button", { name: "Take photo" }).click(); await p.waitForTimeout(900);
-  await p.screenshot({ path: `shots/n-reading-${tag}.png` });
-  await p.getByRole("region", { name: "Meal breakdown" }).waitFor({ timeout: 20000 }); await p.waitForTimeout(600);
-  const chips = p.getByRole("region", { name: "Meal breakdown" });
-  await chips.getByRole("button", { name: "Chicken breast" }).click();
-  await chips.getByRole("button", { name: "Brown rice" }).click();
-  await chips.getByRole("button", { name: "Broccoli" }).click();
-  await chips.getByRole("button", { name: "Done" }).click();
-  await chips.getByRole("button", { name: "More Chicken breast" }).click();
-  await p.waitForTimeout(1500);
-  await p.screenshot({ path: `shots/n-result-${tag}.png` });
-  await chips.getByRole("button", { name: "Add to today" }).click();
-  await p.getByRole("status").waitFor(); await p.waitForTimeout(1400);
+  await p.getByRole("article", { name: "Lunch" }).getByRole("button", { name: "Ate it" }).click();
+  await p.getByRole("article", { name: "Lunch" }).getByText("Logged today").waitFor();
+  await p.waitForTimeout(1400);
   const k2 = await p.getByTestId("kcal-eaten").innerText();
+  const scanButtons = await p.getByRole("button", { name: /Scan|Upload a photo/ }).count();
+  if (scanButtons) errs.push(`meal scan controls still on the page: ${scanButtons}`);
   await p.screenshot({ path: `shots/n-after-${tag}.png`, fullPage: true });
-
-  // upload path
-  const img = await p.screenshot({ type: "jpeg", clip: { x: 0, y: 0, width: 300, height: 300 } });
-  await p.getByRole("button", { name: "Upload a photo" }).first().click(); await p.waitForTimeout(600);
-  await p.getByTestId("meal-file").setInputFiles({ name: "plate.jpg", mimeType: "image/jpeg", buffer: img });
-  await p.getByRole("region", { name: "Meal breakdown" }).waitFor({ timeout: 20000 }); await p.waitForTimeout(800);
-  await p.screenshot({ path: `shots/n-upload-${tag}.png` });
-  await p.keyboard.press("Escape"); await p.waitForTimeout(500);
 
   await p.goto(base + "/");
   console.log(tag, "kcal", k1, "→", k2, errs.length ? errs.slice(0, 6) : "no errors");
