@@ -135,7 +135,8 @@ A 5th feature, paid app only: `/nutrition` (bottom tab on phone, sidebar link on
   Today = the browser's local date (`eaten_on`). Today's food list with delete.
 - **Owner decision (Nov 11): no meal photo scan / camera in FitPlanr.** Removed: camera viewfinder, upload, scan API,
   `lib/ai.ts` + the Anthropic SDK, scan quotas, `/m/<id>` meal share pages, `meal_scans` table
-  (migration `20261111000000_remove_meal_scan.sql`). No AI provider anywhere again. Don't add it back without asking.
+  (migration `20261111000000_remove_meal_scan.sql`, written but NOT applied yet: needs the owner's OK to drop the
+  test-only rows/table). No AI provider anywhere again. Don't add it back without asking.
 - Nutrition plan is on every paid plan, no quota. Free: `/nutrition` → `/plan` (requirePaid), API → 402.
 - **Tables** (RLS): `nutrition_profiles`, `food_logs` (migrations `20261110000000_nutrition.sql` + the removal above).
 - **Kwop events**: feature_used `nutrition_plan`, `nutrition_swap`, `nutrition_log`.
