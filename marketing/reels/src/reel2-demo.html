@@ -1,0 +1,42 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="kit.css"><script src="kit.js"></script><script src="demo-meta.js"></script>
+<style>
+#phone{position:absolute;left:170px;top:520px;width:740px;height:1316px;border-radius:78px;padding:16px;background:#1b1d18;box-shadow:0 0 0 2px rgb(255 255 255/.12),0 40px 120px rgb(0 0 0/.8),0 0 140px rgb(200 255 61/.16)}
+#phone img{width:100%;height:100%;border-radius:62px;display:block;object-fit:cover}
+.cap{position:absolute;left:60px;right:60px;top:210px;text-align:center;font-size:104px;opacity:0}
+.cap .w{display:inline-block}
+#speed{position:absolute;right:170px;top:452px;z-index:3;background:rgb(0 0 0/.7);border:2px solid rgb(255 255 255/.15);color:var(--lime);padding:10px 18px;border-radius:999px;font-size:26px}
+</style></head><body><div class="stage">
+<div class="dots"></div><div class="glow"></div>
+<div id="caps"></div>
+<div id="phone"><img id="scr"></div>
+<div id="speed" class="mono">▶▶ 2×</div>
+<div id="endwrap"></div>
+</div>
+<script>
+// [srcStart, srcEnd, speed, caption html, speed badge]
+const SEG=[
+ [1.9,5.9,1.6,'I own <span class="lime">2 dumbbells.</span><br>Watch this.',''],
+ [5.9,9.7,4,'Sign up <span class="lime">free</span>','4×'],
+ [9.7,21.6,2.6,'<span class="lime">5 quick</span> taps','2.6×'],
+ [21.6,26.2,1.5,'Pick the gear<br>you <span class="lime">actually own</span>',''],
+ [26.2,34.9,2,'It builds<br><span class="lime">your 4 weeks</span>','2×'],
+ [35.6,37.5,1,'Day 1: every move,<br><span class="lime">set & weight</span>',''],
+ [39.7,44.3,1.25,'Weeks 2–4 add<br><span class="lime">reps for you</span>',''],
+];
+let acc=0; SEG.forEach(s=>{s.o0=acc; acc+=(s[1]-s[0])/s[2]; s.o1=acc;});
+const END=acc; window.DURATION=END+3.2;
+$('#caps').innerHTML=SEG.map((s,i)=>`<div class="cap disp" id="k${i}">${s[3]}</div>`).join('');
+$('#endwrap').innerHTML=endCard();
+const F=META.frames; const idx=ms=>{let lo=0,hi=F.length-1;while(lo<hi){const m=(lo+hi+1)>>1;if(F[m]<=ms)lo=m;else hi=m-1}return lo};
+const img=$('#scr'); let cur=-1;
+window.render=async(t)=>{
+  const tt=Math.min(t,END-1e-3); const s=SEG.find(s=>tt>=s.o0&&tt<s.o1)||SEG[SEG.length-1];
+  const src=s[0]+(tt-s.o0)*s[2]; const i=idx(src*1000);
+  if(i!==cur){cur=i; img.src='demo-frames/'+String(i).padStart(5,'0')+'.jpg'; await img.decode();}
+  SEG.forEach((q,k)=>{const el=$('#k'+k); const a=q.o0, o=k==SEG.length-1?END:q.o1; rv(el,t,a,.35,40,o-.18,.18);});
+  const sb=$('#speed'); sb.textContent='▶▶ '+(s[4]||''); sb.style.opacity=(s[4]&&t<END)?1:0;
+  const ph=$('#phone'); const ep=eio(seg(t,END,END+.5)); const ip=eo(seg(t,0,.5));
+  ph.style.transform=`translateY(${(1-ip)*120+ep*500}px) scale(${1-.05*ep})`; ph.style.opacity=ip*(1-ep);
+  if(t>=END) renderEnd(t,END+.15); else $('#end').style.opacity=0;
+};
+</script></body></html>

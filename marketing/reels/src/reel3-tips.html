@@ -1,0 +1,104 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="kit.css"><script src="kit.js"></script>
+<style>
+.h{position:absolute;left:72px;right:72px;top:300px;font-size:140px}
+.l2{color:transparent;background:linear-gradient(90deg,#9a9f92,#4d5148);-webkit-background-clip:text;background-clip:text}
+.sc{position:absolute;inset:0;opacity:0}
+.num{position:absolute;left:72px;top:250px;font-size:34px}
+.rt{position:absolute;left:72px;right:72px;top:310px;font-size:118px}
+.sub{position:absolute;left:72px;right:72px;font:500 40px/1.35 Inter;color:var(--muted)}
+.sub b{color:var(--text);font-weight:600}
+.grp{position:absolute;bottom:0;display:flex;gap:14px;align-items:flex-end}
+.bar{width:64px;border-radius:14px 14px 6px 6px;background:var(--lime);position:relative}
+.bar span{position:absolute;top:-58px;left:0;right:0;text-align:center;font:700 44px 'Barlow Condensed'}
+.wl{position:absolute;bottom:-70px;left:0;right:0;text-align:center;font-size:26px}
+.dot{width:150px;height:150px;border-radius:50%;border:4px solid var(--line);display:grid;place-items:center;font:700 64px 'Barlow Condensed';color:var(--muted)}
+.dot.on{background:var(--lime);border-color:var(--lime);color:var(--ink)}
+.ph{font:700 34px 'JetBrains Mono';letter-spacing:.1em;padding:20px 30px;border-radius:999px;border:2px solid var(--line);color:var(--muted)}
+.ph.on{border-color:var(--lime);color:var(--lime)}
+</style></head><body><div class="stage">
+<div class="dots"></div><div class="glow"></div>
+
+<div class="sc" id="s0">
+  <div class="mono lime abs" style="left:72px;top:230px;font-size:36px" id="s0l">[ Save this ]</div>
+  <div class="h disp" id="s0h"><div>Same 2</div><div>dumbbells.</div><div class="lime">Still getting</div><div class="lime">stronger.</div></div>
+  <div class="sub" style="top:900px" id="s0s">3 rules for when you can't<br>just grab a heavier weight.</div>
+  <div class="abs" id="s0d" style="left:300px;top:1180px;width:480px;color:#d9dcd2"></div>
+  <div class="abs mono" id="s0t" style="left:462px;top:1090px;font-size:30px;background:#171a13;border:2px solid var(--line);padding:10px 18px;border-radius:12px">25 lb</div>
+</div>
+
+<div class="sc" id="s1">
+  <div class="num mono lime">Rule 01 / 03</div>
+  <div class="rt disp"><div>Add reps</div><div class="l2">before weight.</div></div>
+  <div class="sub" style="top:600px">Pick a range, like <b>8–12</b>. Climb it.</div>
+  <div class="abs" style="left:72px;right:72px;top:960px;height:560px" id="chart"></div>
+  <div class="sub" style="top:1630px;font-size:34px">Leave 2–3 reps in the tank in week 1.</div>
+</div>
+
+<div class="sc" id="s2">
+  <div class="num mono lime">Rule 02 / 03</div>
+  <div class="rt disp"><div>Hit 12 on</div><div>every set?</div><div class="lime">Add a set.</div></div>
+  <div class="abs" style="left:72px;right:72px;top:1000px;display:flex;justify-content:space-between" id="sets"></div>
+  <div class="abs disp" style="left:0;right:0;top:1250px;text-align:center;font-size:96px" id="s2x"><span id="s2a">3</span> × 12 <span class="muted">· 25 lb</span></div>
+  <div class="sub" style="top:1420px;text-align:center">More total work. Same dumbbells.</div>
+</div>
+
+<div class="sc" id="s3">
+  <div class="num mono lime">Rule 03 / 03</div>
+  <div class="rt disp"><div>Maxed out?</div><div class="lime">Slow it down.</div></div>
+  <svg class="abs" id="dial" style="left:290px;top:690px" width="500" height="500" viewBox="0 0 500 500">
+    <circle cx="250" cy="250" r="210" stroke="rgb(255 255 255/.09)" stroke-width="26" fill="none"/>
+    <circle id="arc" cx="250" cy="250" r="210" stroke="#C8FF3D" stroke-width="26" fill="none" stroke-linecap="round" transform="rotate(-90 250 250)" stroke-dasharray="1319.5" stroke-dashoffset="1319.5"/>
+    
+    <text id="dt" x="250" y="285" font-size="150" text-anchor="middle" fill="#F4F5F0" font-family="Barlow Condensed" font-weight="700">0.0s</text>
+  </svg>
+  <div class="abs" style="left:72px;right:72px;top:1270px;display:flex;justify-content:center;gap:18px"><div class="ph" id="p0">3s down</div><div class="ph" id="p1">1s pause</div><div class="ph" id="p2">1s up</div></div>
+  <div class="sub" style="top:1420px;text-align:center">Tempo 3-1-1. Same weight,<br><b>a much harder rep.</b></div>
+</div>
+
+<div class="sc" id="s4">
+  <div class="rt disp" style="top:420px;font-size:128px"><div>Or let</div><div class="lime">FitPlanr</div><div>do the math.</div></div>
+  <div class="sub" style="top:900px">It reads the reps you log and sets your next target, <b>every session.</b></div>
+  <div class="abs card" style="left:72px;right:72px;top:1140px;padding:40px 44px" id="tg">
+    <div class="mono muted" style="font-size:26px">Next session · Goblet Squat</div>
+    <div class="disp" style="font-size:84px;margin-top:14px">4 × 12 <span class="muted">· 25 lb</span></div>
+    <div style="font:500 34px Inter;color:var(--lime);margin-top:14px">You hit 12 on every set: one more set.</div>
+  </div>
+</div>
+
+<div id="endwrap"></div>
+<div class="abs mono lime" id="save" style="left:0;right:0;top:400px;text-align:center;font-size:34px;opacity:0">[ Save it for your next workout ]</div>
+</div>
+<script>
+window.DURATION=25;
+$('#s0d').innerHTML=DUMBBELL; $('#endwrap').innerHTML=endCard();
+const W=[[8,8,8],[10,10,9],[12,12,12]];
+$('#chart').innerHTML=`<div class="abs" style="left:0;right:0;bottom:${(12/12)*440}px;border-top:3px dashed rgb(200 255 61/.45)"><span class="mono lime" style="position:absolute;left:0;top:-48px;font-size:24px">Top of range · 12</span></div>`+
+ W.map((g,i)=>`<div class="grp" style="left:${i*320+40}px">${g.map((r,j)=>`<div class="bar" id="b${i}${j}"><span>${r}</span></div>`).join('')}<div class="wl mono muted">Week ${i+1}</div></div>`).join('');
+$('#sets').innerHTML=[1,2,3,4].map(i=>`<div class="dot" id="d${i}">${i}</div>`).join('');
+const sc=(id,t,a,b)=>{const el=$(id);const p=eo(seg(t,a,a+.45)),q=eio(seg(t,b-.3,b));el.style.opacity=p*(1-q);el.style.transform=`translateX(${(1-p)*80-q*80}px)`;return el};
+window.render=(t)=>{
+  // S0 0-3.4
+  const s0=$('#s0'); s0.style.opacity=1-eio(seg(t,3.1,3.4)); s0.style.transform=`translateX(${-80*eio(seg(t,3.1,3.4))}px)`;
+  rv('#s0l',t,0,.4,20); $$('#s0h>div').forEach((d,i)=>rv(d,t,.05+i*.12,.5,50)); rv('#s0s',t,.8,.5,30);
+  const dp=back(seg(t,1.1,1.7)); $('#s0d').style.opacity=seg(t,1.1,1.3); $('#s0d').style.transform=`translateY(${(1-dp)*-300}px) rotate(${Math.sin(t*2)*2}deg)`;
+  rv('#s0t',t,1.6,.35,20);
+  // S1 3.4-9.4
+  sc('#s1',t,3.4,9.4);
+  W.forEach((g,i)=>g.forEach((r,j)=>{const a=4.3+i*1.15+j*.08;const p=eo(seg(t,a,a+.7));const b=$('#b'+i+j);b.style.height=(r/12*440*p)+'px';b.style.opacity=p>0?1:0;
+    b.style.background=(i==2&&p>.95)?'#C8FF3D':(i==2?'#C8FF3D':'rgb(200 255 61/'+(.35+i*.25)+')');
+    b.style.boxShadow=(i==2&&t>a+.7)?`0 0 ${30+20*Math.sin(t*4)}px rgb(200 255 61/.5)`:'none';}));
+  // S2 9.4-14.6
+  sc('#s2',t,9.4,14.6);
+  [1,2,3,4].forEach(i=>{const d=$('#d'+i);const a=i<4?10.0+i*.15:11.9;const p=back(seg(t,a,a+.45));d.style.transform=`scale(${p})`;d.classList.toggle('on',i<4?t>a+.2:t>12.0);});
+  $('#s2a').textContent=t>12.0?'4':'3'; $('#s2a').style.color=t>12.0?'#C8FF3D':''; const pop=Math.sin(seg(t,12.0,12.3)*Math.PI); $('#s2x').style.transform=`scale(${1+.08*pop})`;
+  // S3 14.6-20.2
+  sc('#s3',t,14.6,20.2);
+  const rep=Math.max(0,t-15.3)%5.2; const sec=Math.min(rep,5);
+  $('#arc').setAttribute('stroke-dashoffset',1319.5*(1-sec/5)); $('#dt').textContent=sec.toFixed(1)+'s';
+  ['p0','p1','p2'].forEach((p,i)=>$('#'+p).classList.toggle('on',t>15.3&&(i==0?sec<3:i==1?sec>=3&&sec<4:sec>=4)));
+  // S4 20.2-22.6
+  sc('#s4',t,20.2,22.8); rv('#tg',t,20.8,.5,40);
+  // end 22.8-25
+  if(t>22.6){renderEnd(t,22.75); rv('#save',t,23.0,.5,20);} else {$('#end').style.opacity=0;$('#save').style.opacity=0;}
+};
+</script></body></html>
