@@ -160,6 +160,13 @@ Every paid plan. Deterministic, like the rest of the engine.
 `vo4.wav`). Output `video/out/fitplanr-4-step.mp4` (26 s) + `caption.txt` (not committed). Step 4 = "Pick meals that
 hit your macros" (swap a food, "Ate it", rings fill); no meal scan anywhere.
 
+## Lunch video (Nov 11, 2026)
+`video/lunch-record.mjs` (one take: today's rings with breakfast in → lunch card → swap chicken for tofu, portions
+re-solve 4 oz → 7 oz tofu, avocado 1 → ⅓ → "Ate it" → rings fill), texts in `video/lunch-texts.json`
+(`node video/overlays.mjs video/lunch-texts.json video/build/lunch`), `video/lunch-compose.py` → 
+`video/out/fitplanr-lunch.mp4` (15 s, voiceover `video/build/lunch/vo.wav` at 1.1×, end card reused from the 4-step
+video's `s5`). Shared helpers: `video/recorder.mjs` (screencast capture), `video/vidlib.py` (render/compose).
+
 ## Tech
 Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + lucide-react. Supabase Postgres + Auth
 (RLS everywhere, SQL in `supabase/migrations`). Vercel. No AI provider: the engine is deterministic (`lib/engine`).

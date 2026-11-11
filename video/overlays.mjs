@@ -2,13 +2,17 @@
 import { chromium } from "playwright";
 const BASE = process.env.BASE_URL || "http://localhost:3001";
 const OUT = "video/build";
-const TEXTS = {
+const DEFAULT_TEXTS = {
   t0: { tag: "POV", text: "You have basic gear & want to build muscle fast" },
   t1: { tag: "Step 1", text: "Input your exact gear" },
   t2: { tag: "Step 2", text: "Track progressive sets & reps" },
   t3: { tag: "Step 3", text: "See targeted muscle highlights" },
   t4: { tag: "Step 4", text: "Pick meals that hit your macros" },
 };
+// node video/overlays.mjs [texts.json out-dir]: render only those texts (background and mask are shared)
+const [textsFile, textsOut] = process.argv.slice(2);
+const TEXTS = textsFile ? JSON.parse((await import("node:fs")).readFileSync(textsFile, "utf8")) : DEFAULT_TEXTS;
+const TEXT_DIR = textsOut || OUT;
 const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
 const p = await b.newPage({ viewport: { width: 1080, height: 1920 } });
 await p.goto(BASE + "/login");
@@ -24,7 +28,12 @@ for (const [k, v] of Object.entries(TEXTS)) {
     document.body.innerHTML = `<style>${css}</style><div class="o"><span class="tag">${v.tag}</span><div class="t">${v.text.replace(/&/g, "&amp;")}</div></div>`;
   }, { css, v });
   await p.waitForTimeout(200);
-  await p.screenshot({ path: `${OUT}/${k}.png`, omitBackground: true });
+  await p.screenshot({ path: `${TEXT_DIR}/${k}.png`, omitBackground: true });
+}
+if (textsFile) {
+  await b.close();
+  console.log("overlays done");
+  process.exit(0);
 }
 // background: true black, dot grid, lime glow, a soft outline where the screen sits (108,470 864×1400)
 await p.evaluate(() => {

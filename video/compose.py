@@ -2,8 +2,7 @@
 """Assembles the 4-step FitPlanr video (1080x1920, 30 fps) from the recorded scenes, overlays and voiceover."""
 import json, os, subprocess
 
-B = "video/build"
-FPS = 30
+from vidlib import B, FPS, load, render, run, scaled
 TEMPO = 1.2
 # voiceover lines in vo.wav (seconds, from silencedetect), spoken at 1.2x
 # (file, start, end). Line 4 is a re-recorded take (vo4c.wav, the pause after "Step four:" tightened):
@@ -11,65 +10,6 @@ TEMPO = 1.2
 VO4_LEN = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f"{B}/vo4c.wav"], capture_output=True, text=True).stdout)
 VO = [("vo.wav", 0.40, 4.80), ("vo.wav", 5.55, 9.55), ("vo.wav", 10.12, 15.30), ("vo.wav", 16.10, 21.35), ("vo4c.wav", 0.0, VO4_LEN), ("vo.wav", 28.97, 31.95)]
 PAD = 0.35
-
-
-def run(cmd):
-    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-
-
-def load(scene):
-    d = os.path.join(B, scene)
-    return d, json.load(open(os.path.join(d, "frames.json"))), json.load(open(os.path.join(d, "marks.json")))
-
-
-def frame_at(frames, t):
-    lo = 0
-    for i, f in enumerate(frames):
-        if f["t"] <= t:
-            lo = i
-        else:
-            break
-    return frames[lo]["file"]
-
-
-def render(scene, pieces, out, framed=True, overlay=None):
-    """pieces: list of (t_from, t_to, out_seconds) in recording wall-clock time; time is remapped linearly per piece."""
-    d, frames, _ = load(scene)
-    lst = []
-    for a, z, secs in pieces:
-        n = max(1, round(secs * FPS))
-        for i in range(n):
-            lst.append(os.path.abspath(os.path.join(d, frame_at(frames, a + (z - a) * i / n))))
-    txt = out + ".txt"
-    with open(txt, "w") as f:
-        for p in lst:
-            f.write(f"file '{p}'\nduration {1 / FPS:.6f}\n")
-        f.write(f"file '{lst[-1]}'\n")
-    inputs = ["-f", "concat", "-safe", "0", "-i", txt]
-    if framed:
-        inputs += ["-i", f"{B}/bg.png", "-i", f"{B}/mask.png"]
-        fc = (
-            f"[0:v]fps={FPS},scale=864:1536:flags=lanczos,crop=864:1400:0:0,format=rgba[app];"
-            "[2:v]format=gray[m];[app][m]alphamerge[appm];"
-            "[1:v][appm]overlay=108:470[v]"
-        )
-        last = "[v]"
-    else:
-        fc = f"[0:v]fps={FPS},scale=1080:1920:flags=lanczos[v]"
-        last = "[v]"
-    if overlay:
-        inputs += ["-i", f"{B}/{overlay}.png"]
-        idx = 3 if framed else 1
-        fc += f";{last}[{idx}:v]overlay=0:0[vo]"
-        last = "[vo]"
-    run(["ffmpeg", "-y", *inputs, "-filter_complex", fc, "-map", last, "-r", str(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "16", "-pix_fmt", "yuv420p", out])
-    return len(lst) / FPS
-
-
-def scaled(pieces, total):
-    """pieces with relative weights → seconds summing to total."""
-    w = sum(p[2] for p in pieces)
-    return [(a, z, s * total / w) for a, z, s in pieces]
 
 
 vo_len = [(z - a) / TEMPO for _, a, z in VO]
