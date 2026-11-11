@@ -167,6 +167,14 @@ re-solve 4 oz → 7 oz tofu, avocado 1 → ⅓ → "Ate it" → rings fill), tex
 `video/out/fitplanr-lunch.mp4` (15 s, voiceover `video/build/lunch/vo.wav` at 1.1×, end card reused from the 4-step
 video's `s5`). Shared helpers: `video/recorder.mjs` (screencast capture), `video/vidlib.py` (render/compose).
 
+## Nutrition explainer (Nov 11, 2026), for the owner, no voiceover
+`video/explainer-record.mjs` (intro card → dashboard → Nutrition tab → 4-number setup → targets → "how your targets
+are set" → 3 meals → swap chicken for tofu → "Ate it" → rings → undo with the bin → edit weight 170 → 185 lb → everything
+re-sizes → recap card), captions in `video/explainer-texts.json` (headline + `sub` line, `**x**` = lime),
+`node video/overlays.mjs video/explainer-texts.json video/build/explain`, `video/explainer-compose.py` →
+`video/out/fitplanr-nutrition-explained.mp4` (61 s, silent audio track). Caption numbers are read off the recording
+(2,790 kcal / 136 g for the default body); re-check them if the engine changes.
+
 ## Tech
 Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + lucide-react. Supabase Postgres + Auth
 (RLS everywhere, SQL in `supabase/migrations`). Vercel. No AI provider: the engine is deterministic (`lib/engine`).

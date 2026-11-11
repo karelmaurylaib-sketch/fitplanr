@@ -1,0 +1,14 @@
+{
+  "e1": { "tag": "Step 1 / 9", "text": "Open the Nutrition tab", "sub": "Every paid member has it: in the **bottom bar** on a phone, the **sidebar** on a computer." },
+  "e2": { "tag": "Step 2 / 9", "text": "Four numbers, once", "sub": "Sex, weight, height, age. **Pre-filled**, so one tap works. Saved to the member's account." },
+  "e3": { "tag": "Step 3 / 9", "text": "Daily targets appear", "sub": "**2,790 kcal** · **136 g** protein · 373 g carbs · 84 g fat, from body, training days and goal." },
+  "e4": { "tag": "Step 4 / 9", "text": "Every number is explained", "sub": "Burns **2,534 kcal** a day; building muscle adds **+10%**; protein = **0.8 g per lb** of body weight." },
+  "e5": { "tag": "Step 5 / 9", "text": "Three plates a day", "sub": "Breakfast **30%**, lunch **35%**, dinner **35%**. Each: protein + carbs + fruit or veg + healthy fat." },
+  "e6": { "tag": "Step 6 / 9", "text": "Tap a food to swap it", "sub": "3 to 5 options per slot, each **already sized** for this meal." },
+  "e6b": { "tag": "Step 6 / 9", "text": "Portions re-adjust", "sub": "Chicken → tofu: **7 oz** tofu, avocado down to **⅓**, so lunch stays on target." },
+  "e7": { "tag": "Step 7 / 9", "text": "Ate it? One tap", "sub": "Logs the meal for **today**, using the member's own date." },
+  "e8": { "tag": "Step 8 / 9", "text": "The rings fill up", "sub": "**931 of 2,790 kcal**. The meal is listed in **Today's food**." },
+  "e8b": { "tag": "Step 8 / 9", "text": "Tapped by mistake?", "sub": "The **bin** removes it and the rings go back to **0**." },
+  "e9": { "tag": "Step 9 / 9", "text": "Body changed? Edit it", "sub": "Weight **170 → 185 lb**, then Save." },
+  "e9b": { "tag": "Step 9 / 9", "text": "Everything re-sizes", "sub": "**2,900 kcal**, **148 g** protein; tofu **7 → 8 oz**. The swap is kept." }
+}

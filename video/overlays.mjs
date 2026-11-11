@@ -21,11 +21,17 @@ const css = `html,body{margin:0;background:transparent!important}
 .o{position:fixed;left:0;right:0;top:150px;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 70px}
 .tag{font-family:var(--font-jetbrains),monospace;font-weight:700;font-size:34px;letter-spacing:.16em;text-transform:uppercase;color:#0A0D02;background:#C8FF3D;padding:8px 22px;border-radius:14px}
 .t{margin-top:18px;font-family:var(--font-barlow),sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:-.01em;line-height:.95;font-size:92px;color:#fff;
- text-shadow:0 0 2px #000,0 4px 0 #000,0 0 30px rgba(0,0,0,.9),0 0 60px rgba(0,0,0,.8)}`;
+ text-shadow:0 0 2px #000,0 4px 0 #000,0 0 30px rgba(0,0,0,.9),0 0 60px rgba(0,0,0,.8)}
+.o.has-sub{top:118px}.has-sub .t{font-size:66px;margin-top:14px}
+.s{margin-top:14px;max-width:900px;font-family:var(--font-inter),sans-serif;font-weight:500;font-size:33px;line-height:1.28;color:#E4E7DD;
+ text-shadow:0 0 2px #000,0 2px 0 #000,0 0 24px rgba(0,0,0,.95)}
+.s b{color:#C8FF3D;font-weight:700}`;
 for (const [k, v] of Object.entries(TEXTS)) {
   await p.evaluate(({ css, v }) => {
     document.body.className = "";
-    document.body.innerHTML = `<style>${css}</style><div class="o"><span class="tag">${v.tag}</span><div class="t">${v.text.replace(/&/g, "&amp;")}</div></div>`;
+    // optional "sub": a smaller explanation line; **word** is highlighted in lime
+    const sub = v.sub ? `<div class="s">${v.sub.replace(/&/g, "&amp;").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")}</div>` : "";
+    document.body.innerHTML = `<style>${css}</style><div class="o${sub ? " has-sub" : ""}"><span class="tag">${v.tag}</span><div class="t">${v.text.replace(/&/g, "&amp;")}</div>${sub}</div>`;
   }, { css, v });
   await p.waitForTimeout(200);
   await p.screenshot({ path: `${TEXT_DIR}/${k}.png`, omitBackground: true });
