@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="kit.css"><link rel="stylesheet" href="tips2.css">
+<script src="kit.js"></script><script src="kit2.js"></script><script src="timing2.js"></script></head><body><div class="stage">
+<div class="dots"></div><div class="glow"></div>
+<div id="l0" class="lbl mono lime">[ Save this ]</div>
+<div id="h0" class="h disp"><div>How long</div><div>to rest</div><div class="l2">between sets?</div></div>
+<div id="l1" class="lbl mono lime">Rule 01 / 03</div>
+<div id="h1" class="h s disp"><div>Squats, presses,</div><div>rows: <span class="lime">90 s.</span></div></div>
+<div id="l2" class="lbl mono lime">Rule 02 / 03</div>
+<div id="h2" class="h s disp"><div>Curls, raises:</div><div class="lime">60 s.</div></div>
+<div id="l3" class="lbl mono lime">Rule 03 / 03</div>
+<div id="h3" class="h s disp"><div>Heavy sets of 5–8:</div><div class="lime">2.5 min.</div></div>
+<svg class="abs" id="dial" style="left:240px;top:760px;opacity:0" width="600" height="600" viewBox="0 0 600 600">
+  <circle cx="300" cy="300" r="250" stroke="rgb(255 255 255/.09)" stroke-width="30" fill="none"/>
+  <circle id="arc" cx="300" cy="300" r="250" stroke="#C8FF3D" stroke-width="30" fill="none" stroke-linecap="round" transform="rotate(-90 300 300)" stroke-dasharray="1570.8" stroke-dashoffset="1570.8"/>
+  <text id="dt" x="300" y="340" text-anchor="middle" fill="#F4F5F0" font-family="Barlow Condensed" font-weight="700" font-size="150">0:00</text>
+  <text id="dl" x="300" y="410" text-anchor="middle" fill="#8A8F82" font-family="JetBrains Mono" font-weight="500" font-size="30" letter-spacing="5">REST</text>
+</svg>
+<div id="sub" class="sub" style="top:1430px;text-align:center"></div>
+<div id="h4" class="h disp" style="top:260px;font-size:120px"><div>FitPlanr puts</div><div>the right rest</div><div class="lime">on every set.</div></div>
+<div id="rc" class="abs card" style="left:72px;right:72px;top:820px;padding:40px 44px;opacity:0">
+  <div style="display:flex;justify-content:space-between;align-items:center"><div><div class="mono muted" style="font-size:26px">Set 2 of 3 done · Goblet Squat</div><div class="disp" style="font-size:84px;margin-top:10px">Rest <span class="lime" id="rt">1:30</span></div></div>
+  <svg width="150" height="150" viewBox="0 0 150 150"><circle cx="75" cy="75" r="62" stroke="rgb(255 255 255/.09)" stroke-width="12" fill="none"/><circle id="rarc" cx="75" cy="75" r="62" stroke="#C8FF3D" stroke-width="12" fill="none" stroke-linecap="round" transform="rotate(-90 75 75)" stroke-dasharray="389.6" stroke-dashoffset="0"/></svg></div>
+  <div style="margin-top:30px;padding-top:26px;border-top:2px solid var(--line);font:500 34px Inter;color:var(--muted)">Next: <b style="color:var(--text)">set 3 · 3 × 8 · 25 lb</b></div></div>
+<div id="endwrap"></div>
+</div>
+<script>
+const T=TIMING['tips-rest'], S=T.S; window.DURATION=T.DURATION;
+$('#endwrap').innerHTML=endCardFit();
+const R=[[null,'',''],[90,'Big moves: <b>squats, presses, rows</b>'],[60,'Small moves: <b>curls, raises</b>'],[150,'Training for strength, <b>sets of 5–8</b>']];
+const mmss=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+window.render=(t)=>{
+  for(let k=0;k<4;k++){ rv('#l'+k,t,S[k]+.02,.4,20,S[k+1]-.3); heads(t,'h'+k,S[k]+.05,S[k+1]-.3); }
+  // dial persists over scenes 0-3
+  const dp=eo(seg(t,.5,1.0)), df=eio(seg(t,S[4]-.3,S[4])); $('#dial').style.opacity=dp*(1-df); $('#dial').style.transform=`scale(${.9+.1*dp})`;
+  let k=t<S[1]?0:t<S[2]?1:t<S[3]?2:3; let v=0, max=150;
+  if(k==0){ v=(t*7)%30; max=30; }
+  else { const target=R[k][0]; v=target*eo(seg(t,S[k]+.4,S[k]+2.2)); max=150; }
+  $('#arc').setAttribute('stroke-dashoffset',1570.8*(1-v/max)); $('#dt').textContent=mmss(v);
+  $('#dl').textContent=k==0?'REST':'REST · '+R[k][0]+' S';
+  const sb=$('#sub'); const ks=k||1; sb.innerHTML=k?R[k][1]:''; rv(sb,t,S[ks]+.6,.4,20,S[ks+1]-.3); if(!k) sb.style.opacity=0;
+  heads(t,'h4',S[4]+.05,S[5]-.3); rv('#rc',t,S[4]+.5,.5,40,S[5]-.3);
+  const left=Math.max(0,90-(t-S[4]-.5)*6); $('#rt').textContent=mmss(left); $('#rarc').setAttribute('stroke-dashoffset',389.6*(1-left/90));
+  if(t>S[5]-.05) renderEndFit(t,S[5]); else $('#endf').style.opacity=0;
+};
+</script></body></html>

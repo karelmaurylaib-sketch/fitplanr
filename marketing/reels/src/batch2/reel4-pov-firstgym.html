@@ -1,0 +1,40 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="kit.css"><link rel="stylesheet" href="pov2.css">
+<script src="kit.js"></script><script src="kit2.js"></script><script src="timing2.js"></script></head><body><div class="stage">
+<div class="dots"></div><div class="glow"></div>
+<div id="lbl" class="lbl mono lime">[ POV ]</div>
+<div id="h0" class="h disp"><div>First day</div><div>at the gym.</div><div class="l2">No plan.</div></div>
+<div id="rack" class="abs" style="left:60px;right:60px;top:1060px;display:flex;align-items:flex-end;justify-content:space-between"></div>
+<div id="h1" class="h s disp"><div>Everyone knows</div><div>what they're doing.</div><div class="l2">Except me.</div></div>
+<div id="chips"></div>
+<div id="h2" class="h disp"><div>So I walked in</div><div class="lime">with a plan.</div></div>
+<div id="nt" class="notif"><div class="ic" id="ntic"></div><div style="flex:1"><div style="display:flex;justify-content:space-between"><b style="font:700 32px Inter">FitPlanr</b><span class="muted" style="font:500 28px Inter">now</span></div>
+  <div style="font:500 36px/1.3 Inter;margin-top:8px">Day 1 · Full Body A<br><span class="muted">5 moves · 37 min · full gym</span></div></div></div>
+<div id="h3" class="h s disp" style="top:220px"><div>Light weights.</div><div class="lime">On purpose.</div></div>
+<div id="dc"></div>
+<div id="endwrap"></div>
+</div>
+<script>
+const T=TIMING['pov-firstgym'], S=T.S; window.DURATION=T.DURATION;
+$('#rack').innerHTML=[60,80,100,120,140].map((w,i)=>`<div id="rk${i}" style="width:${w*1.75}px;color:#d9dcd2;opacity:0">${DUMBBELL}</div>`).join('');
+const CH=[['Which machine?',90,800,-5,1],['Is this one taken?',520,700,4],['How heavy??',600,1000,6,1],['Am I doing this right?',110,1120,-3],['How many sets?',540,1300,-4,1],['Just do… cardio?',160,1450,3]];
+$('#chips').innerHTML=CH.map((c,i)=>`<div class="flo chip ${c[4]?'q':''}" id="c${i}">${c[0]}</div>`).join('');
+$('#ntic').innerHTML=LOGO;
+$('#dc').innerHTML=dayCard('day','Day 1 · Mon','Full Body A','37 min',[['Goblet Squat','3 × 8','20 lb dumbbells','90s'],['Dumbbell Bench Press','3 × 8','15 lb dumbbells','90s'],['One-Arm Dumbbell Row','3 × 8','20 lb dumbbells','90s'],['Dumbbell Romanian Deadlift','3 × 8','20 lb dumbbells','90s'],['Dumbbell Lateral Raise','2 × 10','5 lb dumbbells','60s']],520);
+$('#endwrap').innerHTML=endCardFit();
+window.render=(t)=>{
+  rv('#lbl',t,0,.4,20,S[1]-.3);
+  heads(t,'h0',.05,S[1]-.3);
+  [0,1,2,3,4].forEach(i=>{const a=.5+i*.12;const p=back(seg(t,a,a+.5));const f=eio(seg(t,S[1]-.3,S[1]));const el=$('#rk'+i);
+    el.style.opacity=seg(t,a,a+.15)*(1-f);el.style.transform=`translateY(${(1-p)*-260+f*300}px)`;});
+  heads(t,'h1',S[1]+.05,S[2]-.3);
+  CH.forEach((c,i)=>{const el=$('#c'+i);const a=S[1]+.3+i*.3;const p=back(seg(t,a,a+.45));const f=eio(seg(t,S[2]-.4+i*.03,S[2]+.1+i*.03));
+    el.style.left=c[1]+'px';el.style.top=c[2]+'px';el.style.opacity=seg(t,a,a+.2)*(1-f);
+    el.style.transform=`translate(${Math.sin(t*1.7+i)*10}px,${Math.cos(t*1.3+i*2)*12+f*600}px) rotate(${c[3]+f*(i%2?30:-30)}deg) scale(${.6+.4*p})`;});
+  heads(t,'h2',S[2]+.05,S[3]-.3);
+  const np=back(seg(t,S[2]+.5,S[2]+1.0)); const nf=eio(seg(t,S[3]-.3,S[3])); const n=$('#nt');
+  n.style.opacity=seg(t,S[2]+.5,S[2]+.7)*(1-nf); n.style.transform=`translateY(${(1-np)*-200 - nf*100}px) scale(${.92+.08*np})`;
+  heads(t,'h3',S[3]+.05,S[4]-.3);
+  renderDayCard('day',t,S[3]+.1,S[4]-.3);
+  if(t>S[4]-.05) renderEndFit(t,S[4]); else $('#endf').style.opacity=0;
+};
+</script></body></html>

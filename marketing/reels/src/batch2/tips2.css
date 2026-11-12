@@ -1,0 +1,12 @@
+.h{position:absolute;left:72px;right:72px;top:300px;font-size:140px}
+.h.s{font-size:118px;top:310px}
+.l2{color:transparent;background:linear-gradient(90deg,#9a9f92,#4d5148);-webkit-background-clip:text;background-clip:text}
+.lbl{position:absolute;left:72px;top:240px;font-size:34px}
+.sub{position:absolute;left:72px;right:72px;font:500 40px/1.35 Inter;color:var(--muted)}
+.sub b{color:var(--text);font-weight:600}
+.wkb{flex:1;border:2px solid var(--line);border-radius:28px;padding:24px 8px;text-align:center;background:#0E0F0C;opacity:0}
+.wkb .w{font:700 24px 'JetBrains Mono';letter-spacing:.08em;color:var(--muted)}
+.wkb .f{font:500 24px Inter;color:var(--muted);margin-top:6px;min-height:60px;line-height:1.25}
+.wkb .v{font:700 64px 'Barlow Condensed';margin-top:4px}
+.wkb .n{font:600 26px Inter;color:var(--muted);margin-top:2px}
+.wkb.on{border-color:var(--lime)} .wkb.on .v{color:var(--lime)}

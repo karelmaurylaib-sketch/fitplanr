@@ -1,0 +1,48 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="kit.css"><link rel="stylesheet" href="pov2.css">
+<script src="kit.js"></script><script src="kit2.js"></script><script src="timing2.js"></script>
+<style>.lg{position:absolute;left:72px;right:72px;display:flex;justify-content:space-between;align-items:center;padding:30px 36px;opacity:0}
+.lg .m{font:700 30px 'JetBrains Mono';letter-spacing:.1em;color:var(--muted);width:110px}.lg .e{flex:1;font:600 40px Inter}.lg .v{font:700 54px 'Barlow Condensed'}
+.bar{position:absolute;bottom:0;width:150px;border-radius:18px 18px 8px 8px;background:rgb(200 255 61/.45)}
+.bar .r{position:absolute;top:-70px;left:0;right:0;text-align:center;font:700 56px 'Barlow Condensed'}
+.bar .wl{position:absolute;bottom:-110px;left:-20px;right:-20px;text-align:center;font:500 26px 'JetBrains Mono';letter-spacing:.08em;color:var(--muted);line-height:1.5}</style>
+</head><body><div class="stage">
+<div class="dots"></div><div class="glow"></div>
+<div id="lbl" class="lbl mono lime">[ POV ]</div>
+<div id="h0" class="h disp"><div>Same workout.</div><div>Same weights.</div><div class="l2">Whole year.</div></div>
+<div id="h1" class="h s disp"><div>You show up.</div><div class="l2">Nothing changes.</div></div>
+<div id="logs"></div>
+<div id="h2" class="h s disp"><div>Reps first.</div><div class="lime">Then weight.</div></div>
+<div id="chart" class="abs" style="left:100px;right:100px;top:760px;height:640px"></div>
+<div id="h3" class="h disp"><div>Week 4:</div><div class="lime">35 lb.</div></div>
+<div id="load" class="abs" style="left:0;right:0;top:880px;opacity:0">
+  <div style="display:flex;align-items:center;justify-content:center;gap:30px">
+    <div style="text-align:center"><div style="width:300px;color:#8A8F82" id="d1"></div><div class="disp muted" style="font-size:96px;margin-top:10px">30 lb</div></div>
+    <div class="lime" style="transform:scale(2.2)" id="arr"></div>
+    <div style="text-align:center"><div style="width:380px;color:#C8FF3D" id="d2"></div><div class="disp lime" style="font-size:120px;margin-top:10px">35 lb</div></div></div>
+  <div class="mono muted" style="text-align:center;font-size:30px;margin-top:50px">Goblet Squat · 3 × 8 · week 4</div>
+  <div id="pr" style="margin:40px auto 0;width:max-content;font:700 34px Inter;color:#0A0D02;background:#FF7A1A;padding:14px 28px;border-radius:999px">+5 lb in your log</div>
+</div>
+<div id="endwrap"></div>
+</div>
+<script>
+const T=TIMING['pov-sameweight'], S=T.S; window.DURATION=T.DURATION;
+const LG=[['Jan','30 lb × 8'],['Apr','30 lb × 8'],['Aug','30 lb × 8'],['Nov','30 lb × 8']];
+$('#logs').innerHTML=LG.map((l,i)=>`<div class="lg card" id="l${i}" style="top:${640+i*190}px"><div class="m">${l[0]}</div><div class="e">Goblet Squat</div><div class="v muted">${l[1]}</div></div>`).join('');
+const B=[['Week 1',8,'30 lb'],['Week 2',10,'30 lb'],['Week 3',12,'30 lb'],['Week 4',8,'35 lb']];
+$('#chart').innerHTML=B.map((b,i)=>`<div class="bar" id="b${i}" style="left:${i*230}px"><div class="r">3×${b[1]}</div>${i==3?'<div style="position:absolute;top:-140px;left:-10px;right:-10px;text-align:center;font:700 32px Inter;color:#0A0D02;background:#FF7A1A;border-radius:999px;padding:8px 0">+5 lb</div>':''}<div class="wl">${b[0]}<br>${b[2]}</div></div>`).join('');
+$('#d1').innerHTML=DUMBBELL; $('#d2').innerHTML=DUMBBELL; $('#arr').innerHTML=ARROW;
+$('#endwrap').innerHTML=endCardFit();
+window.render=(t)=>{
+  rv('#lbl',t,0,.4,20,S[1]-.3); heads(t,'h0',.05,S[1]-.3);
+  heads(t,'h1',S[1]+.05,S[2]-.3);
+  LG.forEach((l,i)=>rv('#l'+i,t,S[1]+.3+i*.4,.45,40,S[2]-.3));
+  heads(t,'h2',S[2]+.05,S[3]-.3);
+  B.forEach((b,i)=>{const a=S[2]+.4+i*.45;const p=eo(seg(t,a,a+.6));const el=$('#b'+i);const f=eio(seg(t,S[3]-.3,S[3]));
+    el.style.height=(b[1]/12*430*p)+'px'; el.style.opacity=(p>0?1:0)*(1-f);
+    el.style.background=i==3?'#C8FF3D':`rgb(200 255 61/${.3+i*.15})`; el.style.boxShadow=i==3&&p>.9?`0 0 ${40+20*Math.sin(t*4)}px rgb(200 255 61/.5)`:'none';});
+  heads(t,'h3',S[3]+.05,S[4]-.3);
+  rv('#load',t,S[3]+.3,.5,40,S[4]-.3); const g=back(seg(t,S[3]+.8,S[3]+1.3)); $('#d2').style.transform=`scale(${.7+.3*g})`;
+  $('#arr').style.transform=`scale(2.2) translateX(${Math.sin(t*5)*4}px)`; rv('#pr',t,S[3]+1.6,.4,20);
+  if(t>S[4]-.05) renderEndFit(t,S[4]); else $('#endf').style.opacity=0;
+};
+</script></body></html>

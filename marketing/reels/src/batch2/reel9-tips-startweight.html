@@ -1,0 +1,46 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="kit.css"><link rel="stylesheet" href="tips2.css">
+<script src="kit.js"></script><script src="kit2.js"></script><script src="timing2.js"></script>
+<style>.rd{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;font:700 46px 'Barlow Condensed';border:4px solid var(--line);color:var(--muted);opacity:0}
+.rd.on{background:var(--lime);border-color:var(--lime);color:var(--ink)} .rd.gh{border-style:dashed;border-color:rgb(200 255 61/.6);color:var(--lime)}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:24px 0;border-top:2px solid var(--line);opacity:0}</style></head><body><div class="stage">
+<div class="dots"></div><div class="glow"></div>
+<div id="l0" class="lbl mono lime">[ Save this ]</div>
+<div id="h0" class="h disp"><div>How heavy</div><div>should you</div><div class="l2">start?</div></div>
+<div id="db0" class="abs" style="left:290px;top:1150px;width:500px;color:#d9dcd2;opacity:0"></div>
+<div id="q0" class="abs disp lime" style="left:760px;top:1020px;font-size:200px;opacity:0">?</div>
+<div id="l1" class="lbl mono lime">Rule 01 / 03</div>
+<div id="h1" class="h s disp"><div>Leave 2–3 reps</div><div class="lime">in the tank.</div></div>
+<div id="dots" class="abs" style="left:72px;right:72px;top:900px;display:flex;flex-wrap:wrap;gap:22px;justify-content:center"></div>
+<div id="s1" class="sub" style="top:1200px;text-align:center">Stop at 8 when you <b>could still do 10–11.</b><br>That's the right starting weight.</div>
+<div id="l2" class="lbl mono lime">Rule 02 / 03</div>
+<div id="h2" class="h s disp"><div>Week 1 is for</div><div class="lime">learning the moves.</div></div>
+<div id="c2" class="abs card" style="left:72px;right:72px;top:820px;padding:20px 44px;opacity:0">
+  <div class="sr" id="x0"><div style="font:600 44px Inter;color:#5c6056;text-decoration:line-through;text-decoration-thickness:5px;text-decoration-color:#8A8F82">Test your 1-rep max</div><div style="font:700 50px Inter;color:#8A8F82">✕</div></div>
+  <div class="sr" id="x1"><div style="font:600 44px Inter">Smooth reps, full range</div><div style="font:700 50px Inter" class="lime">✓</div></div>
+  <div class="sr" id="x2"><div style="font:600 44px Inter">Same weight all week</div><div style="font:700 50px Inter" class="lime">✓</div></div></div>
+<div id="l3" class="lbl mono lime">Rule 03 / 03</div>
+<div id="h3" class="h s disp"><div>Reps first.</div><div class="lime">Then weight.</div></div>
+<div id="wk" class="abs" style="left:60px;right:60px;top:820px"><div class="mono muted" style="font-size:28px;margin-bottom:18px" id="wkl">Goblet Squat · beginner plan</div><div style="display:flex;gap:14px" id="wkrow"></div></div>
+<div id="h4" class="h disp" style="top:240px;font-size:120px"><div>FitPlanr sets</div><div class="lime">your starting</div><div class="lime">weights.</div></div>
+<div id="c4" class="abs card" style="left:72px;right:72px;top:830px;padding:30px 44px 10px;opacity:0"><div class="mono muted" style="font-size:26px;margin-bottom:10px">Day 1 · first-timer · full gym</div><div id="c4r"></div></div>
+<div id="endwrap"></div>
+</div>
+<script>
+const T=TIMING['tips-startweight'], S=T.S; window.DURATION=T.DURATION;
+$('#db0').innerHTML=DUMBBELL; $('#endwrap').innerHTML=endCardFit();
+$('#dots').innerHTML=Array.from({length:11},(_,i)=>`<div class="rd" id="d${i}">${i+1}</div>`).join('');
+const W=[['Week 1','Learn the moves','3×8','20 lb'],['Week 2','Add reps','3×10','20 lb'],['Week 3','Top of range','3×12','20 lb'],['Week 4','Heavier','3×8','25 lb']];
+$('#wkrow').innerHTML=W.map((w,i)=>`<div class="wkb" id="w${i}"><div class="w">${w[0]}</div><div class="f">${w[1]}</div><div class="v">${w[2]}</div><div class="n">${w[3]}</div></div>`).join('');
+const C4=[['Goblet Squat','20 lb'],['Dumbbell Bench Press','15 lb'],['One-Arm Dumbbell Row','20 lb'],['Dumbbell Lateral Raise','5 lb']];
+$('#c4r').innerHTML=C4.map((c,i)=>`<div class="sr" id="r${i}"><div style="font:600 40px Inter">${c[0]}</div><div class="disp lime" style="font-size:60px">${c[1]}</div></div>`).join('');
+window.render=(t)=>{
+  for(let k=0;k<5;k++){ if(k<4) rv('#l'+k,t,S[k]+.02,.4,20,S[k+1]-.3); heads(t,'h'+k,S[k]+.05,S[k+1]-.3); }
+  const p=back(seg(t,.5,1.1)); rv('#db0',t,.5,.5,-200,S[1]-.3); rv('#q0',t,1.0,.4,30,S[1]-.3); $('#q0').style.transform+=` rotate(${Math.sin(t*3)*8}deg)`;
+  for(let i=0;i<11;i++){ const a=S[1]+.4+i*.17; const el=$('#d'+i); rv(el,t,a,.3,20,S[2]-.3); el.classList.toggle('on',i<8&&t>a+.1); el.classList.toggle('gh',i>=8&&i<10); if(i==10) el.style.opacity=(+el.style.opacity)*.25; }
+  rv('#s1',t,S[1]+2.4,.4,20,S[2]-.3);
+  rv('#c2',t,S[2]+.4,.5,40,S[3]-.3); [0,1,2].forEach(i=>rv('#x'+i,t,S[2]+.7+i*.45,.4,20));
+  rv('#wkl',t,S[3]+.3,.4,20,S[4]-.3); W.forEach((w,i)=>{const a=S[3]+.5+i*.45; rv('#w'+i,t,a,.4,30,S[4]-.3); $('#w'+i).classList.toggle('on',i==3&&t>a+.3);});
+  rv('#c4',t,S[4]+.4,.5,40,S[5]-.3); C4.forEach((c,i)=>rv('#r'+i,t,S[4]+.7+i*.3,.4,20));
+  if(t>S[5]-.05) renderEndFit(t,S[5]); else $('#endf').style.opacity=0;
+};
+</script></body></html>

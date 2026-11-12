@@ -1,0 +1,129 @@
+{
+ "pov-firstgym": [
+  "POV: it's your first day at the gym.",
+  "Everyone looks like they know exactly what they're doing.",
+  "So I walked in with a plan instead.",
+  "Five moves. Light weights on purpose. A rest time for every set.",
+  "Comment fit, and I'll send you the link."
+ ],
+ "pov-noequipment": [
+  "POV: you don't own a single weight.",
+  "And every plan online starts with: grab your dumbbells.",
+  "So I told an app: it's just me.",
+  "It built a real plan. And every week it gets harder: more reps, then slower reps.",
+  "Comment fit, and I'll send you the link."
+ ],
+ "pov-sameweight": [
+  "POV: same workout. Same weights. For a whole year.",
+  "You show up every week, and nothing changes.",
+  "My plan adds reps first. Then it adds weight.",
+  "Week four: thirty-five pounds. Progress you can see in your log.",
+  "Comment fit, and I'll send you the link."
+ ],
+ "tips-rest": [
+  "How long should you rest between sets? Save this.",
+  "Big moves, like squats and presses: ninety seconds.",
+  "Small moves, like curls and raises: sixty seconds.",
+  "Training heavy, in sets of five to eight? Rest two and a half minutes.",
+  "Fit Planner puts the right rest time on every set.",
+  "Comment fit, and I'll send you the link."
+ ],
+ "tips-startweight": [
+  "How heavy should you start? Save this.",
+  "Pick a weight you could lift two or three more times. Then stop.",
+  "Week one is for learning the moves, not for testing your max.",
+  "Then add reps every week. Only then, add weight.",
+  "Fit Planner sets your starting weights for you.",
+  "Comment fit, and I'll send you the link."
+ ],
+ "tips-days": [
+  "How many days a week should you train? Save this.",
+  "Two or three days: full body. Every muscle, twice or three times a week.",
+  "Four days: upper and lower. Each muscle, still twice a week.",
+  "Five days: push, pull, legs, then upper and lower.",
+  "Start with the days you can actually keep. Fit Planner builds the split for you.",
+  "Comment fit, and I'll send you the link."
+ ],
+ "demo-fullgym": [
+  [
+   0.15,
+   "I have a full gym. And zero plan. Watch this."
+  ],
+  [
+   3.8,
+   "Five quick taps: stronger, over a year, four days, sixty minutes."
+  ],
+  [
+   8.6,
+   "Gear: full gym."
+  ],
+  [
+   12.05,
+   "It builds a four-day upper, lower split."
+  ],
+  [
+   16.2,
+   "Day one: bench, rows, overhead press."
+  ],
+  [
+   18.75,
+   "Weeks two to four add reps, then weight."
+  ],
+  [
+   21.66,
+   "Comment fit, and I'll send you the link."
+  ]
+ ],
+ "demo-knees": [
+  [
+   0.15,
+   "My knees hate squats. Watch this."
+  ],
+  [
+   3.5,
+   "Five quick taps. Then I tell it to go easy on my knees."
+  ],
+  [
+   8.55,
+   "Gear: adjustable dumbbells and a bench."
+  ],
+  [
+   11.7,
+   "It builds the plan around that."
+  ],
+  [
+   15.95,
+   "No lunges, no deep squats. A box squat instead."
+  ],
+  [
+   21.4,
+   "Comment fit, and I'll send you the link."
+  ]
+ ],
+ "demo-noequipment": [
+  [
+   0.15,
+   "No gym. No weights. Can an app still plan my workouts?"
+  ],
+  [
+   3.65,
+   "Five quick taps. Two days a week, thirty minutes."
+  ],
+  [
+   8.15,
+   "Gear: bodyweight only."
+  ],
+  [
+   11.65,
+   "It builds the plan in seconds."
+  ],
+  [
+   15.75,
+   "Squats, push-ups, rows, plank. Thirty minutes."
+  ],
+  [
+   20.95,
+   "Comment fit, and I'll send you the link."
+  ]
+ ]
+}
