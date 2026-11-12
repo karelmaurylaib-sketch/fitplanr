@@ -1,15 +1,52 @@
 # Instagram Reels: batch 1 (Nov 2026)
 
-Three reels, one per format. All are 1080×1920, 30 fps, H.264. They have a silent audio track: add a trending sound in the
-Instagram editor (trending audio gets more reach than a baked-in track). Keep the sound low and let the on-screen text carry it.
+Three reels, one per format. All are 1080×1920, 30 fps, H.264.
+
+- `*-vo.mp4`: **post these.** Voice-over mixed in, mastered to −14 LUFS (Instagram's loudness).
+  In the Instagram editor, add a trending sound under it at about 10–20 % volume.
+- `*.mp4`: the same reels with a silent track (for music-only posts).
+- `*-voiceover.wav`: the voice alone, timed to the reel (for CapCut or Instagram's own editor).
 
 | File | Format | Length | Goal |
 |---|---|---|---|
-| `reel1-pov.mp4` | **POV / relatable hook**: kinetic text, problem → solution | 14.5 s | Reach and shares ("that's me") |
+| `reel1-pov.mp4` | **POV / relatable hook**: kinetic text, problem → solution | 17 s | Reach and shares ("that's me") |
 | `reel2-demo.mp4` | **Real product demo**: screen recording of the live funnel, sped up, with captions | 24 s | Show it's real, drive "link in bio" taps |
-| `reel3-tips.mp4` | **Save-worthy tips**: 3 rules to progress with fixed dumbbells | 25 s | Saves and follows (the algorithm's strongest signal) |
+| `reel3-tips.mp4` | **Save-worthy tips**: 3 rules to progress with fixed dumbbells | 25.8 s | Saves and follows (the algorithm's strongest signal) |
 
 Covers: `*-cover.jpg` (or pick a frame in Instagram).
+
+## Voice-over
+
+Voice: Kokoro TTS (open-weight model, Apache-2.0, free for commercial use), voice `af_heart`, US English, speed 1.05.
+The brand is written "Fit Planner" in the script so it is spoken right. Lines (start time → text):
+
+**Reel 1: POV**
+- 0.15 s: You bought two dumbbells. Three months ago.
+- 2.75 s: Still no idea what to do with them.
+- 5.65 s: So I told an app what I actually own.
+- 8.0 s: It planned every set and every weight. Then it adds reps, week by week.
+- 12.3 s: Fit Planner. Your four-week plan in sixty seconds. Link in bio.
+
+**Reel 2: Demo**
+- 0.15 s: I own two dumbbells. Watch an app plan my next four weeks.
+- 3.5 s: Sign up free. Then five quick taps: goal, level, days, time.
+- 8.1 s: Now pick the gear you actually own.
+- 11.2 s: And it builds four weeks around that gear.
+- 15.5 s: Day one: every move, set and weight.
+- 18.3 s: Weeks two to four add reps for you.
+- 21.15 s: Build yours free. Link in bio.
+
+**Reel 3: Tips**
+- 0.15 s: Same two dumbbells? You can still get stronger.
+- 3.5 s: Rule one: add reps before weight. Pick a range, like eight to twelve, and climb it.
+- 9.5 s: Rule two: hit twelve on every set? Add a set.
+- 14.7 s: Rule three: maxed out? Slow it down. Three seconds down, one second pause, one second up.
+- 20.45 s: Or let Fit Planner do the math, every session.
+- 23.1 s: Save this for your next workout.
+
+To re-voice (other voice, e.g. `am_michael`, or edited lines in `src/voiceover/scripts.json`): put `kokoro-v1.0.onnx` and
+`voices-v1.0.bin` (GitHub release `thewh1teagle/kokoro-onnx` model-files-v1.0) next to the scripts, `pip install kokoro-onnx soundfile`, then
+`python src/voiceover/vo.py af_heart 1.05` and `python src/voiceover/mix.py af_heart <dir with the silent mp4s> <dest>`.
 
 ## Suggested captions
 
