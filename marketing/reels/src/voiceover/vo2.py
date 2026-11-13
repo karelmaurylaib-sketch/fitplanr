@@ -1,12 +1,13 @@
 """Synthesize batch-2 lines (af_heart, 1.05), compute scene starts for text-only reels, write timing.
 usage: venv/bin/python -I vo2.py"""
-import json, os
+import json, os, sys
 import soundfile as sf
 from kokoro_onnx import Kokoro
 H = os.path.dirname(os.path.abspath(__file__))
-B = json.load(open(f"{H}/batch2.json"))
+BATCH = sys.argv[1] if len(sys.argv) > 1 else "batch2"
+B = json.load(open(f"{H}/{BATCH}.json"))
 k = Kokoro(f"{H}/kokoro-v1.0.onnx", f"{H}/voices-v1.0.bin")
-out = f"{H}/lines2"; os.makedirs(out, exist_ok=True)
+out = f"{H}/lines2" if BATCH == "batch2" else f"{H}/lines-{BATCH}"; os.makedirs(out, exist_ok=True)
 final, timing = {}, {}
 for reel, lines in B.items():
     placed, starts, t = [], [], 0.0
@@ -21,8 +22,8 @@ for reel, lines in B.items():
         placed.append([round(at, 2), text, round(d, 2)])
     final[reel] = placed
     if starts: timing[reel] = {"S": starts, "DURATION": round(t + 1.2, 2)}
-json.dump(final, open(f"{H}/batch2-placed.json", "w"), indent=1)
-json.dump(timing, open(f"{H}/batch2-timing.json", "w"), indent=1)
+json.dump(final, open(f"{H}/{BATCH}-placed.json", "w"), indent=1)
+json.dump(timing, open(f"{H}/{BATCH}-timing.json", "w"), indent=1)
 for reel, p in final.items():
     print(reel, timing.get(reel, {}).get("DURATION", ""))
     for at, text, d in p: print(f"   {at:5.2f} → {at+d:5.2f}  {text}")

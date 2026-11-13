@@ -1,0 +1,67 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="kit.css"><script src="kit.js"></script>
+<style>
+.h{position:absolute;left:72px;right:72px;top:300px;font-size:150px}
+.h .l2{color:transparent;background:linear-gradient(90deg,#9a9f92,#4d5148);-webkit-background-clip:text;background-clip:text}
+#db{position:absolute;left:290px;top:1020px;width:500px;color:#d9dcd2}
+.flo{position:absolute;opacity:0}
+.flo.q{border-color:rgb(255 122 26/.5);color:#ffb27a}
+#cnt{position:absolute;left:72px;top:1600px;font-size:34px}
+#gear{position:absolute;left:0;right:0;top:880px;text-align:center;opacity:0}
+#gear .chip{font-size:56px;padding:30px 48px}
+.row{display:flex;align-items:center;gap:30px;padding:26px 0;border-top:2px solid var(--line);opacity:0}
+.row .ic{width:86px;height:86px;border-radius:22px;background:#171a13;display:grid;place-items:center;color:var(--lime)}
+.row .nm{font:600 40px Inter;flex:1}
+.row .sr{font:500 32px Inter;color:var(--muted);margin-top:6px}
+.row .sr b{color:var(--lime);font-weight:700}
+.wk{display:inline-block;font:700 30px 'JetBrains Mono';letter-spacing:.08em;padding:16px 24px;border-radius:999px;border:2px solid var(--line);color:var(--muted);margin-right:10px}
+.wk.on{background:var(--lime);border-color:var(--lime);color:var(--ink)}
+</style></head><body><div class="stage">
+<div class="dots"></div><div class="glow"></div>
+<div id="lbl" class="mono lime abs" style="left:72px;top:220px;font-size:36px">[ POV ]</div>
+<div id="h1" class="h disp"><div>You bought</div><div>2 dumbbells.</div><div class="l2">3 months ago.</div></div>
+<div id="h2" class="h disp" style="font-size:132px"><div>Still no idea</div><div class="l2">what to do with them.</div></div>
+<div id="h3" class="h disp" style="font-size:132px"><div>So I told an app</div><div class="l2">what I actually own.</div></div>
+<div id="h4" class="h disp" style="font-size:112px;top:230px"><div>It planned</div><div class="lime">every set for me.</div></div>
+<div id="db"></div>
+<div id="chips"></div>
+<div id="cnt" class="mono muted" style="opacity:0">Saved workouts: <span class="lime" id="cn">0</span> · Done: 0</div>
+<div id="gear"><span class="chip" id="gchip"><span id="gck" style="display:inline-block;width:0;overflow:hidden">✓</span>2 dumbbells (25 lb)</span></div>
+<div id="plan" class="abs card" style="left:60px;right:60px;top:560px;padding:44px 48px 20px;opacity:0">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px">
+    <div><div class="mono lime" style="font-size:28px">Day 1 · Mon</div><div class="disp" style="font-size:84px;margin-top:10px">Full body A</div></div>
+    <div class="mono muted" style="font-size:28px;border:2px solid var(--line);border-radius:999px;padding:12px 20px">37 min</div></div>
+  <div id="rows"></div>
+</div>
+<div id="weeks" class="abs" style="left:60px;top:1500px;opacity:0"><span class="wk on">Week 1</span><span class="wk">Week 2</span><span class="wk">Week 3</span><span class="wk">Week 4</span>
+  <div class="muted" style="font:500 34px Inter;margin-top:24px">Then it adds reps for you, week by week.</div></div>
+<div id="endwrap"></div>
+</div>
+<script>
+window.DURATION=17.7;
+$('#db').innerHTML=DUMBBELL; $('#endwrap').innerHTML=endCard();
+const CH=[['Saved: 30-day shred',90,820,-6],['How heavy??',640,760,5,1],['Saved: arm day',140,1180,4],['Rest how long?',560,1270,-5,1],['Saved: 12-min HIIT',420,1020,3],['How many sets?',80,1400,-3,1],['Saved: “only 3 moves you need”',130,920,2],['Saved: 100 push-ups a day',430,1480,-4]];
+$('#chips').innerHTML=CH.map((c,i)=>`<div class="flo chip ${c[4]?'q':''}" id="c${i}">${c[0]}</div>`).join('');
+const EX=[['Goblet Squat','3 × 8','25 lb dumbbells'],['Dumbbell Floor Press','3 × 8','25 lb dumbbells'],['One-Arm Dumbbell Row','3 × 8','25 lb dumbbells'],['Dumbbell Romanian Deadlift','3 × 8','25 lb dumbbells'],['Plank','2 × 20 s','bodyweight']];
+const inner=DUMBBELL.replace(/<svg[^>]*>|<\/svg>/g,'');
+$('#rows').innerHTML=EX.map((e,i)=>`<div class="row" id="r${i}"><div class="ic"><svg width="52" viewBox="0 0 120 48">${inner}</svg></div><div style="flex:1"><div class="nm">${e[0]}</div><div class="sr"><b>${e[1]}</b> · ${e[2]}</div></div><div class="mono muted" style="font-size:26px">${i==4?'60s':'90s'}</div></div>`).join('');
+const R0=(t)=>{
+  rv('#lbl',t,0,.4,20,7.55);
+  $$('#h1>div').forEach((d,i)=>rv(d,t,.05+i*.12,.5,50,2.55,.3));
+  const dp=back(seg(t,.35,1.05)); const wob=t>2.6?Math.sin(t*9)*8*seg(t,2.6,3.2):0; const fall=eio(seg(t,5.3,5.9));
+  $('#db').style.transform=`translateY(${(1-dp)*-500+fall*900}px) rotate(${wob+fall*40}deg)`; $('#db').style.opacity=seg(t,.35,.6)*(1-fall);
+  $$('#h2>div').forEach((d,i)=>rv(d,t,2.75+i*.12,.5,50,5.3,.3));
+  CH.forEach((c,i)=>{const el=$('#c'+i);const a=3.0+i*.22;const p=back(seg(t,a,a+.45));const f=eio(seg(t,5.3+i*.03,5.9+i*.03));
+    el.style.left=c[1]+'px';el.style.top=c[2]+'px';el.style.opacity=seg(t,a,a+.2)*(1-f);
+    el.style.transform=`translate(${Math.sin(t*1.7+i)*10}px,${Math.cos(t*1.3+i*2)*12+f*700}px) rotate(${c[3]+f*(i%2?30:-30)}deg) scale(${.6+.4*p})`;});
+  $('#cn').textContent=Math.round(412*eo(seg(t,3.0,5.0))); rv('#cnt',t,3.0,.4,20,5.3);
+  $$('#h3>div').forEach((d,i)=>rv(d,t,5.7+i*.12,.5,50,7.6,.3));
+  const gp=back(seg(t,6.05,6.6)); const on=t>6.9; const go=eio(seg(t,7.6,7.95));
+  $('#gear').style.opacity=seg(t,6.05,6.25)*(1-go); $('#gear').style.transform=`scale(${(.7+.3*gp)*(on?1+.06*Math.sin(seg(t,6.9,7.2)*Math.PI):1)}) translateY(${-go*200}px)`;
+  $('#gchip').classList.toggle('on',on); $('#gck').style.width=on?'46px':'0';
+  $$('#h4>div').forEach((d,i)=>rv(d,t,7.9+i*.12,.5,50,11.9,.3));
+  rv('#plan',t,8.0,.6,80,11.9); EX.forEach((e,i)=>rv('#r'+i,t,8.35+i*.32,.45,30));
+  rv('#weeks',t,10.2,.5,30,11.9); $$('.wk').forEach((w,i)=>w.classList.toggle('on',t>10.4+i*.35||i==0));
+  if(t>12.0) renderEnd(t,12.15); else $('#end').style.opacity=0;
+};
+window.render=(t)=>R0(t<3.25? t*2.55/3.25 : t-0.7);
+</script></body></html>

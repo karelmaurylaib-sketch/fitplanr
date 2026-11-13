@@ -1,0 +1,103 @@
+{
+ "pov-nutrition": [
+  [
+   0.25,
+   "P-O-V: you train hard, then eat whatever's in the fridge.",
+   3.29
+  ],
+  [
+   4.19,
+   "Cereal for dinner. Again. And no idea how much protein you got.",
+   4.12
+  ],
+  [
+   8.95,
+   "So I let my plan set my food too.",
+   1.96
+  ],
+  [
+   11.57,
+   "Twenty-seven ninety calories, a hundred thirty-six grams of protein. Three meals, already sized.",
+   6.02
+  ],
+  [
+   18.23,
+   "Comment fit, and I'll send you the link.",
+   1.96
+  ]
+ ],
+ "tips-protein": [
+  [
+   0.25,
+   "How much protein do you actually need? Save this.",
+   2.79
+  ],
+  [
+   3.69,
+   "Rule one: about point eight grams per pound of bodyweight. At a hundred seventy pounds, that's a hundred thirty-six grams.",
+   6.87
+  ],
+  [
+   11.21,
+   "Rule two: cutting? Go up to one gram per pound, to keep your muscle.",
+   3.63
+  ],
+  [
+   15.49,
+   "Rule three: split it across your meals. About forty to fifty grams each.",
+   4.29
+  ],
+  [
+   20.43,
+   "Fit Planner sets your protein and sizes every meal for you.",
+   3.37
+  ],
+  [
+   24.45,
+   "Comment fit, and I'll send you the link.",
+   1.96
+  ]
+ ],
+ "demo-nutrition": [
+  [
+   0.15,
+   "I train three days a week. My food? A total guess. Watch this.",
+   3.75
+  ],
+  [
+   4.45,
+   "Four quick numbers about me.",
+   1.54
+  ],
+  [
+   6.54,
+   "My daily target: twenty-seven ninety calories, a hundred thirty-six grams of protein.",
+   5.21
+  ],
+  [
+   12.3,
+   "Three meals, already sized.",
+   1.6
+  ],
+  [
+   14.45,
+   "Don't like chicken? Swap it for tofu. The meal re-sizes itself.",
+   3.82
+  ],
+  [
+   18.82,
+   "Tap ate it, and the rings fill.",
+   1.73
+  ],
+  [
+   21.1,
+   "My food, planned around my training.",
+   2.07
+  ],
+  [
+   23.82,
+   "Comment fit, and I'll send you the link.",
+   1.96
+  ]
+ ]
+}

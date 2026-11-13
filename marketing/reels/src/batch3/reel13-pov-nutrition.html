@@ -1,0 +1,53 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="kit.css"><link rel="stylesheet" href="pov2.css">
+<script src="kit.js"></script><script src="kit2.js"></script><script src="timing3.js"></script>
+<style>.fr{display:flex;justify-content:space-between;padding:22px 0;border-top:2px solid var(--line);font:600 40px Inter;opacity:0}
+.ml{display:flex;align-items:center;gap:26px;padding:24px 0;border-top:2px solid var(--line);opacity:0}
+.ml .t{font:700 26px 'JetBrains Mono';letter-spacing:.08em;color:var(--muted);width:150px}.ml .n{flex:1;font:700 56px 'Barlow Condensed';text-transform:uppercase}
+.ml .k{text-align:right;font:700 52px 'Barlow Condensed'}.ml .p{font:500 28px Inter;color:var(--lime)}</style>
+</head><body><div class="stage">
+<div class="dots"></div><div class="glow"></div>
+<div id="lbl" class="lbl mono lime">[ POV ]</div>
+<div id="h0" class="h disp" style="font-size:124px"><div>You train hard.</div><div class="l2">Then eat whatever's</div><div class="l2">in the fridge.</div></div>
+<div id="fridge" class="abs card" style="left:72px;right:72px;top:930px;padding:24px 44px 8px;opacity:0"><div class="mono muted" style="font-size:26px;margin-bottom:8px">Tonight's options</div><div id="frl"></div></div>
+<div id="h1" class="h s disp"><div>Cereal for dinner.</div><div class="l2">Again.</div></div>
+<div id="chips"></div>
+<div id="h2" class="h disp"><div>So I let my plan</div><div class="lime">set my food too.</div></div>
+<div id="nt" class="notif"><div class="ic" id="ntic"></div><div style="flex:1"><div style="display:flex;justify-content:space-between"><b style="font:700 32px Inter">FitPlanr · Nutrition</b><span class="muted" style="font:500 28px Inter">now</span></div>
+  <div style="font:500 36px/1.3 Inter;margin-top:8px">Your targets are ready<br><span class="muted">3 meals, sized for your training</span></div></div></div>
+<div id="h3" class="h s disp" style="top:200px;font-size:112px"><div>2,790 kcal.</div><div class="lime">136 g protein.</div></div>
+<div id="card" class="abs card" style="left:60px;right:60px;top:500px;padding:34px 44px 14px;opacity:0">
+  <div style="display:flex;align-items:center;gap:36px;margin-bottom:20px">
+    <svg width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="84" stroke="rgb(255 255 255/.09)" stroke-width="18" fill="none"/><circle id="ring" cx="100" cy="100" r="84" stroke="#C8FF3D" stroke-width="18" fill="none" stroke-linecap="round" transform="rotate(-90 100 100)" stroke-dasharray="527.8" stroke-dashoffset="527.8"/>
+      <text id="rk" x="100" y="112" text-anchor="middle" fill="#F4F5F0" font-family="Barlow Condensed" font-weight="700" font-size="54">0</text></svg>
+    <div><div class="mono lime" style="font-size:26px">Daily target</div><div class="disp" style="font-size:80px;margin-top:6px">2,790 kcal</div>
+      <div style="font:500 32px Inter;color:var(--muted);margin-top:6px">P 136 g · C 373 g · F 84 g</div></div></div>
+  <div class="ml" id="m0"><div class="t">7–9 am</div><div class="n">Breakfast</div><div><div class="k">824</div><div class="p">40 g protein</div></div></div>
+  <div class="ml" id="m1"><div class="t">12–2 pm</div><div class="n">Lunch</div><div><div class="k">992</div><div class="p">53 g protein</div></div></div>
+  <div class="ml" id="m2"><div class="t">6–8 pm</div><div class="n">Dinner</div><div><div class="k">858</div><div class="p">49 g protein</div></div></div>
+</div>
+<div id="ex" class="abs mono muted" style="left:60px;right:60px;top:1500px;font-size:24px;line-height:1.6;opacity:0">Example: man, 28, 5′10″, 170 lb,<br>building muscle, 3 workouts a week</div>
+<div id="endwrap"></div>
+</div>
+<script>
+const T=TIMING['pov-nutrition'], S=T.S; window.DURATION=T.DURATION;
+const FR=['Leftover pizza','Cereal','3 eggs','Ketchup'];
+$('#frl').innerHTML=FR.map((f,i)=>`<div class="fr" id="f${i}"><span>${f}</span><span class="muted">?</span></div>`).join('');
+const CH=[['Protein today: ???',80,760,-5,1],['Calories: no idea',560,700,4],['Skipped lunch',620,1000,6],['A bar counts… right?',90,1100,-3,1],['Is this enough?',520,1290,-4,1],['Cereal, round 2',140,1440,3]];
+$('#chips').innerHTML=CH.map((c,i)=>`<div class="flo chip ${c[4]?'q':''}" id="c${i}">${c[0]}</div>`).join('');
+$('#ntic').innerHTML=LOGO; $('#endwrap').innerHTML=endCardFit();
+window.render=(t)=>{
+  rv('#lbl',t,0,.4,20,S[1]-.3); heads(t,'h0',.05,S[1]-.3);
+  rv('#fridge',t,.8,.5,40,S[1]-.3); FR.forEach((f,i)=>rv('#f'+i,t,1.1+i*.25,.4,20));
+  heads(t,'h1',S[1]+.05,S[2]-.3);
+  CH.forEach((c,i)=>{const el=$('#c'+i);const a=S[1]+.3+i*.35;const p=back(seg(t,a,a+.45));const f=eio(seg(t,S[2]-.4+i*.03,S[2]+.1+i*.03));
+    el.style.left=c[1]+'px';el.style.top=c[2]+'px';el.style.opacity=seg(t,a,a+.2)*(1-f);
+    el.style.transform=`translate(${Math.sin(t*1.7+i)*10}px,${Math.cos(t*1.3+i*2)*12+f*600}px) rotate(${c[3]+f*(i%2?30:-30)}deg) scale(${.6+.4*p})`;});
+  heads(t,'h2',S[2]+.05,S[3]-.3);
+  const np=back(seg(t,S[2]+.4,S[2]+.9)); const nf=eio(seg(t,S[3]-.3,S[3])); const n=$('#nt');
+  n.style.opacity=seg(t,S[2]+.4,S[2]+.6)*(1-nf); n.style.transform=`translateY(${(1-np)*-200 - nf*100}px) scale(${.92+.08*np})`;
+  heads(t,'h3',S[3]+.05,S[4]-.3); rv('#card',t,S[3]+.2,.6,60,S[4]-.3);
+  const rp=eo(seg(t,S[3]+.5,S[3]+1.8)); $('#ring').setAttribute('stroke-dashoffset',527.8*(1-rp)); $('#rk').textContent=Math.round(2790*rp).toLocaleString('en-US');
+  [0,1,2].forEach(i=>rv('#m'+i,t,S[3]+1.0+i*.35,.45,30)); rv('#ex',t,S[3]+2.2,.4,20,S[4]-.3);
+  if(t>S[4]-.05) renderEndFit(t,S[4]); else $('#endf').style.opacity=0;
+};
+</script></body></html>

@@ -1,0 +1,50 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="kit.css"><link rel="stylesheet" href="tips2.css">
+<script src="kit.js"></script><script src="kit2.js"></script><script src="timing3.js"></script>
+<style>.calc{position:absolute;left:72px;right:72px;top:820px;text-align:center;opacity:0}
+.calc .eq{font:700 96px 'Barlow Condensed';color:var(--muted)}.calc .res{font:700 280px/1 'Barlow Condensed';color:var(--lime);text-shadow:0 0 80px rgb(200 255 61/.35)}
+
+.calc .u{margin-top:44px;font:700 34px 'JetBrains Mono';letter-spacing:.14em;color:var(--muted)}
+.mb{position:absolute;bottom:0;width:220px;border-radius:22px 22px 8px 8px;background:var(--lime)}
+.mb .v{position:absolute;top:-82px;left:0;right:0;text-align:center;font:700 64px 'Barlow Condensed'}
+.mb .l{position:absolute;bottom:-70px;left:-20px;right:-20px;text-align:center;font:500 26px 'JetBrains Mono';letter-spacing:.08em;color:var(--muted)}
+.it{display:flex;justify-content:space-between;align-items:center;padding:22px 0;border-top:2px solid var(--line);opacity:0}
+.it .n{font:600 38px Inter}.it .a{font:500 28px Inter;color:var(--muted);margin-top:4px}.it .g{font:700 52px 'Barlow Condensed';color:var(--lime)}</style>
+</head><body><div class="stage">
+<div class="dots"></div><div class="glow"></div>
+<div id="l0" class="lbl mono lime">[ Save this ]</div>
+<div id="h0" class="h disp"><div>How much</div><div>protein do you</div><div class="l2">actually need?</div></div>
+<div id="egg" class="abs disp lime" style="left:0;right:0;top:1050px;text-align:center;font-size:220px;opacity:0;text-transform:none">? g</div>
+<div id="l1" class="lbl mono lime">Rule 01 / 03</div>
+<div id="h1" class="h s disp"><div>0.8 g per lb</div><div class="l2">of bodyweight.</div></div>
+<div id="c1" class="calc"><div class="eq">170 lb × 0.8</div><div class="res" id="r1">0</div><div class="u">grams a day</div></div>
+<div id="l2" class="lbl mono lime">Rule 02 / 03</div>
+<div id="h2" class="h s disp"><div>Cutting?</div><div class="lime">1 g per lb.</div></div>
+<div id="c2" class="calc"><div class="eq">170 lb × 1.0</div><div class="res" id="r2">0</div><div class="u">grams a day · keeps your muscle</div></div>
+<div id="l3" class="lbl mono lime">Rule 03 / 03</div>
+<div id="h3" class="h s disp"><div>Split it across</div><div class="lime">your meals.</div></div>
+<div id="bars" class="abs" style="left:120px;right:120px;top:880px;height:520px;opacity:0"></div>
+<div id="h4" class="h disp" style="top:220px;font-size:116px"><div>FitPlanr sets it,</div><div class="lime">then sizes</div><div class="lime">every meal.</div></div>
+<div id="c4" class="abs card" style="left:72px;right:72px;top:760px;padding:30px 44px 10px;opacity:0">
+  <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="disp" style="font-size:72px">Lunch</div><div class="mono lime" style="font-size:28px">53 g protein</div></div>
+  <div id="c4r" style="margin-top:12px"></div></div>
+<div id="ex" class="abs mono muted" style="left:72px;right:72px;top:1600px;font-size:24px;line-height:1.6;opacity:0">Example: 170 lb, building muscle</div>
+<div id="endwrap"></div>
+</div>
+<script>
+const T=TIMING['tips-protein'], S=T.S; window.DURATION=T.DURATION;
+$('#endwrap').innerHTML=endCardFit();
+const B=[['Breakfast',41],['Lunch',48],['Dinner',48]];
+$('#bars').innerHTML=B.map((b,i)=>`<div class="mb" id="b${i}" style="left:${i*310}px"><div class="v">${b[1]} g</div><div class="l">${b[0]}</div></div>`).join('');
+const IT=[['Chicken breast','4 oz',35],['Brown rice','2½ cups',13],['Mixed green salad','2 cups',2],['Avocado','1 whole',3]];
+$('#c4r').innerHTML=IT.map((x,i)=>`<div class="it" id="i${i}"><div><div class="n">${x[0]}</div><div class="a">${x[1]}</div></div><div class="g">${x[2]} g</div></div>`).join('');
+window.render=(t)=>{
+  for(let k=0;k<5;k++){ if(k<4) rv('#l'+k,t,S[k]+.02,.4,20,S[k+1]-.3); heads(t,'h'+k,S[k]+.05,S[k+1]-.3); }
+  rv('#egg',t,.9,.5,40,S[1]-.3); $('#egg').style.transform+=` rotate(${Math.sin(t*3)*4}deg)`;
+  rv('#c1',t,S[1]+.5,.5,40,S[2]-.3); $('#r1').textContent=Math.round(136*eo(seg(t,S[1]+.9,S[1]+2.4)))+' g';
+  rv('#c2',t,S[2]+.5,.5,40,S[3]-.3); $('#r2').textContent=Math.round(170*eo(seg(t,S[2]+.9,S[2]+2.2)))+' g';
+  const bv=eo(seg(t,S[3]+.3,S[3]+.7))*(1-eio(seg(t,S[4]-.3,S[4]))); $('#bars').style.opacity=bv;
+  B.forEach((b,i)=>{const p=eo(seg(t,S[3]+.5+i*.3,S[3]+1.1+i*.3)); const el=$('#b'+i); el.style.height=(b[1]/48*400*p)+'px'; el.querySelector('.v').style.opacity=p>.9?1:0;});
+  rv('#c4',t,S[4]+.4,.5,40,S[5]-.3); IT.forEach((x,i)=>rv('#i'+i,t,S[4]+.7+i*.25,.4,20)); rv('#ex',t,S[1]+1.5,.4,20,S[4]-.3);
+  if(t>S[5]-.05) renderEndFit(t,S[5]); else $('#endf').style.opacity=0;
+};
+</script></body></html>
