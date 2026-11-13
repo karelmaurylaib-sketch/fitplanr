@@ -1,5 +1,8 @@
 # Instagram Reels: batch 2 (Nov 12, 2026)
 
+> **Final videos are in `Ready to post/`** (renamed POV 1–4, Demo 1–4, Tips 1–4, with silences over 0.5 s removed).
+> This file keeps the captions, voice-over lines and notes; file names below refer to the old drafts.
+
 Nine reels: three more of each format from batch 1. All are 1080×1920, 30 fps, with the same female voice-over as batch 1
 (Kokoro `af_heart`, speed 1.05), mastered to −14 LUFS. Every reel ends on **"Comment FIT and I'll send you the link"**, both on
 screen and in the voice. The end card shows a comment box typing "FIT", then "✓ Link on its way to your DMs".

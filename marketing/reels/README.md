@@ -1,5 +1,8 @@
 # Instagram Reels: batch 1 (Nov 2026)
 
+> **Final videos are in `Ready to post/`** (renamed POV 1–4, Demo 1–4, Tips 1–4, with silences over 0.5 s removed).
+> This file keeps the captions, voice-over lines and notes; file names below refer to the old drafts.
+
 Three reels, one per format. All are 1080×1920, 30 fps, H.264.
 
 - `*-vo.mp4`: **post these.** Voice-over mixed in, mastered to −14 LUFS (Instagram's loudness).
