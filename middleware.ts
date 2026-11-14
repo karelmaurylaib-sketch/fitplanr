@@ -1,9 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { SITE_URL, canonical, isPrivatePath } from "@/lib/seo";
 
 const MONTH = 60 * 60 * 24 * 30;
 
 export async function middleware(req: NextRequest) {
+  // One canonical domain: in production, any other host (deployment URLs, aliases) answers 301 to it.
+  // GET/HEAD pages only, so API calls and webhooks are never redirected.
+  const { pathname, search } = req.nextUrl;
+  const host = req.headers.get("host");
+  const siteHost = new URL(SITE_URL).host;
+  if (process.env.VERCEL_ENV === "production" && host && host !== siteHost && !pathname.startsWith("/api/") && (req.method === "GET" || req.method === "HEAD")) {
+    return NextResponse.redirect(SITE_URL + pathname + search, 301);
+  }
+
   let res = NextResponse.next({ request: req });
 
   const sb = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
@@ -30,6 +40,10 @@ export async function middleware(req: NextRequest) {
     .filter(Boolean)
     .join("&");
   if (utm) res.cookies.set("fp_src", utm.slice(0, 200), opts);
+
+  // Search engines: private screens never indexed; public pages carry their canonical URL.
+  if (isPrivatePath(pathname)) res.headers.set("X-Robots-Tag", "noindex, nofollow");
+  else if (!pathname.includes(".")) res.headers.set("Link", `<${canonical(pathname)}>; rel="canonical"`);
 
   return res;
 }

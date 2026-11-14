@@ -4,7 +4,7 @@ import { getAccess, getSession } from "@/lib/access";
 import { fmtDate, shortPlanName } from "@/lib/utils";
 import { AccountClient } from "./client";
 
-export const metadata: Metadata = { title: "Account" };
+export const metadata: Metadata = { title: "Account", robots: { index: false, follow: false } };
 
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ upgrade?: string }> }) {
   const { user } = await getSession();

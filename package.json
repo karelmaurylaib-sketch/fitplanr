@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postbuild": "node scripts/indexnow.mjs",
+    "indexnow": "NODE_USE_ENV_PROXY=1 node scripts/indexnow.mjs",
+    "deploy": "NODE_USE_ENV_PROXY=1 npx vercel deploy --prod --yes --token placeholder"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

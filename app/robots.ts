@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo";
 
+// Private screens stay crawlable so engines can read their noindex (sent by middleware); only the API is blocked.
 export default function robots(): MetadataRoute.Robots {
-  const url = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  return { rules: [{ userAgent: "*", allow: ["/", "/signup", "/login", "/terms", "/privacy"], disallow: ["/api/", "/dashboard", "/workout", "/history", "/settings", "/account", "/plan", "/start"] }], sitemap: `${url}/sitemap.xml` };
+  return { rules: [{ userAgent: "*", allow: "/", disallow: ["/api/"] }], sitemap: `${SITE_URL}/sitemap.xml`, host: SITE_URL };
 }

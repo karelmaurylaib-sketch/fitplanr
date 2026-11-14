@@ -4,7 +4,7 @@ import { getProfile, getSession } from "@/lib/access";
 import { gearLine, type Answers } from "@/lib/engine/generate";
 import { Building } from "./building";
 
-export const metadata: Metadata = { title: "Building your plan" };
+export const metadata: Metadata = { title: "Building your plan", robots: { index: false, follow: false } };
 
 export default async function BuildingPage({ searchParams }: { searchParams: Promise<{ rebuild?: string }> }) {
   const { user } = await getSession();

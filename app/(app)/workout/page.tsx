@@ -4,7 +4,7 @@ import { requirePaid } from "@/lib/guard";
 import { dayOf, nextSession, smartTargets, type LogRow } from "@/lib/workout";
 import { Logger } from "./logger";
 
-export const metadata: Metadata = { title: "Workout" };
+export const metadata: Metadata = { title: "Workout", robots: { index: false, follow: false } };
 
 export default async function WorkoutPage({ searchParams }: { searchParams: Promise<{ week?: string; day?: string; rebuilt?: string }> }) {
   const sp = await searchParams;

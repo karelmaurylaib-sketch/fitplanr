@@ -8,8 +8,8 @@ import { getShared } from "@/lib/share";
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const s = await getShared(id);
-  if (!s) return { title: "Plan not found" };
-  return { title: `${s.title}: a FitPlanr plan`, description: s.summary, openGraph: { title: `${s.title} · FitPlanr`, description: s.summary } };
+  if (!s) return { title: "Plan not found", robots: { index: false } };
+  return { title: `${s.title}: a FitPlanr plan`, description: s.summary, alternates: { canonical: `/s/${id}` }, openGraph: { title: `${s.title} · FitPlanr`, description: s.summary } };
 }
 
 export default async function SharePage({ params }: { params: Promise<{ id: string }> }) {
