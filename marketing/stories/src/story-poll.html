@@ -1,0 +1,16 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="kit.css"><script src="kit.js"></script>
+<style>
+.h{position:absolute;left:80px;right:80px;font-size:150px}
+.l2{color:transparent;background:linear-gradient(90deg,#9a9f92,#4d5148);-webkit-background-clip:text;background-clip:text}
+.ghost{position:absolute;left:150px;right:150px;top:1080px;height:300px;border-radius:44px;border:4px dashed rgb(200 255 61/.35)}
+</style></head><body><div class="stage">
+<div class="dots"></div><div class="glow"></div>
+<div class="abs" style="left:80px;top:270px;display:flex;align-items:center;gap:18px"><div style="width:64px;height:64px" id="lg"></div><div class="disp" style="font-size:58px">FitPlanr</div></div>
+<div class="mono lime abs" style="left:80px;top:420px;font-size:36px">[ Quick poll ]</div>
+<div class="h disp" style="top:480px"><div>Do you ever</div><div>train without</div><div class="lime">a plan?</div></div>
+<div class="abs" style="left:80px;right:80px;top:960px;font:500 44px Inter;color:var(--muted)">Be honest. Vote below 👇</div>
+<div class="ghost" id="ghost"></div>
+<div class="abs mono muted" style="left:0;right:0;top:1500px;text-align:center;font-size:30px">Tap for the answer →</div>
+</div>
+<script>window.DURATION=0.1;$('#lg').innerHTML=LOGO;window.render=()=>{$('#ghost').style.display=new URLSearchParams(location.search).has('guide')?'':'none';};</script>
+</body></html>
