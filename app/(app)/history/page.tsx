@@ -6,7 +6,7 @@ import type { LogRow } from "@/lib/workout";
 import { e1rm } from "@/lib/engine/progression";
 import { HistoryList } from "./list";
 
-export const metadata: Metadata = { title: "History" };
+export const metadata: Metadata = { title: "History", robots: { index: false, follow: false } };
 
 export default async function HistoryPage() {
   const { access } = await requirePaid();

@@ -207,7 +207,16 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 - Verified: e2e 3× phone + 3× computer on production (green), RLS cross-user test (blocked), no secrets in
   `.next/static`, Lighthouse mobile 92–95 perf / 100 a11y / 100 best practices / 100 SEO.
 - Test accounts created by e2e use `@fitplanr-test.com` emails.
-- **Pending (Nov 17, onboarding conversion)**: built in a session whose network could not reach Supabase / Kwop /
-  Vercel. Still to do from a session on the "fitplanr" environment: run `supabase/migrations/20261117000000_progress_saves.sql`
-  (Management API), deploy, run the e2e on production (phone + computer). Until the migration runs, Save Progress
-  still sends the link; only the `progress_saves` row is skipped (logged).
+- **Onboarding conversion live setup (Nov 17)**: `20261117000000_progress_saves.sql` applied on production (RLS on,
+  3 policies). Merged with the search-indexing branch (the one live before) and deployed.
+
+## Search indexing (Nov 14, 2026)
+- `lib/seo.ts` = the list of private path prefixes. Everything else is public: in `sitemap.xml` (built from the
+  `app/` routes at deploy) with a canonical; private paths get `X-Robots-Tag: noindex` (middleware) + noindex meta.
+  A new private screen must be added to `PRIVATE_PREFIXES`. robots.txt blocks only `/api/`.
+- Production redirects any other host (deploy URLs) 301 to `NEXT_PUBLIC_SITE_URL` (GET/HEAD, not `/api/`).
+- IndexNow key `public/479b67cf24a68bb6d0df5bba391c6726.txt`; `scripts/indexnow.mjs` runs as `postbuild` on every
+  production build and by hand with `npm run indexnow` (last answer: 200, key accepted).
+- Google Search Console: URL-prefix property verified (meta tag in `app/layout.tsx`), sitemap submitted.
+  « Request indexing » hit the new-property quota on day 1; owner retries the next day.
+- Bing Webmaster Tools: not set up (owner's accounts are under parental control). Bing gets the pages via IndexNow.

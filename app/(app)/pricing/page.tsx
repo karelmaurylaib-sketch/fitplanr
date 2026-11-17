@@ -4,7 +4,7 @@ import { getApp } from "@/lib/kwop";
 import { toPublicPlans } from "@/lib/pricing";
 import { PricingClient } from "./client";
 
-export const metadata: Metadata = { title: "Plans" };
+export const metadata: Metadata = { title: "Plans", robots: { index: false, follow: false } };
 
 export default async function PricingPage() {
   const [app, plan] = await Promise.all([getApp(), getActivePlan()]);

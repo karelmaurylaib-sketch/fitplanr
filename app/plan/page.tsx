@@ -7,7 +7,7 @@ import { teaserPlan } from "@/lib/teaser";
 import { projectPlan } from "@/lib/projection";
 import { PlanResult } from "./result";
 
-export const metadata: Metadata = { title: "Your 4-week plan" };
+export const metadata: Metadata = { title: "Your 4-week plan", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function PlanPage() {

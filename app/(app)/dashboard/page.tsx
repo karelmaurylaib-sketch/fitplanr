@@ -14,7 +14,7 @@ import { e1rm } from "@/lib/engine/progression";
 import { fmtDate } from "@/lib/utils";
 import { ConfirmPaid } from "./confirm-paid";
 
-export const metadata: Metadata = { title: "Dashboard" };
+export const metadata: Metadata = { title: "Dashboard", robots: { index: false, follow: false } };
 
 function Meter({ label, used, max }: { label: string; used: number; max: number }) {
   const pct = Math.min(100, (used / max) * 100);

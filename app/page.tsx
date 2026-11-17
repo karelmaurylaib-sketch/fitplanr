@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import fs from "node:fs";
 import path from "node:path";
@@ -11,6 +12,12 @@ import { TopBar, StickyCta, Faq, Footer, KwopFlow } from "@/components/landing/c
 import { getSession } from "@/lib/access";
 import { landingRedirect } from "@/lib/route";
 import { publicPlanCount } from "@/lib/stats";
+
+export const metadata: Metadata = {
+  title: { absolute: "FitPlanr: your personal trainer, automated" },
+  description: "Tell FitPlanr the gear you actually have. Get a safe, week-by-week workout plan that adds weight for you. Free to try, ready in 60 seconds.",
+  alternates: { canonical: "/" },
+};
 
 export const dynamic = "force-dynamic";
 

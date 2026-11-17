@@ -4,7 +4,7 @@ import { requirePaid } from "@/lib/guard";
 import { EXERCISES } from "@/lib/engine/exercises";
 import { LibraryClient } from "./client";
 
-export const metadata: Metadata = { title: "Form library" };
+export const metadata: Metadata = { title: "Form library", robots: { index: false, follow: false } };
 
 export default async function LibraryPage() {
   const { access, plan } = await requirePaid();

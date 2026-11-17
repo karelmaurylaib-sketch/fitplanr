@@ -5,7 +5,7 @@ import { swapOptions, generatePlan } from "@/lib/engine/generate";
 import { GEAR_LABELS } from "@/lib/engine/exercises";
 import { SettingsClient } from "./client";
 
-export const metadata: Metadata = { title: "Settings" };
+export const metadata: Metadata = { title: "Settings", robots: { index: false, follow: false } };
 
 const GOAL: Record<string, string> = { muscle: "Build muscle", strength: "Get stronger", fatloss: "Lose fat, keep muscle", fit: "Get fit" };
 const LEVEL: Record<string, string> = { new: "New to lifting", some: "A few months in", year: "Over a year" };

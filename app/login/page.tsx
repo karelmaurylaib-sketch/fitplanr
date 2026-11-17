@@ -5,7 +5,7 @@ import { AuthCard } from "@/components/auth-card";
 import { getSession } from "@/lib/access";
 import { landingRedirect } from "@/lib/route";
 
-export const metadata: Metadata = { title: "Log in", description: "Log in to FitPlanr and pick up your plan where you left it." };
+export const metadata: Metadata = { title: "Log in", description: "Log in to FitPlanr and pick up your plan where you left it.", robots: { index: false, follow: false } };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const { user } = await getSession();
