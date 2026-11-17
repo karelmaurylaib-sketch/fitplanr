@@ -8,10 +8,10 @@ export const alt = "A FitPlanr 4-week plan";
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const s = await getShared(id);
-  return new ImageResponse(<OgCard title={s?.title ?? "Your 4-week plan"} summary={s?.summary ?? "Built on the gear you actually have."} rows={s?.day1.exercises.slice(0, 4).map((e) => `${e.name} · ${e.sets} × ${e.target}`) ?? []} />, size);
+  return new ImageResponse(<OgCard title={s?.title ?? "Your 4-week plan"} summary={s?.summary ?? "Built on the gear you actually have."} rows={s?.day1.exercises.slice(0, 4).map((e) => `${e.name} · ${e.sets} × ${e.target}`) ?? []} projection={s?.projection ?? null} />, size);
 }
 
-function OgCard({ title, summary, rows }: { title: string; summary: string; rows: string[] }) {
+function OgCard({ title, summary, rows, projection }: { title: string; summary: string; rows: string[]; projection: string | null }) {
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", background: "#060606", color: "#F4F5F0", padding: 64, fontFamily: "sans-serif", position: "relative" }}>
       <div style={{ position: "absolute", top: -200, left: 300, width: 700, height: 500, borderRadius: 999, background: "rgba(200,255,61,0.18)", filter: "blur(80px)" }} />
@@ -23,6 +23,9 @@ function OgCard({ title, summary, rows }: { title: string; summary: string; rows
         <div style={{ marginTop: 56, fontSize: 22, letterSpacing: 4, color: "#8A8F82" }}>[ MY 4-WEEK PLAN ]</div>
         <div style={{ marginTop: 12, fontSize: 84, fontWeight: 800, lineHeight: 1, letterSpacing: -3, textTransform: "uppercase" }}>{title}</div>
         <div style={{ marginTop: 18, fontSize: 30, color: "#C9CCC3" }}>{summary}</div>
+        {projection && (
+          <div style={{ marginTop: 28, display: "flex", alignSelf: "flex-start", padding: "12px 22px", borderRadius: 999, background: "#C8FF3D", color: "#0A0D02", fontSize: 26, fontWeight: 800 }}>{projection}</div>
+        )}
       </div>
       <div style={{ display: "flex", flexDirection: "column", width: 420, justifyContent: "center", gap: 14 }}>
         {rows.map((r, i) => (

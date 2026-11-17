@@ -10,6 +10,8 @@ export type KwopPlan = {
   interval: string;
   per_day: string;
   yearly: { price_cents: number; per_day: string } | null;
+  /** free trial length, when the plan has one in Kwop / Whop */
+  trial_days?: number | null;
 };
 export type KwopApp = { name: string; checkout: "embedded" | "redirect" | null; plans: KwopPlan[] };
 export type KwopAccess = { paid: boolean; plan: { id: number; name: string } | null; status: string | null; until: string | null };

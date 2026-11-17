@@ -10,10 +10,12 @@ export type PublicPlan = {
   perDayMonth: string;
   yearCents: number | null;
   perDayYear: string | null;
+  /** only when Kwop says the plan has a free trial: the page never promises one the checkout doesn't give */
+  trialDays: number | null;
 };
 
 export function toPublicPlans(
-  plans: { id: number; name: string; price_cents: number; per_day: string; yearly: { price_cents: number; per_day: string } | null }[],
+  plans: { id: number; name: string; price_cents: number; per_day: string; yearly: { price_cents: number; per_day: string } | null; trial_days?: number | null }[],
 ): PublicPlan[] {
   return plans
     .map((p) => ({
@@ -24,6 +26,7 @@ export function toPublicPlans(
       perDayMonth: p.per_day || `$${(p.price_cents / 100 / 30).toFixed(2)}`,
       yearCents: p.yearly?.price_cents ?? null,
       perDayYear: p.yearly ? p.yearly.per_day || `$${(p.yearly.price_cents / 100 / 365).toFixed(2)}` : null,
+      trialDays: typeof p.trial_days === "number" && p.trial_days > 0 ? Math.round(p.trial_days) : null,
     }))
     .sort((a, b) => a.monthCents - b.monthCents);
 }

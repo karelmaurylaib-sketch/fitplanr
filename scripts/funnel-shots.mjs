@@ -21,14 +21,18 @@ for (const [tag, vp] of [["390", { width: 390, height: 844 }], ["1440", { width:
   await p.waitForTimeout(1200);
   for (const a of ["Never really", "3 days", "45 minutes"]) { await p.getByRole("button", { name: a }).click(); await p.waitForTimeout(1500); }
   await shot("4protect");
-  await p.getByRole("button", { name: "Skip" }).click(); await p.waitForTimeout(1800); await shot("5gear");
+  await p.getByRole("button", { name: "Skip" }).click(); await p.waitForTimeout(1800); await shot("5setup");
+  await p.getByRole("button", { name: "Home: 2 dumbbells" }).click(); await p.waitForTimeout(1800); await shot("5gear");
+  await p.getByRole("button", { name: "Continue" }).click(); await p.waitForTimeout(1500); await shot("5weight");
   await p.getByRole("button", { name: "Build my plan" }).click();
+  await p.waitForTimeout(2500); await shot("5preview");
+  await p.getByRole("dialog", { name: "Your projection" }).getByRole("button", { name: "Build my plan" }).click();
   await p.waitForTimeout(3500); await shot("6building");
   await p.waitForURL(/plan/, { timeout: 30000 }); await p.waitForTimeout(1200); await shot("7plan");
   await p.screenshot({ path: `shots/f-7planfull-${tag}.png`, fullPage: true });
   await p.waitForTimeout(2500); await shot("8paywall");
   const d = p.getByRole("dialog", { name: "Choose your plan" });
-  await d.getByRole("button", { name: /^Continue with/ }).first().click();
+  await d.getByRole("button", { name: "Start my plan" }).first().click();
   await p.waitForTimeout(9000); await shot("9checkout");
   console.log(tag, errs.length ? errs.slice(0, 5) : "no errors");
   await p.close();

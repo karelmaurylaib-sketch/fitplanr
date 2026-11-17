@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import fs from "node:fs";
 import path from "node:path";
-import { Check, Clock, Dumbbell, ListChecks, TrendingUp, Video, X } from "lucide-react";
+import { Check, ChartSpline, Clock, Dumbbell, ListChecks, TrendingUp, Video, X } from "lucide-react";
 import { MainButton } from "@/components/ui/button";
 import { Reveal, Stagger, StaggerItem, CountUp } from "@/components/landing/css-motion";
 import { IPhone } from "@/components/iphone";
 import { NotificationStack } from "@/components/landing/notifications";
-import { PhoneScreen, LazyMount, LazyVSL, LazyGear, LazyProgression, LazyLog, LazyForm, LazyPlanMini } from "@/components/landing/lazy";
+import { PhoneScreen, LazyMount, LazyVSL, LazyGear, LazyProgression, LazyLog, LazyForm, LazyPlanMini, LazyProjection } from "@/components/landing/lazy";
 import { TopBar, StickyCta, Faq, Footer, KwopFlow } from "@/components/landing/chrome";
 import { getSession } from "@/lib/access";
 import { landingRedirect } from "@/lib/route";
@@ -127,7 +127,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
         </Reveal>
         <div className="mt-14 grid gap-10 md:grid-cols-3 md:gap-6">
           {[
-            { n: "01", t: "Select your gear", d: "Tap what you have at home or at your gym. Nothing more.", el: <PhoneScreen label="Step 6 of 6" title="Your gear"><LazyGear compact /></PhoneScreen> },
+            { n: "01", t: "Select your gear", d: "Tap what you have at home or at your gym. Nothing more.", el: <PhoneScreen label="Equipment Sync · 2 / 3" title="Your gear"><LazyGear compact /></PhoneScreen> },
             { n: "02", t: "Get your routine", d: "A weekly split built on your goal, your days and your gear.", el: <PhoneScreen label="3-day muscle builder" title="Your plan"><LazyPlanMini /></PhoneScreen> },
             { n: "03", t: "Track your progress", d: "Log each set in one tap and watch your numbers climb.", el: <PhoneScreen label="Week 1 · Day 1" title="Full Body A"><LazyLog stacked /></PhoneScreen> },
           ].map((s, k) => (
@@ -157,8 +157,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
               { icon: TrendingUp, t: "Smart Progression", d: "Reps climb each week, then the weight goes up. On Pro, it adjusts from what you really lifted.", el: <LazyMount minHeight={220}><LazyProgression /></LazyMount> },
               { icon: ListChecks, t: "Visual Logs", d: "Tap a set to log it. Rest timer starts on its own. Nothing to type.", el: <LazyMount minHeight={170}><LazyLog /></LazyMount> },
               { icon: Video, t: "Form Library", d: "Short, silent loops of every move with three cues you can read mid-set.", el: <LazyMount minHeight={130}><LazyForm /></LazyMount> },
+              { icon: ChartSpline, t: "Your projection", d: "Before your plan builds, see where it takes you: muscle by week 12 and your first lift by week 4, from your own answers.", el: <LazyMount minHeight={180}><LazyProjection /></LazyMount>, wide: true },
             ].map((f, k) => (
-              <Reveal key={f.t} delay={(k % 2) * 0.06} className="rounded-[22px] border border-line bg-card p-6 sm:p-8">
+              <Reveal key={f.t} delay={(k % 2) * 0.06} className={`rounded-[22px] border border-line bg-card p-6 sm:p-8${"wide" in f && f.wide ? " md:col-span-2" : ""}`}>
                 <div className="flex items-center gap-3">
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime/10 text-lime">
                     <f.icon size={20} />

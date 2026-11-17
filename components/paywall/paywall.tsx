@@ -6,6 +6,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Sheet } from "@/components/ui/sheet";
 import { MainButton } from "@/components/ui/button";
 import { CheckoutSheet } from "./checkout-sheet";
+import { Commitment, TrialTimeline } from "./commitment";
+import type { Projection } from "@/lib/projection";
+import { device, sendEvent } from "@/lib/device";
 import { fmt, type PublicPlan } from "@/lib/pricing";
 import { TIER_TAGS, UNLOCKS } from "@/lib/tiers";
 import { cn } from "@/lib/utils";
@@ -70,6 +73,7 @@ export function Paywall({
   line,
   preselect,
   onPaid,
+  projection,
 }: {
   open: boolean;
   onClose: () => void;
@@ -78,6 +82,7 @@ export function Paywall({
   line: string;
   preselect?: string | null;
   onPaid: (ref: string) => void;
+  projection?: Projection | null;
 }) {
   const hasYearly = plans.some((p) => p.yearCents);
   const [period, setPeriod] = useState<"month" | "year">("month");
@@ -94,7 +99,8 @@ export function Paywall({
 
   useEffect(() => {
     if (!open) return;
-    fetch("/api/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "paywall_view" }) }).catch(() => {});
+    // conversion analytics, split by device: paywall_view → checkout_open → paywall_paid (server, on confirm)
+    sendEvent("paywall_view", device());
   }, [open]);
 
   useEffect(() => {
@@ -106,12 +112,28 @@ export function Paywall({
     return () => io.disconnect();
   }, [open, plans.length]);
 
-  const due = plan ? (period === "year" && plan.yearCents ? `${fmt(plan.yearCents)} due today, then every year` : `${fmt(plan.monthCents)} due today, then every month`) : "";
+  const price = plan ? (period === "year" && plan.yearCents ? `${fmt(plan.yearCents)} / year` : `${fmt(plan.monthCents)} / month`) : "";
+  const trial = plan?.trialDays ?? null;
+  const due = plan
+    ? trial
+      ? `$0 today, then ${price}`
+      : period === "year" && plan.yearCents
+        ? `${fmt(plan.yearCents)} due today, then every year`
+        : `${fmt(plan.monthCents)} due today, then every month`
+    : "";
   const unlocks = plan ? UNLOCKS[plan.tier] : [];
 
   const cta = (
-    <MainButton className="w-full" onClick={() => plan && setCheckout(true)} disabled={!plan}>
-      Continue with {plan?.name ?? "your plan"}
+    <MainButton
+      className="w-full"
+      onClick={() => {
+        if (!plan) return;
+        sendEvent("feature_used", `checkout_open ${device()}`);
+        setCheckout(true);
+      }}
+      disabled={!plan}
+    >
+      Start my plan
     </MainButton>
   );
 
@@ -121,6 +143,11 @@ export function Paywall({
         <div className="relative min-h-0 flex-1 overflow-y-auto px-5 pb-28 pt-16 sm:px-7">
           <h2 className="display text-[38px] sm:text-[42px]">{title}</h2>
           <p className="mt-2 text-[15px] text-muted">{line}</p>
+          {projection && (
+            <div className="mt-6">
+              <Commitment p={projection} />
+            </div>
+          )}
 
           {plans.length === 0 ? (
             <div className="mt-10 rounded-2xl border border-line bg-card p-5 text-[15px]">
@@ -149,6 +176,11 @@ export function Paywall({
                 {cta}
                 <p className="mt-3 text-center text-[13px] text-muted">{due} · Cancel anytime</p>
               </div>
+              {trial && plan && (
+                <div className="mt-6">
+                  <TrialTimeline days={trial} price={price} />
+                </div>
+              )}
 
               <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-[12px] text-muted">
                 <span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-lime" /> Secure payment, processed by Whop</span>
@@ -194,7 +226,10 @@ export function Paywall({
                 <div className="mt-5">{cta}</div>
               </div>
 
-              <p className="mt-8 text-center text-[12px] leading-relaxed text-dim">Renews automatically until canceled. Prices in USD. Not medical advice.</p>
+              <p className="mt-8 text-center text-[12px] leading-relaxed text-dim">
+                Renews automatically until canceled. Prices in USD. Not medical advice.
+                {projection && " *Muscle numbers are an estimate for beginners who follow the plan and eat enough protein, not a promise."}
+              </p>
             </>
           )}
         </div>

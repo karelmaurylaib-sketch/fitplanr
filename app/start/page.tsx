@@ -14,5 +14,5 @@ export default async function StartPage({ searchParams }: { searchParams: Promis
   if (plan && !access.kwop.paid) redirect("/plan");
   if (plan && access.kwop.paid && !rebuild) redirect("/dashboard");
   const initial = rebuild ? {} : profile?.answers ?? {};
-  return <StartFlow initial={initial} rebuild={!!rebuild} />;
+  return <StartFlow initial={initial} rebuild={!!rebuild} email={user.email ?? ""} />;
 }

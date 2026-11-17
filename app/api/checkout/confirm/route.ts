@@ -4,7 +4,7 @@ import { getSession } from "@/lib/access";
 import { cancelPlan, confirmCheckout, getPlan, track } from "@/lib/kwop";
 import { shortPlanName } from "@/lib/utils";
 
-const Body = z.object({ ref: z.string().min(4).max(128).regex(/^[\w\-:.]+$/), upgrade: z.boolean().optional() });
+const Body = z.object({ ref: z.string().min(4).max(128).regex(/^[\w\-:.]+$/), upgrade: z.boolean().optional(), device: z.enum(["phone", "computer"]).optional() });
 
 export async function POST(req: Request) {
   const { sb, user } = await getSession();
@@ -24,6 +24,8 @@ export async function POST(req: Request) {
     if (!p?.unlocked_seen) {
       await sb.from("profiles").update({ unlocked_seen: true }).eq("id", user.id);
       track("aha", user.email);
+      // paywall conversion, split by device: compare with paywall_view {detail: phone|computer}
+      if (!parsed.data.upgrade) track("feature_used", user.email, `paywall_paid ${parsed.data.device ?? "unknown"}`);
     }
     return NextResponse.json({ paid: true, plan: access.plan ? { id: access.plan.id, name: shortPlanName(access.plan.name) } : null });
   } catch (e) {

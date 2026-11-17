@@ -13,6 +13,8 @@ import { UnlockFilm } from "@/components/unlock-film";
 import { ShareButton } from "@/components/share-button";
 import { Logo } from "@/components/logo";
 import { MainButton } from "@/components/ui/button";
+import type { Projection } from "@/lib/projection";
+import { device } from "@/lib/device";
 
 export function PlanResult({
   plan,
@@ -21,6 +23,7 @@ export function PlanResult({
   preselect,
   shareId,
   personal,
+  projection = null,
 }: {
   plan: Plan;
   locked: boolean;
@@ -28,6 +31,7 @@ export function PlanResult({
   preselect: string | null;
   shareId: string | null;
   personal: string;
+  projection?: Projection | null;
 }) {
   const router = useRouter();
   const [paywall, setPaywall] = useState(false);
@@ -53,7 +57,7 @@ export function PlanResult({
     async (ref: string) => {
       setPaywall(false);
       try {
-        const r = await fetch("/api/checkout/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref }) });
+        const r = await fetch("/api/checkout/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref, device: device() }) });
         const j = await r.json();
         if (j.paid) {
           setFilm(j.plan?.name ?? "your plan");
@@ -126,7 +130,7 @@ export function PlanResult({
       </AnimatePresence>
 
       {locked && (
-        <Paywall open={paywall} onClose={() => setPaywall(false)} plans={plans} title="Your 4-week plan is ready." line={personal} preselect={preselect} onPaid={unlock} />
+        <Paywall open={paywall} onClose={() => setPaywall(false)} plans={plans} title="Your 4-week plan is ready." line={personal} preselect={preselect} onPaid={unlock} projection={projection} />
       )}
       <UnlockFilm open={!!film} planName={film ?? ""} onDone={endFilm} />
     </main>

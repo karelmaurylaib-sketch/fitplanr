@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { UnlockFilm } from "@/components/unlock-film";
 import { Button } from "@/components/ui/button";
+import { device } from "@/lib/device";
 
 /** A buyer back from the fallback checkout page: confirm, then play the unlock moment. */
 export function ConfirmPaid({ refId, upgrade }: { refId: string; upgrade: boolean }) {
@@ -18,7 +19,7 @@ export function ConfirmPaid({ refId, upgrade }: { refId: string; upgrade: boolea
     const go = async () => {
       tries++;
       try {
-        const r = await fetch("/api/checkout/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref: refId, upgrade }) });
+        const r = await fetch("/api/checkout/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref: refId, upgrade, device: device() }) });
         const j = await r.json();
         if (j.paid) {
           setPlan(j.plan?.name ?? "your plan");

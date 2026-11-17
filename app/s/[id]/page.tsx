@@ -25,6 +25,7 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
         <div className="label mt-12">[ Built with FitPlanr ]</div>
         <h1 className="display mt-3 text-[48px] sm:text-[64px]">{s.title}</h1>
         <p className="mt-2 text-[17px] text-fg/80">{s.summary}</p>
+        {s.projection && <p className="mt-4 inline-flex rounded-full bg-lime/[0.12] px-3.5 py-1.5 text-[14px] font-semibold text-lime">{s.projection}</p>}
         <section className="mt-8 rounded-[22px] border border-line-2 bg-card p-5">
           <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-lime">Day 1 · {s.day1.name}</div>
           <ul className="mt-3 divide-y divide-line">

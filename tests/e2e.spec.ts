@@ -24,9 +24,26 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
     await page.waitForTimeout(1500);
   }
   await page.getByRole("button", { name: "Skip" }).click();
-  await expect(page.getByText("Pick a starting point")).toBeVisible();
-  await page.getByRole("button", { name: "2 dumbbells" }).click();
+
+  // Equipment Sync: setup → gear → weight, under a pinned progress bar
+  const bar = page.getByRole("progressbar", { name: "Your progress" });
+  await expect(page.getByTestId("step-count")).toContainText(/Equipment Sync · 1 \/ 3/i);
+  const p0 = Number(await bar.getAttribute("aria-valuenow"));
+  await page.waitForFunction(() => Number(getComputedStyle(document.querySelector("main ul")!).opacity) > 0.9);
+  await page.getByRole("button", { name: "Home: 2 dumbbells" }).click();
+  await expect.poll(async () => Number(await bar.getAttribute("aria-valuenow"))).toBeGreaterThan(p0);
+  await expect(page.getByTestId("step-count")).toContainText(/2 \/ 3/, { timeout: 5000 });
+  await expect(page.getByText("exercises fit")).toBeVisible();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByTestId("step-count")).toContainText(/3 \/ 3/);
+  await expect(page.getByTestId("db-weight")).toContainText("25");
   await page.getByRole("button", { name: "Build my plan" }).click();
+
+  // Value Preview: personal projection from the engine, before the plan builds
+  const preview = page.getByRole("dialog", { name: "Your projection" });
+  await expect(preview.getByText("Goblet Squat")).toBeVisible({ timeout: 15_000 });
+  await expect(preview.getByText(/2 dumbbells \(25 lb\)/)).toBeVisible();
+  await preview.getByRole("button", { name: "Build my plan" }).click();
 
   await expect(page.getByText("Building your plan…")).toBeVisible();
   await expect(page.getByText("Your 4-week plan is ready.").first()).toBeVisible({ timeout: 30_000 });
@@ -42,7 +59,9 @@ test("landing → sign-up → personal flow → plan builds → locked plan → 
   await expect(dialog).toBeVisible({ timeout: 10_000 });
   await expect(dialog.getByText("Your 4-week plan is ready.")).toBeVisible();
   await expect(dialog.getByText("Most popular").first()).toBeVisible();
-  await dialog.getByRole("button", { name: /^Continue with/ }).first().click();
+  await dialog.getByRole("button", { name: /I'll train/ }).click();
+  await expect(dialog.getByRole("button", { name: /You're in/ })).toBeVisible();
+  await dialog.getByRole("button", { name: "Start my plan" }).first().click();
 
   // checkout sheet opens inside the page (never pay)
   const checkout = page.getByRole("dialog", { name: "Secure checkout" });

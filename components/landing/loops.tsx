@@ -5,6 +5,7 @@ import { Check, Lock } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { FormAnim } from "@/components/form-anim";
 import { Ring } from "@/components/ui/motion";
+import { LoadBar, ProjectionChart } from "@/components/onboarding/projection-chart";
 import { cn } from "@/lib/utils";
 
 function useLoop(n: number, ms: number) {
@@ -164,3 +165,23 @@ export function PlanMini() {
   );
 }
 
+
+/** Value Preview demo: the projection chart draws itself, the load bar fills, then it starts over. Example values only. */
+export function ProjectionLoop() {
+  const { ref, i } = useLoop(2, 4800);
+  const curve = [0, 0.45, 0.83, 1.2, 1.55, 1.9, 2.2, 2.55, 2.85, 3.15, 3.45, 3.7, 4];
+  return (
+    <div ref={ref} className="grid items-center gap-5 sm:grid-cols-[1.4fr_1fr]">
+      <div key={`c${i}`} className="rounded-2xl border border-line bg-white/[0.02] p-4">
+        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Estimated muscle · week 12</div>
+        <div className="mt-1 whitespace-nowrap font-display text-[34px] font-bold leading-none text-lime sm:text-[40px]">+2.5–5.5 lb</div>
+        <ProjectionChart className="mt-4" curve={curve} lo={2.5} hi={5.5} labels={["Today", "Wk 4", "Wk 12"]} height={96} />
+      </div>
+      <div key={`l${i}`} className="rounded-2xl border border-line bg-white/[0.02] p-4">
+        <div className="text-[13px] font-semibold">Goblet Squat</div>
+        <div className="mb-3 text-[11px] text-muted">Day 1&apos;s first lift · by week 4</div>
+        <LoadBar from={25} to={30} fromLabel="25 × 8" toLabel="30 × 8" />
+      </div>
+    </div>
+  );
+}

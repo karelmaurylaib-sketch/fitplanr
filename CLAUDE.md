@@ -67,9 +67,12 @@ Day 1 clear, rest blurred → "Unlock my full plan" → paywall sheet → Whop c
    3. "How many days a week can you train?" 2 · 3 · 4 · 5
    4. "How long is one workout?" 30 min · 45 min · 60 min
    5. "Anything to protect?" (multi, optional, Skip) Lower back · Knees · Shoulders · Nothing
-   6. Equipment Sync (the one input): "What do you have, for real?" presets (Home: 2 dumbbells · Home + bench ·
-      Full gym · Bodyweight only) + toggle grid (dumbbells, adjustable dumbbells, barbell, rack, bench, cables,
-      machines, kettlebell, pull-up bar, bands) + dumbbell max weight. Pre-filled with "2 dumbbells (25 lb)".
+   6. Equipment Sync, 3 one-tap sub-steps under a pinned stepper (Setup · Gear · Weight), see "Onboarding conversion":
+      6a "Now your gear. Where do you train?" presets (Home: 2 dumbbells · Home + bench · Full gym · Bodyweight only)
+      6b "Tap to fix it. What's really there?" toggle grid (dumbbells, adjustable dumbbells, barbell, rack, bench,
+         cables, machines, kettlebell, pull-up bar, bands) + live "N exercises fit" count
+      6c "Last one: how heavy is each dumbbell?" (only with dumbbells) stepper + 10…50 lb chips. Pre-filled 25 lb.
+      → "Build my plan" opens the Value Preview, whose "Build my plan" goes to /start/building.
    Each answer shows its "line" (drawer) e.g. "3 days → a full-body split, every other day."
 4. `/start/building` — "Building your plan…": 5 named steps tick (Reading your gear · Picking your split ·
    Choosing exercises · Setting your starting weights · Planning 4 weeks of progression), % to 99, plan cards assemble
@@ -96,12 +99,14 @@ time. Starting load from level + available dumbbell max (conservative, RPE 7). W
 "Smart Progression" = this algorithm reading the user's logged sets: hit the top of the rep range on all sets → next
 session +1 step; missed twice → hold; missed 3× → -10%. Shown honestly as "automatic progression", not "AI".
 
-### Plans (Kwop) — owner picked option C (Nov 8, 2026). Saved in Kwop; the app always reads them from GET KWOP_API.
+### Plans (Kwop) — owner prices of Nov 17, 2026 (were $9.99/$15.99/$24.99 on Nov 8). Saved in Kwop; the app always reads them from GET KWOP_API.
 | Plan (Kwop id) | Month | Year (−20%) | Tag | Quotas per billing period |
 |---|---|---|---|---|
-| Starter (1567) | $9.99 · $0.33/day | $96 · $0.26/day | For 2–3 workouts a week | 12 logged workouts, 2 plan rebuilds, 30 days history, plan targets only (no Smart Progression), form guides for plan exercises only |
-| Pro (1568) ★ Most popular | $15.99 · $0.53/day | $154 · $0.42/day | For lifters who never miss a week | 30 logged workouts, 6 rebuilds, Smart Progression, strength charts, full form library, all history |
-| Elite (1569) | $24.99 · $0.83/day | $240 · $0.66/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload week, CSV export |
+| Starter (1567) | $4.99 · $0.17/day | $48 · $0.13/day | For 2–3 workouts a week | 12 logged workouts, 2 plan rebuilds, 30 days history, plan targets only (no Smart Progression), form guides for plan exercises only |
+| Pro (1568) ★ Most popular | $8.99 · $0.30/day | $86 · $0.24/day | For lifters who never miss a week | 30 logged workouts, 6 rebuilds, Smart Progression, strength charts, full form library, all history |
+| Elite (1569) | $12.99 · $0.43/day | $125 · $0.34/day | For serious muscle building | 90 logged workouts, 20 rebuilds, custom split (swap exercises, move days), deload week, CSV export |
+All three: 7-day free trial (owner, Nov 17). The paywall shows the trial ("$0 today", trial timeline) **only when GET
+KWOP_API returns `trial_days` on the plan**, so the page never promises a trial the Whop checkout doesn't give.
 Quotas live in `lib/tiers.ts` (tier matched by plan name). The first plan of an account is free (not a rebuild).
 Free (unpaid): the plan is built and saved; Week 1 Day 1 is sent in clear, everything else is masked server-side (`lib/teaser.ts`).
 
@@ -119,6 +124,40 @@ The notification iPhone in the hero + the device frames of how-it-works.
   reveals 14 px / .5 s cubic-bezier(.22,.8,.24,1) stagger 60 ms, count-ups 1.3 s, reduced motion respected.
 
 ---
+
+## Onboarding conversion (Nov 17, 2026)
+**The leak.** No step analytics existed, so it was found from the funnel's shape and the niche's numbers (Fitbod,
+Future, BetterMe, Noom quizzes): (1) the old Equipment Sync was the one heavy screen (presets + 10 toggles + weight at
+once, right before the end) and (2) the jump from free answers to the paywall had no "why pay" moment between them.
+Fixes, the way those apps do it:
+- **Pinned stepper.** `/start` header is `sticky top-0`: logo, lime progress bar (aria progressbar "Your progress"),
+  and during Equipment Sync a labelled 3-step stepper (Setup · Gear · Weight) that ticks as each step completes.
+  Equipment Sync is 3 one-tap sub-steps (see screen 3). Gear step shows a live "N exercises fit" count.
+- **Value Preview** (`components/onboarding/value-preview.tsx`, `GET /api/plan/preview`): opens on "Build my plan",
+  before /start/building. The server runs the real engine on the saved answers and `lib/projection.ts` returns only
+  aggregates + Day 1's first lift (never the hidden plan): muscle range at week 12 with a dated chart, first lift
+  week 1 → best week (load bar), workouts / sets / minutes. Cards fade in 300 ms, 60 ms apart. Muscle model:
+  0.5–2 lb lean mass a month by level × goal (fat loss ×0.5) × days, shown as "estimate… not a promise".
+  Skipped on rebuilds (paid users). Error state lets them build anyway.
+- **Save Progress** (`components/onboarding/save-progress.tsx`): `useExitIntent` arms after the first answer.
+  Tab close/reload → browser "Leave site?" prompt, and if they stay our modal opens; computer: mouse leaves through
+  the top; phone + computer: back button (one guard history entry, the 2nd back leaves). Modal opens once per visit.
+  Main action keeps them ("Keep building my plan"), then "or finish later": email pre-filled from the account (sign-up
+  comes first, so no new field to fill) → Supabase magic link (same as password reset, opens on the same device) to
+  `/auth/callback?next=/start`, which resumes at the first unanswered question. Row in `progress_saves` (RLS).
+- **Paywall = micro-commitment card** (`components/paywall/commitment.tsx`): light high-contrast card at the top:
+  journey (Your gear ✓ · Your plan ✓ · Day 1), Day 1 name + minutes, the training weekdays, the muscle estimate,
+  and one tap "I'll train Mon, Wed and Fri" → "You're in". Paywall button is **"Start my plan"** (sticky bar on the
+  plan stays "Unlock my full plan · $x / day"). Trial timeline only with Kwop `trial_days`.
+- **Analytics (Kwop events)**: `paywall_view {detail: phone|computer}` → `feature_used "checkout_open <device>"` →
+  `feature_used "paywall_paid <device>"` (server, on first confirm) = paywall conversion per device. Also
+  `onboarding_step <n> <key>` (once per question per visit: shows where people stop), `value_preview`,
+  `save_progress <trigger> <device>`, `paywall_commitment`. Device = 640 px breakpoint (`lib/device.ts`).
+- Landing: 5th "In action" tile "Your projection" (looping chart + load bar, example values, no prices).
+  Share page + OG image show the plan's muscle estimate.
+- Local check without Supabase/Kwop: `/dev/funnel` (dev only, 404 in production; `?view=plan`, `?at=sync`,
+  `?gear=gym|bw`, `?fail=1`, `?trial=0`) mocks /api in the browser; `node scripts/onboarding-shots.mjs` runs every
+  check above on phone + computer and saves `shots/o-*`.
 
 ## Tech
 Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + lucide-react. Supabase Postgres + Auth
@@ -148,7 +187,7 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 
 ## Map
 - `app/page.tsx` landing · `app/signup|login|forgot|reset` auth · `app/start` flow · `app/start/building` the work ·
-  `app/plan` RESULT + paywall · `app/(app)/*` dashboard, workout, history, settings, account, library, pricing ·
+  `app/plan` RESULT + paywall · `components/onboarding/*` stepper helpers, Value Preview, Save Progress · `app/(app)/*` dashboard, workout, history, settings, account, library, pricing ·
   `app/api/*` server routes · `lib/kwop.ts` the only Kwop client · `lib/access.ts` session/profile/getAccess.
 - Screenshots: `node scripts/shot.mjs / home` (server on :3000). E2E: `npx playwright test` (needs a real Supabase).
 
@@ -168,3 +207,7 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 - Verified: e2e 3× phone + 3× computer on production (green), RLS cross-user test (blocked), no secrets in
   `.next/static`, Lighthouse mobile 92–95 perf / 100 a11y / 100 best practices / 100 SEO.
 - Test accounts created by e2e use `@fitplanr-test.com` emails.
+- **Pending (Nov 17, onboarding conversion)**: built in a session whose network could not reach Supabase / Kwop /
+  Vercel. Still to do from a session on the "fitplanr" environment: run `supabase/migrations/20261117000000_progress_saves.sql`
+  (Management API), deploy, run the e2e on production (phone + computer). Until the migration runs, Save Progress
+  still sends the link; only the `progress_saves` row is skipped (logged).
