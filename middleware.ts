@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { SITE_URL, canonical, isPrivatePath } from "@/lib/seo/rules";
+import { SITE_URL, canonical, isContentPath, isPrivatePath } from "@/lib/seo/rules";
 
 const MONTH = 60 * 60 * 24 * 30;
 
@@ -26,7 +26,8 @@ export async function middleware(req: NextRequest) {
       },
     },
   });
-  await sb.auth.getUser();
+  // Content pages (guides, comparisons) never read the session: skip the auth round trip so they answer faster.
+  if (!isContentPath(pathname)) await sb.auth.getUser();
 
   // Kwop tracked link (?k=), intended plan (?plan=) and utm_ source: first-party cookies, 30 days.
   const q = req.nextUrl.searchParams;

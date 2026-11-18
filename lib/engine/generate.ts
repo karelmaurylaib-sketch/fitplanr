@@ -241,6 +241,9 @@ export function generatePlan(a: Answers, opts: PlanOptions = {}): Plan {
             load += s;
             target = lo;
             note = `+${s} lb from week 3`;
+          } else if (ex.id === "plank") {
+            sets += 1;
+            note = "One more set, a little longer each";
           } else {
             sets += 1;
             target = hi;

@@ -16,7 +16,7 @@ export default function Page() {
         <>
           <strong>Short answer: choose Hevy if you want the lower price, more room on the free plan and a social feed; choose Strong if you want
           the most minimal logger.</strong> Both are manual trackers: you bring the program, they record it. If what you&apos;re missing is the
-          program itself, neither one will write it for you by default.
+          program itself, neither free plan will write it for you.
         </>
       }
     >
@@ -47,9 +47,9 @@ export default function Page() {
 
       <h2>Free plan: both cap your routines</h2>
       <p>
-        Strong&apos;s free plan lets you log as much as you like but keeps only 3 saved routines. Hevy&apos;s free plan also caps routines and
-        limits how far back your graphs go. If you run a simple 3-day program (one routine per day), Strong&apos;s free plan fits it exactly; a 4- or
-        5-day split pushes you to pay on either app.
+        Strong&apos;s free plan lets you log as much as you like but keeps only 3 saved routines. Hevy&apos;s free plan keeps 4 routines and shows
+        3 months of graphs. One routine per training day means a 3-day program fits either free plan, a 4-day split fits only Hevy&apos;s, and a
+        5-day split pushes you to pay on both.
       </p>
 
       <h2>Logging feel: minimal vs social</h2>
@@ -61,8 +61,8 @@ export default function Page() {
 
       <h2>Programming: the gap both share</h2>
       <p>
-        Strong does not create programs: you type your routines in. Hevy sells Hevy Trainer as an add-on. In both cases the core app assumes you
-        already know what to lift, how many sets, and when to go heavier. That&apos;s fine if you follow a program from a coach or a book. It&apos;s
+        Strong does not create programs: you type your routines in. Hevy puts Hevy Trainer, which builds a routine from your goals and
+        equipment, in its paid Pro plan. On both free plans the app assumes you already know what to lift, how many sets, and when to go heavier. That&apos;s fine if you follow a program from a coach or a book. It&apos;s
         the hard part if you&apos;re starting out.
       </p>
 
@@ -74,14 +74,14 @@ export default function Page() {
       <ExampleWeek answers={EXAMPLES.homeBench} days={[1]} />
       <p>
         You can log it in FitPlanr&apos;s own one-tap logger, or copy it into Hevy or Strong if you prefer their apps. More on that choice on
-        the <Link href="/alternatives/strong">Strong app alternative</Link> page, and on generators in the{" "}
-        <Link href="/alternatives/fitbod">Fitbod alternative</Link> page.
+        the <Link href="/alternatives/strong">Strong app alternative</Link> and <Link href="/alternatives/hevy">Hevy alternative</Link> pages, and
+        on generators in the <Link href="/alternatives/fitbod">Fitbod alternative</Link> page.
       </p>
 
       <h2>Verdict</h2>
       <ul>
         <li><strong>Pick Hevy</strong> if you want the lowest price or a feed with friends.</li>
-        <li><strong>Pick Strong</strong> if you want a quiet, minimal log and you run 3 routines or fewer.</li>
+        <li><strong>Pick Strong</strong> if you want a quiet, minimal log and you run 3 routines or fewer on the free plan.</li>
         <li><strong>Pick a plan first</strong> if you&apos;re a beginner without a program, then log it in whichever app you like.</li>
       </ul>
       <p className="text-[14px] text-muted">FitPlanr is not affiliated with Hevy or Strong. Their names are used only to describe and compare their products.</p>

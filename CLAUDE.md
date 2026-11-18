@@ -222,3 +222,11 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 - Google Search Console: URL-prefix property verified (meta tag in `app/layout.tsx`), sitemap submitted.
   « Request indexing » hit the new-property quota on day 1; owner retries the next day.
 - Bing Webmaster Tools: not set up (owner's accounts are under parental control). Bing gets the pages via IndexNow.
+
+## SEO (Nov 18, 2026)
+- Playbook, keyword map, what ranks today and the 4-week page plan: `SEO.md`. Keyword-map pages are registered in `lib/seo/pages.ts`
+  (title, description, FAQ, related); shared frame `components/seo/shell.tsx`; real engine output `components/seo/example-plan.tsx`;
+  competitor facts `lib/seo/competitors.ts`; JSON-LD `lib/seo/site.ts` (prices from GET KWOP_API); private/indexing rules `lib/seo/rules.ts`.
+- "next SEO page" = the next row of SEO.md section 4, written the way section 5 says. Check: `SITE_URL=https://fitplanr-3.vercel.app node scripts/seo-check.mjs`.
+- Production deploys come from the branch merged with the other sessions' work (onboarding, search indexing). Always start from the
+  commit production runs (`GET /v6/deployments?projectId=…&target=production` → `githubCommitSha`), never from an older branch.

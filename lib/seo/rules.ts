@@ -17,3 +17,9 @@ export function isPrivatePath(pathname: string) {
 export function canonical(pathname: string) {
   return SITE_URL + (pathname === "/" ? "" : pathname);
 }
+
+/** Public content pages (keyword map, legal): static, no session needed. */
+export const CONTENT_PREFIXES = ["/for", "/vs", "/alternatives", "/guides", "/terms", "/privacy"];
+export function isContentPath(pathname: string) {
+  return CONTENT_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}

@@ -1,13 +1,13 @@
 # FitPlanr — SEO playbook
 
 Goal: rank at the top of Google (US, English) for what beginners who want muscle without a coach really search, and stay there.
-Written Nov 8, 2026. Re-check competitor facts every quarter (`lib/seo/competitors.ts`, `CHECKED`).
+Written Nov 8, 2026 · revised and first deployed Nov 18, 2026. Re-check competitor facts every quarter (`lib/seo/competitors.ts`, `CHECKED`).
 
 ---
 
 ## 1. The 10 rules (where the best sources agree)
 
-Sources read for this (Nov 2026):
+Sources read for this (Nov 2026; on Nov 18 Google's own pages were read through search results because this box can't open developers.google.com directly):
 - Google Search Central — *SEO Starter Guide* (developers.google.com/search/docs/fundamentals/seo-starter-guide), and the reporting on its
   shorter rewrite ([Search Engine Roundtable](https://www.seroundtable.com/google-seo-starter-guide-cut-in-half-36788.html)).
 - Google Search Central — *Creating helpful, reliable, people-first content* (developers.google.com/search/docs/fundamentals/creating-helpful-content),
@@ -19,20 +19,28 @@ Sources read for this (Nov 2026):
 - Edward Sturm — bottom-of-funnel "compact keywords" for low-authority sites ([The Edward Show](https://pocketcasts.com/podcast/the-edward-show/4a3893e0-2ef4-013c-f681-0acc26574db2/how-i-find-low-competition-keywords-that-actually-convert/50b4a861-1524-440c-bfeb-dc24004e6e0b),
   [Predictable B2B Success](https://pod.co/predictable-b2b-success/how-to-optimize-for-the-search-experience-not-just-results-to-drive-growth)).
 - Top SEO YouTube channels this year: Matt Diggity, Nathan Gotch, Semrush, Ahrefs ([Awisee list](https://awisee.com/blog/seo-youtube-channels/), [Rank Math list](https://rankmath.com/blog/best-seo-youtube-channels/)).
+- Google Search Central — *Optimizing your website for generative AI features on Google Search* (May 2026,
+  developers.google.com/search/docs/fundamentals/ai-optimization-guide) and *AI features and your website*: no special tricks for AI Overviews /
+  AI Mode, the same fundamentals apply ([Search Engine Land](https://searchengineland.com/google-ai-search-experiences-success-455845),
+  [Practical Ecommerce](https://practicalecommerce.com/google-says-ai-optimization-is-just-seo)).
+- Google spam policies — *scaled content abuse* (since March 2024, enforced hard in the 2026 spam updates): mass pages with little added value are
+  demoted however they're written ([PPC Land](https://ppc.land/scaled-content-abuse/), [GSQI Aug 2026 case studies](https://gsqi.com/marketing-blog/august-2026-google-spam-update-case-studies/)).
+- Bottom-of-funnel first for new SaaS: Grow & Convert data (BOFU converts far better than TOFU) and Ahrefs' "business potential" framing
+  ([Masters of SaaS with Tim Soulo](https://www.buzzsprout.com/1195988/5029112)).
 - SaaS SEO playbooks 2026 ([Seobility](https://www.seobility.net/en/blog/saas-seo-guide/), [Growtika](https://growtika.com/blog/saas-seo-guide)) — vendor sources, used only where they agree with the above.
 
 | # | Rule | Who says it |
 |---|---|---|
 | 1 | **People first.** Write each page to fully answer one person's question; content made to rank instead of help is demoted. | Google helpful-content guide; Dean; Gotch |
 | 2 | **One page per search intent.** Match what the searcher wants (a list, a comparison, a how-to, a tool) — never two pages for the same intent. | Google starter guide (avoid duplicate content); Dean; Ahrefs |
-| 3 | **Start at the bottom of the funnel.** A new site with little authority wins first on low-volume, high-intent searches: "X alternative", "X vs Y", "app for <who>". | Sturm; Ahrefs; SaaS playbooks |
+| 3 | **Start at the bottom of the funnel.** A new site with little authority wins first on low-volume, high-intent searches: "X alternative", "X vs Y", "app for <who>". | Sturm; Ahrefs (business potential); Grow & Convert; SaaS playbooks |
 | 4 | **Pick fights you can win.** Low difficulty is not enough: check the 3 pages ranking today; if they're thin vendor pages, you can beat them; if they're huge brands, wait. | Ahrefs; Diggity; Gotch |
 | 5 | **Show first-hand experience.** Real examples, real product output, original data. Generic rewrites of what already ranks add nothing. | Google helpful-content (E-E-A-T, "original information"); Dean |
-| 6 | **Answer first.** Put the answer and the result at the top of the page (the "main content"), then the detail. | Google 2026 main-content revision; AI-overview era advice (Sturm) |
+| 6 | **Answer first.** Put the answer and the result at the top of the page (the "main content"), then the detail. Same pages win in AI Overviews: there is no separate "AI SEO". | Google 2026 main-content revision; Google AI-optimization guide (May 2026); Sturm |
 | 7 | **Be honest and verifiable.** No invented reviews, numbers, quotes or authors; fake author profiles are a low-quality signal. Date pages and say when facts were checked. | Google helpful-content; PPC Land report |
 | 8 | **Clean technical basics.** Descriptive URL, a unique title and meta description per page, one H1, canonical, sitemap, structured data, fast on a phone. Meta keywords and word count do not matter. | Google starter guide; SEJ (meta keywords, word count) |
 | 9 | **Link pages together.** Hub → spoke internal links with descriptive anchor text help Google find pages and understand topics. | Google starter guide (links); Ahrefs (internal links pass PageRank) |
-| 10 | **Publish steadily, then improve what's working.** One solid page a week beats bursts; after 4–8 weeks, improve pages sitting in positions 5–20 in Search Console. | Ahrefs; Gotch; SaaS playbooks |
+| 10 | **Few pages, each one useful — never mass pages.** Templated near-duplicates ("app for <city>", one page per exercise with the same text) fall under scaled content abuse. One solid page a week beats bursts; after 4–8 weeks, improve pages sitting in positions 5–20 in Search Console. | Google spam policies; Ahrefs; Gotch; SaaS playbooks |
 
 ---
 
@@ -53,13 +61,14 @@ Demand: ●●● high · ●● medium · ● low. Competition: what ranks toda
 | 7 | progressive overload with dumbbells | how to | ●● | weak–medium (blogs, CUNY pressbook) | `/guides/progressive-overload-with-dumbbells` | **new** |
 | 8 | 3 day full body workout for beginners | how to / plan | ●●● | medium (Muscle & Strength, StrengthLog) | `/guides/3-day-full-body-workout-for-beginners` | **new** |
 | 9 | how to start lifting weights | how to | ●●● | medium–strong (GoodRx, Nike, Garage Gym Reviews) | `/guides/how-to-start-lifting-weights` | **new** |
-| 10 | hevy alternative | competitor alternative | ●● | weak (vendor pages) | `/alternatives/hevy` | week 1 |
-| 11 | workout plan generator (based on equipment) | tool | ●● | weak–medium (Vondy, Gymkee, workout.lol) | `/workout-plan-generator` | week 2 |
-| 12 | workout plan for bad knees (beginner) | problem / plan | ●● | medium (blogs, WeShape) | `/for/bad-knees` | week 3 |
-| 13 | deload week (how and when) | how to | ●● | medium (StrengthLog, Stronger by Science) | `/guides/deload-week` | week 4 |
-| 14 | bodyweight workout plan for beginners at home | problem / plan | ●●● | medium–strong | `/for/bodyweight` | backlog |
-| 15 | fitbod vs hevy / fitbod vs strong | competitor vs | ● | weak | `/vs/fitbod-vs-hevy` | backlog |
-| 16 | how many sets per week to build muscle (beginner) | how to | ●● | strong (science sites) | `/guides/sets-per-week` | backlog |
+| 10 | hevy alternative | competitor alternative | ●● | weak (vendor pages) | `/alternatives/hevy` | **new (Nov 18)** |
+| 11 | fitbod vs hevy | competitor vs | ●● | weak (fitbod.me's own page, vendor blogs) | `/vs/fitbod-vs-hevy` | week 1 |
+| 12 | workout plan for bad knees (beginner) | problem / plan | ●● | medium (blogs, WeShape) | `/for/bad-knees` | week 2 |
+| 13 | workout plan generator (based on equipment) | tool | ●● | weak–medium (MiniWebtool, Arvo, Texta, Vondy) | `/workout-plan-generator` | week 3 |
+| 14 | how much weight should a beginner lift (dumbbells) | how to | ●●● | medium (Livestrong, Fit&Well, Marathon Handbook) | `/guides/how-much-weight-should-a-beginner-lift` | week 4 |
+| 15 | deload week (how and when) | how to | ●● | medium (StrengthLog, Stronger by Science) | `/guides/deload-week` | backlog |
+| 16 | bodyweight workout plan for beginners at home | problem / plan | ●●● | medium–strong | `/for/bodyweight` | backlog |
+| 17 | how many sets per week to build muscle (beginner) | how to | ●● | strong (science sites) | `/guides/sets-per-week` | backlog |
 
 ### What ranks today and what it misses (top 3, Nov 2026)
 
@@ -81,7 +90,14 @@ Demand: ●●● high · ●● medium · ● low. Competition: what ranks toda
   General tips. **Miss:** an actual first week with weights, and the progression for the following 3 weeks.
 - **workout plan generator** (for week 2) — gymkee.com/tools/ai-workout-generator · workout.lol · vondy.com generators.
   **Miss:** they regenerate random workouts (no progression); no safety for joints.
-- **hevy alternative** (for week 1) — boostcamp.app/alternatives/hevy · lyfta.app/hevy-alternatives · lastlift / fitly vendor pages.
+- **hevy alternative** (re-read Nov 18) — alternativeto.net/software/hevy-workout-tracker · boostcamp.app/alternatives/hevy · lyfta.app/hevy-alternatives
+  (plus fitly / brace-ai vendor pages). Listicles of loggers. **Miss:** most still call Hevy "logging only" and ignore that Hevy Trainer is in Pro;
+  none shows a real plan, and none tells you which free routines a split needs. Our page: reason → best fit table, real full-gym output, Trainer named fairly.
+- **fitbod vs hevy** (for week 1) — fitbod.me/blog/fitbod-vs-hevy-9-reasons-fitbod-beats-hevy · brace-ai.pages.dev/compare/hevy-vs-fitbod ·
+  sensai.fit/blog/hevy-vs-fitbod-2026. Two are written by rivals of both. **Miss:** a neutral verdict by type of lifter, and the prices
+  side by side over a year ($95.99 vs $23.99 listed).
+- **how much weight should a beginner lift** (for week 4) — livestrong.com · fitandwell.com · marathonhandbook.com. Ranges that disagree
+  (3–10 kg, 10–50 lb). **Miss:** a per-exercise starting chart; FitPlanr's engine has one (the `base` load of every exercise in `lib/engine/exercises.ts`).
 - **workout plan for bad knees** (for week 3) — weshape.com · boxrox.com · darebee.com. **Miss:** plans that still build legs with real load.
 
 How each FitPlanr page beats them: the answer in the first box, **real engine output** (`components/seo/example-plan.tsx` renders
@@ -96,17 +112,19 @@ How each FitPlanr page beats them: the answer in the first box, **real engine ou
 | Title ≤ 60 / description ≤ 155 with the main search, per page | ✅ all public pages (checked by `scripts/seo-check.mjs`) |
 | One H1 per page | ✅ |
 | Canonical URL on every public page | ✅ (`alternates.canonical`) |
-| `sitemap.xml` | ✅ 14 URLs: home, /guides, 8 keyword pages, signup, login, terms, privacy |
+| `sitemap.xml` | ✅ 13 URLs, built from the `app/` folder (any new public page gets in by itself), `lastmod` = the page's `updated` date |
 | `robots.txt` | ✅ crawl all, block `/api/` only. Private screens use `noindex` meta instead of `Disallow` (a disallow hides the noindex from Google) |
-| Private screens noindex | ✅ /plan, /start, /start/building, /forgot, /reset, app pages, share links `/s/*` (personal, near-duplicate) |
+| Private screens noindex | ✅ `X-Robots-Tag: noindex` from middleware on /signup, /login, /forgot, /reset, /start, /plan, app pages, /dev (`lib/seo/rules.ts`); share links `/s/*` noindex meta |
 | Clean URLs | ✅ `/for/…`, `/vs/…`, `/alternatives/…`, `/guides/…` |
 | Open Graph images | ✅ root image + one per keyword page at `/og/<path>` (static, built at deploy) |
 | Structured data | ✅ Organization, WebSite, SoftwareApplication (offers read from GET KWOP_API, cached 1 h, never hardcoded), FAQPage, BreadcrumbList, Article (guides), CollectionPage (/guides) |
-| Speed (Lighthouse mobile, local `next start`) | landing 93 perf / 100 SEO; keyword pages 91–93 / 100. JetBrains Mono no longer preloaded |
+| Speed (Lighthouse 12 mobile, local `next start`, Nov 18) | landing 91 perf / 100 SEO / 100 a11y / 100 BP; /alternatives/hevy 90 / 100; guide 94 / 100. Content pages skip the Supabase session call in middleware |
 | Images sized, with alt text | ✅ no raster images in pages; OG images have alt; icons are inline SVG |
 | Internal links | ✅ top bar "Guides", footer Guides + Compare columns, landing "Read next", in-text links, "Keep reading" cards, /guides hub |
 | Real 404 | ✅ returns HTTP 404, noindex, links to popular pages |
-| IndexNow | ✅ key file `public/2d74ddb9fd6087440e78c2c7f4404395.txt`, `node scripts/indexnow.mjs` (Bing/Yandex; Google uses the sitemap) |
+| IndexNow | ✅ key file `public/479b67cf24a68bb6d0df5bba391c6726.txt`; runs by itself after every production build (`postbuild`), or `npm run indexnow` (Bing/Yandex; Google uses the sitemap) |
+| One host | ✅ production 301s any other host (deployment URLs) to fitplanr-3.vercel.app; canonical also sent as a `Link` header |
+| Search Console | ✅ verification tag in `app/layout.tsx` |
 
 Note: no `aggregateRating` in the SoftwareApplication data on purpose — FitPlanr has no public reviews yet, and invented ratings are against
 Google's rules. Add it only when real reviews exist.
@@ -115,16 +133,16 @@ Google's rules. Add it only when real reviews exist.
 
 ## 4. Plan for the next 4 weeks (one page a week, in this order)
 
-1. **Week 1 — `/alternatives/hevy`** ("hevy alternative"): same honest frame as the Strong page; Hevy's free limits (routines, custom
-   exercises), Hevy Trainer vs a fixed 4-week plan.
-2. **Week 2 — `/workout-plan-generator`** ("workout plan generator based on equipment"): the tool intent — show the gear presets and
-   3 real plans side by side (2 dumbbells / home + bench / full gym); explain why random regeneration stalls progress.
-3. **Week 3 — `/for/bad-knees`** ("workout plan for bad knees"): real engine output with *protect: knees* (box squat, leg press, hip
+1. **Week 1 — `/vs/fitbod-vs-hevy`** ("fitbod vs hevy"): generator vs logger, prices over a year, who each fits; FitPlanr as the third
+   option only for beginners without a program.
+2. **Week 2 — `/for/bad-knees`** ("workout plan for bad knees"): real engine output with *protect: knees* (box squat, leg press, hip
    thrust instead of goblet squats and lunges); clear "see a doctor or PT" boundaries.
-4. **Week 4 — `/guides/deload-week`** ("deload week"): what it is, when, how much to cut (FitPlanr: −1 set, ~−10% load), example
-   from the engine with `deload: true`.
+3. **Week 3 — `/workout-plan-generator`** ("workout plan generator based on equipment"): the tool intent — 3 real plans side by side
+   (2 dumbbells / home + bench / full gym); why random regeneration stalls progress.
+4. **Week 4 — `/guides/how-much-weight-should-a-beginner-lift`**: a starting-weight chart per exercise straight from the engine's
+   exercise database, plus the "2–3 reps left" test.
 
-Then: improve whatever sits in positions 5–20 in Search Console before writing more.
+Then: `/guides/deload-week`, `/for/bodyweight`; and improve whatever sits in positions 5–20 in Search Console before writing more.
 
 ## 5. How to write the next page ("next SEO page")
 
@@ -134,5 +152,5 @@ Then: improve whatever sits in positions 5–20 in Search Console before writing
 3. Create `app/<section>/<slug>/page.tsx` using `SeoShell`: answer first, real engine output (`ExampleWeek`/`ExampleProgression`),
    honest tables (`CompareTable`, facts from `lib/seo/competitors.ts`), links to 2–3 sibling pages, no invented numbers or quotes.
 4. Link to it from 2+ existing pages (and the footer if it's a main page).
-5. `npm run build && npx next start`, `node scripts/seo-check.mjs` (add the path to `PUBLIC`), screenshots at 390/1440, deploy,
-   `BASE_URL=https://fitplanr-3.vercel.app node scripts/seo-check.mjs`, `node scripts/indexnow.mjs <url>`, then "Request indexing" in Search Console.
+5. `npm run build && npx next start`, `SITE_URL=https://fitplanr-3.vercel.app node scripts/seo-check.mjs` (checks every sitemap URL), screenshots at 390/1440, deploy,
+   `BASE_URL=https://fitplanr-3.vercel.app node scripts/seo-check.mjs`, IndexNow runs by itself on deploy, then "Request indexing" in Search Console.

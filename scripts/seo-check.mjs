@@ -5,23 +5,7 @@
 const base = (process.env.BASE_URL || "http://localhost:3000").replace(/\/$/, "");
 const site = (process.env.SITE_URL || base).replace(/\/$/, "");
 
-const PUBLIC = [
-  "/",
-  "/guides",
-  "/for/beginners",
-  "/for/home-dumbbells",
-  "/vs/hevy-vs-strong",
-  "/alternatives/fitbod",
-  "/alternatives/strong",
-  "/guides/progressive-overload-with-dumbbells",
-  "/guides/3-day-full-body-workout-for-beginners",
-  "/guides/how-to-start-lifting-weights",
-  "/signup",
-  "/login",
-  "/terms",
-  "/privacy",
-];
-const PRIVATE = ["/forgot", "/reset"];
+const PRIVATE = ["/signup", "/login", "/forgot", "/reset"];
 
 const all = (re, s) => [...s.matchAll(re)];
 const attr = (tag, name) => (tag.match(new RegExp(`${name}="([^"]*)"`)) || [])[1];
@@ -36,6 +20,9 @@ const bad = (path, msg) => {
 const sitemap = await (await fetch(base + "/sitemap.xml")).text();
 const inSitemap = new Set(all(/<loc>([^<]+)<\/loc>/g, sitemap).map((m) => m[1]));
 console.log(`sitemap.xml: ${inSitemap.size} URLs`);
+// Every URL in the sitemap is a public page and gets every check below (new pages are picked up by themselves).
+const PUBLIC = [...inSitemap].map((u) => u.slice(site.length) || "/");
+if (!PUBLIC.length) bad("/sitemap.xml", "no URLs (is SITE_URL right?)");
 const robots = await (await fetch(base + "/robots.txt")).text();
 console.log("robots.txt:", robots.replace(/\n/g, " | "));
 
@@ -75,14 +62,20 @@ for (const path of PUBLIC) {
   if (canon !== want && canon !== site + path) bad(path, `canonical ${canon} (want ${want})`);
   if (/noindex/.test(robotsMeta)) bad(path, "noindex on a public page");
   if (!ogImage) bad(path, "no og:image");
-  if (!["/signup", "/login", "/terms", "/privacy"].includes(path) && !inSitemap.has(want) && !inSitemap.has(site + path)) bad(path, "missing from sitemap");
+  else {
+    const img = await fetch(ogImage.replace(site, base));
+    if (img.status !== 200 || !String(img.headers.get("content-type")).includes("image/")) bad(path, `og:image ${ogImage} → ${img.status}`);
+  }
   console.log(`✓ ${path}\n    title (${titles[0]?.length}): ${titles[0]}\n    desc (${desc.length}): ${desc}\n    canonical: ${canon} · JSON-LD: ${types.join(", ") || "none"}`);
 }
 
 for (const path of PRIVATE) {
-  const html = await (await fetch(base + path)).text();
-  if (!/<meta name="robots" content="noindex/.test(html)) bad(path, "private page without noindex");
-  else console.log(`✓ ${path} noindex`);
+  const res = await fetch(base + path, { redirect: "manual" });
+  const html = await res.text();
+  const header = res.headers.get("x-robots-tag") || "";
+  if (!/<meta name="robots" content="noindex/.test(html) && !/noindex/.test(header)) bad(path, "private page without noindex");
+  else if (inSitemap.has(site + path)) bad(path, "private page listed in the sitemap");
+  else console.log(`✓ ${path} noindex (${header ? "header" : "meta"})`);
 }
 
 const nf = await fetch(base + "/this-page-does-not-exist");

@@ -137,6 +137,7 @@ export function Footer({ minimal }: { minimal?: boolean }) {
             <ul className="space-y-2 text-sm text-fg/80">
               <li><Link href="/alternatives/fitbod" className="hover:text-fg">Fitbod alternative</Link></li>
               <li><Link href="/alternatives/strong" className="hover:text-fg">Strong alternative</Link></li>
+              <li><Link href="/alternatives/hevy" className="hover:text-fg">Hevy alternative</Link></li>
               <li><Link href="/vs/hevy-vs-strong" className="hover:text-fg">Hevy vs Strong</Link></li>
             </ul>
           </div>
