@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import fs from "node:fs";
 import path from "node:path";
-import { canonical, isPrivatePath } from "@/lib/seo";
+import { canonical, isPrivatePath } from "@/lib/seo/rules";
 
 // Built at deploy time from the app/ folder: any new page.tsx outside the private list gets in by itself.
 export const dynamic = "force-static";

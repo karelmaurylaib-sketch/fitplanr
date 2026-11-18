@@ -12,7 +12,8 @@ export function KwopFlow() {
   return <Script src="https://kwop.io/flow.js" data-site="s_dc316cd00c" strategy="lazyOnload" />;
 }
 
-export function TopBar({ cta = "/signup" }: { cta?: string }) {
+export function TopBar({ cta = "/signup", home = true }: { cta?: string; home?: boolean }) {
+  const base = home ? "" : "/";
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 12);
@@ -34,9 +35,9 @@ export function TopBar({ cta = "/signup" }: { cta?: string }) {
           <Logo size={26} />
         </Link>
         <div className="hidden items-center gap-7 text-[14px] text-muted md:flex">
-          <a href="#how" className="hover:text-fg">How it works</a>
-          <a href="#features" className="hover:text-fg">Features</a>
-          <a href="#questions" className="hover:text-fg">Questions</a>
+          <a href={`${base}#how`} className="hover:text-fg">How it works</a>
+          <a href={`${base}#features`} className="hover:text-fg">Features</a>
+          <Link href="/guides" className="hover:text-fg">Guides</Link>
         </div>
         <div className="flex items-center gap-1">
           <Link href="/login" className="press rounded-full px-3.5 py-2 text-[14px] font-medium text-fg/85 hover:text-fg">
@@ -102,8 +103,8 @@ export function Faq({ items }: { items: { q: string; a: string }[] }) {
 export function Footer({ minimal }: { minimal?: boolean }) {
   return (
     <footer className="relative overflow-hidden border-t border-line pt-14">
-      <div className="mx-auto grid max-w-[1120px] gap-10 px-5 sm:grid-cols-4">
-        <div className="sm:col-span-2">
+      <div className="mx-auto grid max-w-[1120px] grid-cols-2 gap-10 px-5 lg:grid-cols-6">
+        <div className="col-span-2">
           <Logo />
           <p className="mt-3 max-w-xs text-sm text-muted">Your personal trainer, automated. Plans built on the gear you actually have.</p>
         </div>
@@ -115,6 +116,28 @@ export function Footer({ minimal }: { minimal?: boolean }) {
               <li><Link href="/#features" className="hover:text-fg">Features</Link></li>
               <li><Link href="/signup" className="hover:text-fg">Build my plan</Link></li>
               <li><Link href="/login" className="hover:text-fg">Log in</Link></li>
+            </ul>
+          </div>
+        )}
+        {!minimal && (
+          <div>
+            <div className="label mb-3">Guides</div>
+            <ul className="space-y-2 text-sm text-fg/80">
+              <li><Link href="/guides/how-to-start-lifting-weights" className="hover:text-fg">Start lifting weights</Link></li>
+              <li><Link href="/guides/3-day-full-body-workout-for-beginners" className="hover:text-fg">3-day full body plan</Link></li>
+              <li><Link href="/guides/progressive-overload-with-dumbbells" className="hover:text-fg">Progressive overload</Link></li>
+              <li><Link href="/for/home-dumbbells" className="hover:text-fg">Home dumbbell plan</Link></li>
+              <li><Link href="/for/beginners" className="hover:text-fg">For beginners</Link></li>
+            </ul>
+          </div>
+        )}
+        {!minimal && (
+          <div>
+            <div className="label mb-3">Compare</div>
+            <ul className="space-y-2 text-sm text-fg/80">
+              <li><Link href="/alternatives/fitbod" className="hover:text-fg">Fitbod alternative</Link></li>
+              <li><Link href="/alternatives/strong" className="hover:text-fg">Strong alternative</Link></li>
+              <li><Link href="/vs/hevy-vs-strong" className="hover:text-fg">Hevy vs Strong</Link></li>
             </ul>
           </div>
         )}

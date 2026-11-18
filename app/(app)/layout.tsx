@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { UpgradeProvider } from "@/components/paywall/upgrade";
@@ -7,6 +8,7 @@ import { toPublicPlans } from "@/lib/pricing";
 import { shortPlanName } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { robots: { index: false, follow: true } };
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { user } = await getSession();

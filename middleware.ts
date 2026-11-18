@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { SITE_URL, canonical, isPrivatePath } from "@/lib/seo";
+import { SITE_URL, canonical, isPrivatePath } from "@/lib/seo/rules";
 
 const MONTH = 60 * 60 * 24 * 30;
 
@@ -49,5 +49,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon|apple-icon|manifest.webmanifest|vsl.mp4|.*\\.(?:svg|png|jpg|webp|ico)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon|apple-icon|manifest.webmanifest|robots.txt|sitemap.xml|og/|vsl.mp4|.*\\.(?:svg|png|jpg|webp|ico)$).*)"],
 };
