@@ -21,7 +21,12 @@ for (const tag of sizes) {
   await p.waitForFunction(() => location.pathname.startsWith("/start"), null, { timeout: 60000 }); await p.waitForTimeout(1500);
   for (const a of ["Build muscle", "Never really", "3 days", "45 minutes"]) { await p.getByRole("button", { name: a }).click(); await p.waitForTimeout(1500); }
   await p.getByRole("button", { name: "Skip" }).click(); await p.waitForTimeout(1500);
+  // Equipment Sync: setup → gear → weight, then the Value Preview (when it shows)
+  await p.getByRole("button", { name: "Home: 2 dumbbells" }).click(); await p.waitForTimeout(1200);
+  await p.getByRole("button", { name: "Continue" }).click(); await p.waitForTimeout(1200);
   await p.getByRole("button", { name: "Build my plan" }).click();
+  const preview = p.getByRole("dialog", { name: "Your projection" });
+  if (await preview.waitFor({ timeout: 15000 }).then(() => true, () => false)) await preview.getByRole("button", { name: "Build my plan" }).click();
   await p.waitForFunction(() => location.pathname === "/plan", null, { timeout: 60000 }); await p.waitForTimeout(1500);
 
   await p.goto(base + "/nutrition"); await p.waitForTimeout(2500);
