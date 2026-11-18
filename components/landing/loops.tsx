@@ -185,3 +185,50 @@ export function ProjectionLoop() {
     </div>
   );
 }
+
+/** Meal plan loop: breakfast sized to the goal → swap the fruit (blueberries → pear) → "Ate it" → the day's ring fills. Example values only. */
+export function NutritionLoop() {
+  const { ref, i } = useLoop(7, 1100);
+  const swapped = i >= 2;
+  const ate = i >= 4;
+  const rows = [
+    { n: "Greek yogurt", a: "¾ cup", k: 100 },
+    { n: "Rolled oats", a: "1½ cups", k: 450 },
+    swapped ? { n: "Pear", a: "1 medium", k: 101 } : { n: "Blueberries", a: "1 cup", k: 84 },
+    { n: "Peanut butter", a: "2 tbsp", k: 190 },
+  ];
+  const kcal = rows.reduce((s, r) => s + r.k, 0);
+  return (
+    <div ref={ref} className="grid items-center gap-5 sm:grid-cols-[150px_1fr]">
+      <div className="flex items-center gap-4 sm:flex-col sm:text-center">
+        <Ring value={ate ? kcal / 2800 : 0} size={110} stroke={10}>
+          <div className="text-center">
+            <div className="font-display text-[24px] font-bold leading-none tabular-nums">{ate ? kcal : 0}</div>
+            <div className="mt-0.5 font-mono text-[8px] uppercase tracking-[0.16em] text-muted">of 2,800 kcal</div>
+          </div>
+        </Ring>
+        <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-lime">{ate ? "Breakfast logged" : i === 1 ? "Swap the fruit" : "Today"}</div>
+      </div>
+      <div className="rounded-2xl border border-line-2 bg-white/[0.03] p-3">
+        <div className="flex items-baseline justify-between">
+          <div className="font-display text-[18px] font-bold uppercase">Breakfast</div>
+          <div className="font-display text-[18px] font-bold tabular-nums">{kcal} <span className="font-sans text-[10px] font-medium text-muted">kcal</span></div>
+        </div>
+        <div className="mt-2 space-y-1.5">
+          {rows.map((r, k) => {
+            const hot = k === 2 && (i === 1 || i === 2);
+            return (
+              <div key={k} className={cn("flex h-9 items-center justify-between rounded-lg border px-3 text-[13px] transition-all duration-500", hot ? "border-lime/60 bg-lime/10" : "border-line bg-white/[0.02]")}>
+                <span key={r.n} className="note-in whitespace-nowrap">{r.n}</span>
+                <span className="whitespace-nowrap text-muted"><span className="font-semibold text-fg">{r.a}</span> · {r.k} kcal</span>
+              </div>
+            );
+          })}
+        </div>
+        <div className={cn("mt-2 flex h-9 items-center justify-center gap-1.5 rounded-full text-[13px] font-semibold transition-colors duration-300", ate ? "bg-lime/15 text-lime" : i === 3 ? "bg-white/[0.1]" : "border border-line-2")}>
+          {ate ? <><Check size={14} strokeWidth={3} /> Logged today</> : "+ Ate it"}
+        </div>
+      </div>
+    </div>
+  );
+}

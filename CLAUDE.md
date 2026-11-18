@@ -159,6 +159,61 @@ Fixes, the way those apps do it:
   `?gear=gym|bw`, `?fail=1`, `?trial=0`) mocks /api in the browser; `node scripts/onboarding-shots.mjs` runs every
   check above on phone + computer and saves `shots/o-*`.
 
+## Nutrition plan (Nov 10, 2026; meal scan removed Nov 11)
+A 5th feature, paid app only: `/nutrition` (bottom tab on phone, sidebar link on computer).
+- **Targets** (`lib/nutrition/plan.ts`, deterministic like the training engine): 4 numbers asked once (sex, age, height,
+  weight, pre-filled 28 / 5'10" / 170 lb) → Mifflin-St Jeor × activity from plan days (2→1.375 … 5→1.6) × goal
+  (muscle +10%, strength +7%, fat loss −20%, fit 0). Protein 0.8 g/lb (1 g/lb on a cut, cap 230 g), fat 27% kcal
+  (min 0.3 g/lb), carbs = the rest. Split 30% breakfast / 35% lunch / 35% dinner (3 meals, as asked; no snack slot).
+- **Meals**: each meal = protein + carb + fruit/veg + healthy fat slots, 3–5 options each (`SLOTS`), foods in
+  `lib/nutrition/foods.ts` (42 US grocery foods, USDA values). Portions solved per meal (fruit/veg fixed at 1 serving,
+  carb → protein → fat solved in turn, rounded to the food's step; a fatty protein never exceeds the meal's fat target).
+  Tap a food → bottom sheet of swaps, each already sized; picks saved in `nutrition_profiles.choices`.
+  Shown honestly: the meal total can land under/over its target when a food can't fit (e.g. eggs).
+- **"Ate it"** on a planned meal logs it (`food_logs`, source `plan` only) and fills the day's calorie + macro rings.
+  Today = the browser's local date (`eaten_on`). Today's food list with delete.
+- **Owner decision (Nov 11): no meal photo scan / camera in FitPlanr.** Removed: camera viewfinder, upload, scan API,
+  `lib/ai.ts` + the Anthropic SDK, scan quotas, `/m/<id>` meal share pages, `meal_scans` table
+  (migration `20261111000000_remove_meal_scan.sql`, written but NOT applied yet: needs the owner's OK to drop the
+  test-only rows/table). No AI provider anywhere again. Don't add it back without asking.
+- Nutrition plan is on every paid plan, no quota. Free: `/nutrition` → `/plan` (requirePaid), API → 402.
+- **Tables** (RLS): `nutrition_profiles`, `food_logs` (migrations `20261110000000_nutrition.sql` + the removal above).
+- **Kwop events**: feature_used `nutrition_plan`, `nutrition_swap`, `nutrition_log`.
+- **Landing**: wide 5th card "Nutrition Plan" in [ IN ACTION ] with a looping demo (`NutritionLoop`: swap the fruit →
+  "Ate it" → ring fills), no prices.
+- Macro colors: protein `#C8FF3D` (lime), carbs `#7EE787`, fat `#3FD3A6`. Phone bottom bar = Home, Workout,
+  Nutrition, History, Settings (Account reached from Settings on phones; sidebar keeps all 6).
+- Screens: `node scripts/nutrition-shots.mjs [390|1440]` (dev server on :3001 with DEV_PAID_EMAIL_SUFFIX); it fails if
+  any scan/upload control is on the page.
+
+## Muscle map (Nov 10, 2026)
+Dashboard card "Muscle map" (`components/muscle-map.tsx`, `lib/engine/muscles.ts`): SVG front/back body, 12 muscle
+groups lit by the sets the plan gives them (pattern → primary muscle 1 set, helpers ½ or ¼). Scopes: this week + each
+day. Tap a muscle or a row → its sets and moves; the week view names muscles not hit (e.g. calves on short 3-day plans).
+Every paid plan. Deterministic, like the rest of the engine.
+
+## 4-step promo video (Nov 10, 2026)
+`video/record.mjs` drives the real app (dev :3001, paid preview) and captures Chrome screencast frames at 1080×1920;
+`video/overlays.mjs` renders the text in the app's fonts; `video/compose.py` assembles it with the voiceover
+(`video/build/vo.wav`, Higgsfield seed_audio "Holden", cut at the pauses and played 1.2×; Step 4 line re-recorded as
+`vo4.wav`). Output `video/out/fitplanr-4-step.mp4` (26 s) + `caption.txt` (not committed). Step 4 = "Pick meals that
+hit your macros" (swap a food, "Ate it", rings fill); no meal scan anywhere.
+
+## Lunch video (Nov 11, 2026)
+`video/lunch-record.mjs` (one take: today's rings with breakfast in → lunch card → swap chicken for tofu, portions
+re-solve 4 oz → 7 oz tofu, avocado 1 → ⅓ → "Ate it" → rings fill), texts in `video/lunch-texts.json`
+(`node video/overlays.mjs video/lunch-texts.json video/build/lunch`), `video/lunch-compose.py` → 
+`video/out/fitplanr-lunch.mp4` (15 s, voiceover `video/build/lunch/vo.wav` at 1.1×, end card reused from the 4-step
+video's `s5`). Shared helpers: `video/recorder.mjs` (screencast capture), `video/vidlib.py` (render/compose).
+
+## Nutrition explainer (Nov 11, 2026), for the owner, no voiceover
+`video/explainer-record.mjs` (intro card → dashboard → Nutrition tab → 4-number setup → targets → "how your targets
+are set" → 3 meals → swap chicken for tofu → "Ate it" → rings → undo with the bin → edit weight 170 → 185 lb → everything
+re-sizes → recap card), captions in `video/explainer-texts.json` (headline + `sub` line, `**x**` = lime),
+`node video/overlays.mjs video/explainer-texts.json video/build/explain`, `video/explainer-compose.py` →
+`video/out/fitplanr-nutrition-explained.mp4` (61 s, silent audio track). Caption numbers are read off the recording
+(2,790 kcal / 136 g for the default body); re-check them if the engine changes.
+
 ## Tech
 Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + lucide-react. Supabase Postgres + Auth
 (RLS everywhere, SQL in `supabase/migrations`). Vercel. No AI provider: the engine is deterministic (`lib/engine`).
@@ -201,7 +256,9 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
   `/v1/projects/ehokzomaenbonjnysvhy/config/auth` with external_google_enabled/client_id/secret, then set
   `NEXT_PUBLIC_GOOGLE_ENABLED=1` in Vercel and redeploy. Redirect URI: https://ehokzomaenbonjnysvhy.supabase.co/auth/v1/callback
 - Deploy from this cloud box: `NODE_USE_ENV_PROXY=1 npx vercel deploy --prod --yes --token <any-placeholder>`
-  (the proxy injects the real token). Local server needs `NODE_USE_ENV_PROXY=1` to reach Supabase.
+  (the proxy injects the real token). Check `.vercel/project.json` names `fitplanr-3` first, or pass
+  `VERCEL_ORG_ID=team_vZWbcKclLZzvIpalbselNYs8 VERCEL_PROJECT_ID=prj_81MgYf5SabOl9zUdH7nk80MqxZz6`: a fresh box was
+  linked to an older `fitplanr` project (fitplanr-roan.vercel.app) on Nov 10. Local server needs `NODE_USE_ENV_PROXY=1` to reach Supabase.
 - Paid-app preview in local dev only: `DEV_PAID_EMAIL_SUFFIX=.paidpreview@fitplanr-test.com DEV_PAID_TIER=Pro npx next dev`
   (ignored in production builds). Scripts: `scripts/shot.mjs`, `scripts/funnel-shots.mjs`, `scripts/app-shots.mjs`.
 - Verified: e2e 3× phone + 3× computer on production (green), RLS cross-user test (blocked), no secrets in
@@ -209,6 +266,9 @@ errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the whole funnel (neve
 - Test accounts created by e2e use `@fitplanr-test.com` emails.
 - **Onboarding conversion live setup (Nov 17)**: `20261117000000_progress_saves.sql` applied on production (RLS on,
   3 policies). Merged with the search-indexing branch (the one live before) and deployed.
+- **Nutrition live (Nov 18)**: nutrition branch (Nutrition plan + Muscle map) merged in and deployed; `nutrition_profiles`
+  and `food_logs` were already on production (RLS on). `/nutrition` added to `PRIVATE_PREFIXES`. `meal_scans` table
+  still exists (unused): `20261111000000_remove_meal_scan.sql` waits for the owner's OK.
 
 ## Search indexing (Nov 14, 2026)
 - `lib/seo.ts` = the list of private path prefixes. Everything else is public: in `sitemap.xml` (built from the

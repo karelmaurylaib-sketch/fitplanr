@@ -5,7 +5,7 @@ export const PRIVATE_PREFIXES = [
   "/signup", "/login", "/forgot", "/reset",
   "/start", "/plan",
   "/dashboard", "/workout", "/history", "/settings", "/account", "/library", "/pricing",
-  "/pwa", "/dev",
+  "/pwa", "/dev", "/nutrition",
 ];
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/+$/, "");

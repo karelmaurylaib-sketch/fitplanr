@@ -15,3 +15,4 @@ export const getShared = cache(async (id: string) => {
   const projection = pr ? `+${fmtLb(pr.muscleLo)}–${fmtLb(pr.muscleHi)} lb of muscle in 12 weeks (estimate)` : null;
   return { title: p.title, summary: p.summary, split: p.split, days: p.weeks[0].days.length, day1: p.weeks[0].days[0], projection };
 });
+
